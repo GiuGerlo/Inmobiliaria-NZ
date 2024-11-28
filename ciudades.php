@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="./assets/logo.ico" type="image/x-icon">
-    <title>Admin - NZ</title>
+    <title>Ciudades - NZ</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FONT-AWESOME -->
@@ -22,7 +22,7 @@
                     <i class="lni lni-menu-hamburger-1"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="#">NZ</a>
+                    <a href="./admin.php">NZ</a>
                 </div>
             </div>
             <ul class="sidebar-nav">
@@ -57,7 +57,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="./ciudades.php" class="sidebar-link">
+                    <a href="#" class="sidebar-link">
                     <i class="lni lni-buildings-1"></i>
                         <span>Ciudades</span>
                     </a>
@@ -78,7 +78,7 @@
         </aside>
         <div class="main p-3">
             <div class="text-center h1 mt-4 mb-4 fw-bold">
-                <h1>Sistema de gestión NZ</h1>
+                <h1>Ciudades</h1>
             </div>
         </div>
     </div>

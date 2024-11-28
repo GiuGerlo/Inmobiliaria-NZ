@@ -116,3 +116,83 @@ a.sidebar-link:hover{
     display: none;
 }
 
+//FORMULARIO
+
+.card {
+    border-radius: 12px;
+    background-color: #f8f9fa; /* Fondo claro */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.card h3 {
+    color: #343a40; /* Título oscuro */
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background-color: #007bff; /* Azul Bootstrap */
+    border-color: #007bff;
+    border-radius: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Azul oscuro al hover */
+}
+
+//TABLE
+.table {
+    border-radius: 8px;
+    overflow: hidden; /* Esconde bordes al aplicar sombras */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table thead {
+    background-color: #343a40; /* Fondo oscuro */
+    color: #fff;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1; /* Hover suave */
+}
+
+//MODAL
+.modal-content {
+    border-radius: 10px;
+    background-color: #fff; /* Fondo claro */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.modal-header {
+    background-color: #05172D; /* Fondo azul */
+    color: #fff;
+    border-bottom: none; /* Sin borde */
+}
+
+.modal-footer .btn-primary {
+    background-color: #6610f2; /* Púrpura */
+    border-radius: 20px;
+}
+
+.modal-footer .btn-secondary {
+    border-radius: 20px;
+}
+
+//BOTONES EDITAR Y ELIMINAR
+.btn-warning {
+    background-color: #ffc107; /* Amarillo */
+    border-radius: 50%;
+    color: #fff;
+    transition: transform 0.2s;
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Rojo */
+    border-radius: 50%;
+    color: #fff;
+    transition: transform 0.2s;
+}
+
+.btn-warning:hover, .btn-danger:hover {
+    transform: scale(1.1); /* Efecto zoom */
+}

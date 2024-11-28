@@ -11,10 +11,15 @@
     <script src="https://kit.fontawesome.com/4f18558b97.js" crossorigin="anonymous"></script>
     <!-- LINEICONS -->
     <link href="https://cdn.lineicons.com/5.0/lineicons.css" rel="stylesheet" />
+    <!-- TOASTIFY -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- SWEET ALERT -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- CSS -->
-    <link rel="stylesheet" href="./styles/styles.scss">
+    <link rel="stylesheet" href="./styles/styles.css">
 </head>
 <body>
+
     <div class="wrapper">
         <aside id="sidebar">
             <div class="d-flex">
@@ -77,19 +82,18 @@
             </div>
         </aside>
         <div class="main p-3">
-            <div class="text-center h1">
-                <h1>
-                    Formas de pago
-                </h1>
+            <div class="text-center h1 mt-4 mb-4 fw-bold">
+                <h1>Formas de pago</h1>
             </div>
+            
         </div>
     </div>
 
 
-
-
     <!-- BOOTSTRAP -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- TOASTIFY -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="./js/main.js"></script>
 </body>
 </html>
