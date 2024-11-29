@@ -9,14 +9,15 @@ if (!empty($_POST["btnMODIFICAR"])) {
     $email = $_POST['txtEMAIL'];
 
     if (!empty($id) && !empty($nya) && !empty($cp) && !empty($tel) && !empty($email)) {
-        // Consulta de actualización
-        $modificar = $conexion->query("
+        // Preparar la consulta de actualización para evitar inyecciones SQL
+        $stmt = $conexion->prepare("
             UPDATE dueno 
-            SET NYA_Dueno = '$nya', CodP = '$cp', Tel_Dueno = '$tel', Email_Dueno = '$email' 
-            WHERE ID_Dueno = '$id'
+            SET NYA_Dueno = ?, CodP = ?, Tel_Dueno = ?, Email_Dueno = ? 
+            WHERE ID_Dueno = ?
         ");
+        $stmt->bind_param("ssssi", $nya, $cp, $tel, $email, $id);
 
-        if ($modificar == true) {
+        if ($stmt->execute()) {
             // Notificación de éxito
             echo "
                 <script>
@@ -45,6 +46,7 @@ if (!empty($_POST["btnMODIFICAR"])) {
                 </script>
             ";
         }
+        $stmt->close();
     } else {
         // Notificación de datos faltantes
         echo "
@@ -67,4 +69,8 @@ if (!empty($_POST["btnMODIFICAR"])) {
             window.history.replaceState(null, null, window.location.pathname);
         </script>
     ";
+
+    // Redirigir a la vista duenos.php
+    header("Location: http://localhost/Inmobiliaria-NZ/duenos.php");
+    exit();
 }
