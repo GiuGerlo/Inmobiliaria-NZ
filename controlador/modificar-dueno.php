@@ -1,20 +1,27 @@
 <?php
 
-if (!empty($_POST['btnREGISTRAR'])) {
+if (!empty($_POST["btnMODIFICAR"])) {
+
+    $id = $_POST['txtID']; // El ID del dueño a modificar
     $nya = $_POST['txtNYA'];
     $cp = $_POST['txtCODP'];
     $tel = $_POST['txtTEL'];
     $email = $_POST['txtEMAIL'];
 
-    if (!empty($nya) && !empty($cp) && !empty($tel) && !empty($email)) {
-        $registrar = $conexion->query("INSERT INTO dueno( NYA_Dueno, CodP, Tel_Dueno, Email_Dueno) values('$nya','$cp','$tel', '$email')");
+    if (!empty($id) && !empty($nya) && !empty($cp) && !empty($tel) && !empty($email)) {
+        // Consulta de actualización
+        $modificar = $conexion->query("
+            UPDATE dueno 
+            SET NYA_Dueno = '$nya', CodP = '$cp', Tel_Dueno = '$tel', Email_Dueno = '$email' 
+            WHERE ID_Dueno = '$id'
+        ");
 
-        if ($registrar == true) {
+        if ($modificar == true) {
             // Notificación de éxito
             echo "
                 <script>
                     Toastify({
-                        text: 'Dueño registrado correctamente',
+                        text: 'Dueño modificado correctamente',
                         duration: 3000,
                         close: true,
                         gravity: 'top',
@@ -28,7 +35,7 @@ if (!empty($_POST['btnREGISTRAR'])) {
             echo "
                 <script>
                     Toastify({
-                        text: 'Error al registrar el dueño',
+                        text: 'Error al modificar el dueño',
                         duration: 3000,
                         close: true,
                         gravity: 'top',
@@ -53,6 +60,7 @@ if (!empty($_POST['btnREGISTRAR'])) {
             </script>
         ";
     }
+
     // Limpia el estado del formulario al recargar
     echo "
         <script>
@@ -60,4 +68,3 @@ if (!empty($_POST['btnREGISTRAR'])) {
         </script>
     ";
 }
-?>

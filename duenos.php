@@ -14,6 +14,8 @@
     <link href="https://cdn.lineicons.com/5.0/lineicons.css" rel="stylesheet" />
     <!-- TOASTIFY -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- TOASTIFY -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- SWEET ALERT -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- CSS -->
@@ -87,6 +89,10 @@
             <div class="text-center h1 fw-bold p-3 pb-0">
                 <h1>Dueños</h1>
             </div>
+            <?php
+            include ("./modelo/conexion.php");
+            include("./controlador/modificar-dueno.php");
+            ?>
             <div class="row p-4">
                 <!-- Formulario de ingreso -->
                 <div class="col-4 p-3 card shadow-sm border-0">
@@ -94,8 +100,8 @@
                         <h3 class="text-center text-dark">Registro de dueños</h3>
                         <!-- NOTIFICACIONES -->
                         <?php
-                            include ("./modelo/conexion.php");
-                            include ("./controlador/registrar-dueno.php")
+                        include("./modelo/conexion.php");
+                        include("./controlador/registrar-dueno.php")
                         ?>
                         <form action="" method="post">
                             <!-- NOMBRE Y APELLIDO -->
@@ -110,13 +116,13 @@
                                     <option selected>Seleccionar localidad..</option>
                                     <?php
 
-                                        include("modelo/conexion.php");
-                                        $localidades=$conexion->query("SELECT * FROM ciudad");
-                                        while ($datos=$localidades->fetch_object()) { ?>
-                                            
-                                            <option value="<?= $datos->CodP ?>"><?= $datos->Nombre_Ciudad ?></option>
+                                    include("modelo/conexion.php");
+                                    $localidades = $conexion->query("SELECT * FROM ciudad");
+                                    while ($datos = $localidades->fetch_object()) { ?>
 
-                                        <?php }
+                                        <option value="<?= $datos->CodP ?>"><?= $datos->Nombre_Ciudad ?></option>
+
+                                    <?php }
                                     ?>
                                 </select>
                             </div>
@@ -128,7 +134,7 @@
                             <!-- EMAIL -->
                             <div class="form-group mb-3">
                                 <label class="form-label" for="emaildueno">Email</label>
-                                <input type="email" class="form-control" id="emaildueno" name="textEMAIL">
+                                <input type="email" class="form-control" id="emaildueno" name="txtEMAIL">
                             </div>
                             <button type="submit" name="btnREGISTRAR" value="OK" class="btn btn-primary w-100">Registrar</button>
                         </form>
@@ -152,10 +158,9 @@
                             <?php
                             include("./modelo/conexion.php");
                             $duenos = $conexion->query("SELECT dueno.*, ciudad.Nombre_Ciudad FROM dueno 
-                                                        INNER JOIN ciudad 
-                                                        ON dueno.CodP = ciudad.CodP;");
+                            INNER JOIN ciudad 
+                            ON dueno.CodP = ciudad.CodP;");
                             while ($datos = $duenos->fetch_object()) { ?>
-
                                 <tr>
                                     <td><?= $datos->ID_Dueno ?></td>
                                     <td><?= $datos->NYA_Dueno ?></td>
@@ -163,59 +168,65 @@
                                     <td><?= $datos->Tel_Dueno ?></td>
                                     <td><?= $datos->Email_Dueno ?></td>
                                     <td>
-                                        <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-pen-to-square"></i></a>
+                                        <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar<?= $datos->ID_Dueno ?>"><i class="fa-solid fa-pen-to-square"></i></a>
                                         <a href="" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
                                     </td>
                                 </tr>
 
                                 <!-- Modal editar -->
-                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal fade" id="modalEditar<?= $datos->ID_Dueno ?>" tabindex="-1" aria-labelledby="modalLabel<?= $datos->ID_Dueno ?>" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Editar dueño</h1>
+                                                <h1 class="modal-title fs-5" id="modalLabel<?= $datos->ID_Dueno ?>">Editar dueño</h1>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                <!-- FORMULARIO -->
-                                                <form action="">
+                                                <!-- FORMULARIO DE MODIFICACIÓN -->
+                                                <form action="" method="post">
+                                                    <!-- ID oculto para registrar-->
+                                                    <input type="hidden" name="id_dueno" value="<?= $datos->ID_Dueno ?>">
+                                                    <!-- ID oculto para modificar -->
+                                                    <input type="hidden" name="txtID" value="<?= $datos->ID_Dueno ?>">
                                                     <!-- NOMBRE Y APELLIDO -->
                                                     <div class="form-group mb-3">
-                                                        <label class="form-label" for="nyadueno">Nombre y apellido</label>
-                                                        <input type="text" class="form-control" id="nyadueno" name="txyNYA">
+                                                        <label class="form-label" for="nyadueno<?= $datos->ID_Dueno ?>">Nombre y apellido</label>
+                                                        <input type="text" class="form-control" id="nyadueno<?= $datos->ID_Dueno ?>" name="txtNYA" value="<?= $datos->NYA_Dueno ?>">
                                                     </div>
                                                     <!-- LOCALIDAD -->
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="codp">Localidad</label>
-                                                        <select class="form-select" name="txtCODP" id="codp">
-                                                            <option selected>Seleccionar localidad..</option>
-                                                            <option value="1">One</option>
-                                                            <option value="2">Two</option>
-                                                            <option value="3">Three</option>
+                                                        <label class="form-label" for="codp<?= $datos->ID_Dueno ?>">Localidad</label>
+                                                        <select class="form-select" name="txtCODP" id="codp<?= $datos->ID_Dueno ?>">
+                                                            <?php
+                                                            $localidades = $conexion->query("SELECT * FROM ciudad");
+                                                            while ($localidad = $localidades->fetch_object()) { ?>
+                                                                <option value="<?= $localidad->CodP ?>" <?= $datos->CodP == $localidad->CodP ? "selected" : "" ?>><?= $localidad->Nombre_Ciudad ?></option>
+                                                            <?php }
+                                                            ?>
                                                         </select>
                                                     </div>
                                                     <!-- TELEFONO -->
                                                     <div class="form-group mb-2">
-                                                        <label class="form-label" for="teldueno">Teléfono</label>
-                                                        <input type="number" class="form-control" id="teldueno" name="txtTEL" maxlength="12">
+                                                        <label class="form-label" for="teldueno<?= $datos->ID_Dueno ?>">Teléfono</label>
+                                                        <input type="number" class="form-control" id="teldueno<?= $datos->ID_Dueno ?>" name="txtTEL" value="<?= $datos->Tel_Dueno ?>" maxlength="12">
                                                     </div>
                                                     <!-- EMAIL -->
                                                     <div class="form-group mb-3">
-                                                        <label class="form-label" for="emaildueno">Email</label>
-                                                        <input type="email" class="form-control" id="emaildueno" name="textEMAIL">
+                                                        <label class="form-label" for="emaildueno<?= $datos->ID_Dueno ?>">Email</label>
+                                                        <input type="email" class="form-control" id="emaildueno<?= $datos->ID_Dueno ?>" name="txtEMAIL" value="<?= $datos->Email_Dueno ?>">
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                        <button type="submit" name="btnMODIFICAR" class="btn btn-primary">Guardar cambios</button>
                                                     </div>
                                                 </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                                <button type="button" class="btn btn-primary">Guardar cambios</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                             <?php }
                             ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -227,8 +238,6 @@
 
     <!-- BOOTSTRAP -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- TOASTIFY -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- JS -->
     <script src="./js/main.js"></script>
 </body>
