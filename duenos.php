@@ -2,10 +2,15 @@
 include("templates/inc.head.php");
 include("controlador/modificar-dueno.php");
 include("controlador/registrar-dueno.php");
+include("controlador/eliminar-dueno.php");
 ?>
 
 <body>
-
+    <script>
+        function confirmar(){
+            return confirm("¿Desea eliminar al dueño?");
+        }
+    </script>
     <div class="wrapper">
         <!-- INCLUYO SIDEBAR Y NOTIFICACIONES -->
         <?php
@@ -85,7 +90,12 @@ include("controlador/registrar-dueno.php");
                                         <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModalLong<?= $datos->ID_Dueno ?>">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+                                        <a href="duenos.php?id=<?= $datos->ID_Dueno ?>" onclick="return confirmar()" class="btn btn-danger">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </a>
+
+    
+
                                     </td>
                                 </tr>
 
