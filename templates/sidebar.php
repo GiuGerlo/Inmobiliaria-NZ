@@ -44,12 +44,6 @@
                 <span>Ciudades</span>
             </a>
         </li>
-        <li class="sidebar-item">
-            <a href="./fp.php" class="sidebar-link">
-                <i class="lni lni-refresh-dollar-1"></i>
-                <span>Formas de Pago</span>
-            </a>
-        </li>
     </ul>
     <div class="sidebar-footer">
         <a href="./logout.php" class="sidebar-link">

@@ -6,6 +6,7 @@ include("controlador/eliminar-dueno.php");
 ?>
 
 <body>
+    <!-- FUNCION PARA PREGUNTAR SI ELIMINAR O NO -->
     <script>
         function confirmar(){
             return confirm("¿Desea eliminar al dueño?");
@@ -64,7 +65,7 @@ include("controlador/eliminar-dueno.php");
                 </div>
                 <!-- TABLA -->
                 <div class="col-8 p-3">
-                    <table class="table table-striped table-hover table-bordered">
+                    <table class="table table-striped table-hover table-bordered" id="tabla-duenos">
                         <thead class="table-dark text-center">
                             <tr>
                                 <th scope="col">ID</th>
@@ -72,6 +73,7 @@ include("controlador/eliminar-dueno.php");
                                 <th scope="col">Localidad</th>
                                 <th scope="col">Teléfono</th>
                                 <th scope="col">Email</th>
+                                <th scope="col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="text-center">
