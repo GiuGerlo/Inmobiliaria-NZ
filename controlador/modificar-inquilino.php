@@ -9,9 +9,9 @@ if(!empty($_POST["btnModificar"])){
 
     if (!empty($nya) && !empty($cp) && !empty($tel) && !empty($email)) {
         
-    $modificar=$conexion->query("UPDATE dueno SET NYA_Dueno='$nya', CodP='$cp', Tel_Dueno='$tel', Email_Dueno='$email' WHERE ID_Dueno='$id'");
+    $modificar=$conexion->query("UPDATE inquilino SET NYA_Inquilino='$nya', CodP='$cp', Tel_Inquilino='$tel', Email_Inquilino='$email' WHERE ID_Inquilino='$id'");
     if ($modificar==true) {
-        echo "<div class='alert alert-success'>Dueño modificado</div>";
+        echo "<div class='alert alert-success'>Inquilino modificado</div>";
     } else {
         echo "<div class='alert alert-danger'>Error al modificar</div>";
     }

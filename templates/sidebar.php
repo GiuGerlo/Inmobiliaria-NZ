@@ -27,7 +27,7 @@
             </a>
         </li>
         <li class="sidebar-item">
-            <a href="/duenos.php" class="sidebar-link">
+            <a href="./duenos.php" class="sidebar-link">
                 <i class="fa-solid fa-user"></i>
                 <span>Dueños</span>
             </a>

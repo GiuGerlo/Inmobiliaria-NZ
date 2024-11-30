@@ -11,6 +11,12 @@
             url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
         },
     });
+
+    var table = new DataTable('#tabla-inquilinos', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
+    });
 </script>
 <!-- JS -->
 <script src="./js/main.js"></script>
