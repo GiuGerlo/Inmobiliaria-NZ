@@ -1,3 +1,4 @@
+
 <?php
 include("templates/inc.head.php");
 include("controlador/modificar-dueno.php");
@@ -59,7 +60,6 @@ include("controlador/registrar-dueno.php");
                 </div>
                 <!-- TABLA -->
                 <div class="col-8 p-3">
-
                 </div>
             </div>
         </div>
