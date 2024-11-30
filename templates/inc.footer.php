@@ -17,6 +17,30 @@
             url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
         },
     });
+
+    var table = new DataTable('#tabla-ciudades', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
+    });
+
+    var table = new DataTable('#tabla-recibos', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
+    });
+
+    var table = new DataTable('#tabla-propiedades', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
+    });
+
+    var table = new DataTable('#tabla-contratos', {
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/es-ES.json',
+        },
+    });
 </script>
 <!-- JS -->
 <script src="./js/main.js"></script>

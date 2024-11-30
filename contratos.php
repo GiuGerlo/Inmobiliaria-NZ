@@ -4,6 +4,12 @@ include("templates/inc.head.php");
 ?>
 
 <body>
+    <!-- FUNCION PARA PREGUNTAR SI ELIMINAR O NO -->
+    <script>
+        function confirmar() {
+            return confirm("¿Desea eliminar el contrato?");
+        }
+    </script>
     <div class="wrapper">
         <!-- INCLUYO SIDEBAR Y NOTIFICACIONES -->
         <?php
@@ -13,7 +19,7 @@ include("templates/inc.head.php");
         <!-- MAIN -->
         <div class="main p-3">
             <div class="text-center h1 fw-bold p-3 pb-0">
-                <h1>Administracion de alquileres</h1>
+                <h1>Contratos</h1>
             </div>
         </div>
         <!-- INCLUYO FOOTER -->
