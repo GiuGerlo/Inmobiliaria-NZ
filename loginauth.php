@@ -3,7 +3,7 @@ if (isset($_POST['btnlogin'])) {
     $txtEmail = $_POST['email'];
     $txtPassword = md5($_POST['password']);
 
-    include "./modelo/conexion.php";
+    include "includes/conexion.php";
 
     $sql = "SELECT * FROM users WHERE Email_User='" . $txtEmail . "' AND Pass_User= '" . $txtPassword . "'";
     $result = $conexion->query($sql);

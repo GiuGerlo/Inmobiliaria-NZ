@@ -1,29 +1,35 @@
 <?php
+session_start(); // Asegúrate de iniciar la sesión
 
-if (!empty($_POST['btnREGISTRAR'])) {
-    
-    $nya=$_POST['txtNYA'];
-    $cp=$_POST['txtCODP'];
-    $tel=$_POST['txtTEL'];
-    $email=$_POST['textEMAIL'];
+if (!empty($_POST['btnRegistrar'])) {
+    $nya = $_POST['txtNyA'];
+    $cp = $_POST['txtCodP'];
+    $tel = $_POST['txtTel'];
+    $email = $_POST['txtEmail'];
 
-    if(!empty($_POST["txtNYA"]) and !empty($_POST['txtCODP']) and !empty($_POST['txtTEL']) and !empty($_POST['textEMAIL']) ) {
+    if (!empty($nya) && !empty($cp) && !empty($tel) && !empty($email)) {
+        $registrar = $conexion->query("INSERT INTO dueno (NYA_Dueno, CodP, Tel_Dueno, Email_Dueno) VALUES ('$nya', '$cp', '$tel', '$email')");
 
-        $registrar = $conexion->query("INSERT INTO dueno( NYA_Dueno, CodP, Tel_Dueno, Email_Dueno) values('$nya','$cp','$tel', '$email') ");
-
-        if ($registrar == true) {
-            echo "<div>Dueño registrado</div>";
-        } else{
-            echo "<div>Dueño no se registro</div>";
+        if ($registrar) {
+            $_SESSION['toast'] = [
+                'message' => 'Dueño registrado correctamente',
+                'background' => '#28a745', // Color verde éxito
+            ];
+        } else {
+            $_SESSION['toast'] = [
+                'message' => 'Error al registrar el dueño',
+                'background' => '#dc3545', // Color rojo error
+            ];
         }
-
-    } else{
-        echo "<div>Faltaron datos por ingresar, inténtalo de nuevo</div>";
+    } else {
+        $_SESSION['toast'] = [
+            'message' => 'Faltaron datos por ingresar, inténtalo de nuevo',
+            'background' => '#ffc107', // Color amarillo advertencia
+        ];
     }
+
+    // Redirige a la misma página para evitar doble envío del formulario
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
 ?>
-
-    <script>
-        window.history.replaceState(null, null, window.location.pathname);
-    </script>
-
-<?php }
