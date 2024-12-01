@@ -89,8 +89,11 @@ include("controlador/eliminar-contrato.php");
                                     <input type="number" class="form-control" id="saldo" name="txtSaldo">
                                 </div>
                                 <div class="form-group mb-3 p-2 col-6">
-                                    <label for="cert" class="form-label">Certificación (Si/No)</label>
-                                    <input type="text" class="form-control" id="cert" name="txtCert">
+                                    <label for="cert" class="form-label">Certificación</label>
+                                    <select name="txtCert" id="text" class="form-select">
+                                        <option value="Si" selected>Si</option>
+                                        <option value="No">No</option>
+                                    </select>
                                 </div>
                             </div>
                             <!-- BOTON DE REGISTRAR -->
@@ -221,8 +224,11 @@ include("controlador/eliminar-contrato.php");
                                                             <input type="number" class="form-control" id="saldo" name="txtSaldo" value="<?= $datos->Saldo ?>">
                                                         </div>
                                                         <div class="form-group mb-3 p-2 col-6">
-                                                            <label for="cert" class="form-label">Certificación (Si/No)</label>
-                                                            <input type="text" class="form-control" id="cert" name="txtCert" value="<?= $datos->Certificacion ?>">
+                                                            <label for="cert" class="form-label">Certificación</label>
+                                                            <select name="txtCert" id="text" class="form-select">
+                                                                <option value="Si" <?= $datos->Certificacion === 'Si' ? 'selected' : '' ?>>Si</option>
+                                                                <option value="No" <?= $datos->Certificacion === 'No' ? 'selected' : '' ?>>No</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                     <!-- BOTON DE EDITAR -->
