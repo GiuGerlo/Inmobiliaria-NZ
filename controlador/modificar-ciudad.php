@@ -3,10 +3,11 @@
 if(!empty($_POST["btnModificar"])){
     $cp = $_POST['txtCodP'];
     $ciudad = $_POST['txtNombre'];
+    $prov = $_POST['txtProv'];
 
-    if (!empty($cp) && !empty($ciudad)) {
+    if (!empty($cp) && !empty($ciudad) && !empty($prov)) {
         
-    $modificar=$conexion->query("UPDATE ciudad SET CodP='$cp', Nombre_Ciudad='$ciudad' WHERE CodP='$cp'");
+    $modificar=$conexion->query("UPDATE ciudad SET CodP='$cp', Nombre_Ciudad='$ciudad', Provincia='$prov' WHERE CodP='$cp'");
     if ($modificar==true) {
         echo "<div class='alert alert-success'>Ciudad modificada</div>";
     } else {

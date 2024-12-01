@@ -39,6 +39,11 @@ include("controlador/eliminar-ciudad.php");
                                 <label for="nombreciu" class="form-label">Nombre de la localidad</label>
                                 <input type="text" class="form-control" id="nombreciu" name="txtNombre">
                             </div>
+                            <!-- PROVINCIA -->
+                            <div class="form-group mb-3">
+                                <label for="nombreprov" class="form-label">Nombre de la provincia</label>
+                                <input type="text" class="form-control" id="nombreprov" name="txtProv">
+                            </div>
                             <!-- BOTON DE REGISTRAR -->
                             <button type="submit" name="btnRegistrar" value="OK" class="btn btn-primary w-100">Registrar</button>
                         </form>
@@ -50,7 +55,8 @@ include("controlador/eliminar-ciudad.php");
                         <thead class="table-dark text-center">
                             <tr>
                                 <th scope="col">Código Postal</th>
-                                <th scope="col">Nombre de localidad</th>
+                                <th scope="col">Localidad</th>
+                                <th scope="col">Provincia</th>
                                 <th scope="col">Acciones</th>
                             </tr>
                         </thead>
@@ -64,6 +70,7 @@ include("controlador/eliminar-ciudad.php");
                                 <tr>
                                     <td><?= $datos->CodP ?></td>
                                     <td><?= $datos->Nombre_Ciudad ?></td>
+                                    <td><?= $datos->Provincia ?></td>
                                     <td>
                                         <!-- BOTON PARA ABRIR MODAL -->
                                         <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModalLong<?= $datos->CodP ?>">
@@ -92,8 +99,13 @@ include("controlador/eliminar-ciudad.php");
                                                     </div>
                                                     <!-- NOMBRE LOCALIDAD -->
                                                     <div class="form-group mb-3">
-                                                        <label for="nombreciu" class="form-label">Email</label>
+                                                        <label for="nombreciu" class="form-label">Localidad</label>
                                                         <input type="text" class="form-control" id="nombreciu" name="txtNombre" value="<?= $datos->Nombre_Ciudad ?>">
+                                                    </div>
+                                                    <!-- PROVINCIA-->
+                                                    <div class="form-group mb-3">
+                                                        <label for="nombreprov" class="form-label">Email</label>
+                                                        <input type="text" class="form-control" id="nombreprov" name="txtProv" value="<?= $datos->Provincia ?>">
                                                     </div>
                                                     <!-- BOTON DE EDITAR -->
                                                     <button type="submit" name="btnModificar" value="OK" class="btn btn-primary w-100">Modificar</button>
