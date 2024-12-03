@@ -140,6 +140,24 @@ ob_start();
         .accounts tr:last-child td {
             font-weight: bold;
         }
+
+        /* Estilos para la sección de firma */
+        .firma {
+            text-align: left;
+            margin-top: 40px;
+        }
+
+        .firma img {
+            max-width: 150px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .firma p {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
     </style>
 
     </style>
@@ -168,11 +186,9 @@ ob_start();
         + $datos->Honorarios;
 
     //Defino formato a las fechas de inicio y fin
-    $F_Ini = $datos-> F_Inicio;
-    $F_Ini = date("d-m-Y");
-
-    $F_Fin = $datos-> F_Fin;
-    $F_Fin = date("d-m-Y");
+    $F_Ini = date("d-m-Y", strtotime($datos->F_Inicio));
+    $F_Fin = date("d-m-Y", strtotime($datos->F_Fin));
+    
     ?>
     <div class="header">
         <!-- Sección izquierda -->
@@ -237,10 +253,17 @@ ob_start();
                 <td>$<?= number_format($datos->Honorarios, 2, ',', '.') ?></td>
             </tr>
             <tr>
-                <td><strong>Total Recibo:</strong></td>
+                <td><strong>Total:</strong></td>
                 <td><strong>$<?= number_format($total, 2, ',', '.') ?></strong></td>
             </tr>
         </table>
+    </div>
+
+    <!-- Sección de firma -->
+    <div class="firma">
+        <!-- Imagen de la firma -->
+        <img src="<?= $_SERVER['DOCUMENT_ROOT'] ?>assets/FirmaDigital.png" alt="Firma">
+        <p>Firma</p>
     </div>
 
 </body>
@@ -277,4 +300,3 @@ $nombre_pdf = "recibo_{$datos->Nro_Recibo}_{$fecha_hoy}_{$datos->NYA_Inquilino}.
 
 // Generar el PDF con el nombre personalizado
 $dompdf->stream($nombre_pdf, ["Attachment" => false]);
-

@@ -23,9 +23,6 @@ include("controlador/eliminar-recibo.php");
             <div class="text-center h1 fw-bold p-3 pb-0">
                 <h1>Recibos</h1>
             </div>
-            <div class="text-right">
-                <a href="controlador/generar-recibo.php" class="btn btn-success">Recibo</a>
-            </div>
             <div class="row">
                 <div class="col-12 p-3">
                     <table class="table table-striped table-hover table-bordered" id="tabla-recibos">
@@ -80,7 +77,12 @@ include("controlador/eliminar-recibo.php");
                                         <a href="recibos.php?id=<?= $datos->Nro_Recibo ?>" onclick="return confirmar()" class="btn btn-danger">
                                             <i class="fa-solid fa-trash"></i>
                                         </a>
-                                        <a href="controlador/generar-recibo.php?id=<?=$datos->Nro_Recibo?>" class="btn btn-success" target="_blank">Recibo</a>
+                                        <a href="controlador/generar-recibo.php?id=<?=$datos->Nro_Recibo?>" class="btn btn-success" target="_blank">
+                                            <i class="fa-regular fa-file"></i>
+                                        </a>
+                                        <a href="controlador/generar-rendicion.php?id=<?=$datos->Nro_Recibo?>" class="btn btn-info" target="_blank">
+                                            <i class="fa-regular fa-file"></i>
+                                        </a>
                                     </td>
                                 </tr>
                                 <!-- MODAL DINÁMICO -->
