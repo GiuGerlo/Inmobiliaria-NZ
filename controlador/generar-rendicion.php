@@ -2,6 +2,8 @@
 
 include("../includes/conexion.php");
 
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+
 if (!isset($_GET['id'])) {
     die("ID del recibo no especificado");
 }
@@ -10,51 +12,50 @@ $id_recibo = intval($_GET['id']);
 
 ob_start();
 
+$stmt = $conexion->prepare("
+    SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, ci.Nombre_Ciudad, d.NYA_Dueno 
+    FROM recibo r 
+    INNER JOIN contrato c ON r.ID_Contrato = c.ID_Contrato 
+    INNER JOIN inquilino i ON c.ID_Inquilino = i.ID_Inquilino 
+    INNER JOIN dueno d ON c.ID_Dueno = d.ID_Dueno 
+    INNER JOIN propiedad p ON c.ID_Propiedad = p.ID_Propiedad 
+    INNER JOIN ciudad ci ON p.CodP = ci.CodP 
+    WHERE r.Nro_Recibo = ?
+");
+
+$stmt->bind_param("i", $id_recibo);
+$stmt->execute();
+$datos = $stmt->get_result()->fetch_object();
+
+if (!$datos) {
+    die("Recibo no encontrado");
+}
+
+// **CÁLCULOS**
+// Suma de ingresos
+$ingresos = [
+    $datos->Pago_Propiedad,
+    $datos->Pago_Municipal,
+    $datos->Pago_Agua,
+    $datos->Pago_Electricidad,
+    $datos->Pago_Gas,
+    $datos->Honorarios
+];
+$suma = array_sum($ingresos);
+
+// Comisión (10% del alquiler)
+$comision = $datos->Pago_Propiedad * 0.10;
+
+// Egresos
+$egresos = $comision + $datos->Arreglos + $datos->Sepelio;
+
+// Total disponible
+$total = $suma - $egresos;
+
+// Formateo de la fecha
+$F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rendicion</title>
-</head>
-
-<body>
-    <?php
-
-    $stmt = $conexion->prepare("
-            SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, ci.Nombre_Ciudad, d.NYA_Dueno FROM recibo r 
-            INNER JOIN contrato c ON r.ID_Contrato = c.ID_Contrato INNER JOIN inquilino i ON c.ID_Inquilino = i.ID_Inquilino 
-            INNER JOIN dueno d ON c.ID_Dueno = d.ID_Dueno INNER JOIN propiedad p ON 
-            c.ID_Propiedad = p.ID_Propiedad INNER JOIN ciudad ci ON p.CodP = ci.CodP WHERE r.Nro_Recibo = ?
-        ");
-
-    $stmt->bind_param("i", $id_recibo);
-    $stmt->execute();
-    $datos = $stmt->get_result()->fetch_object();
-
-    //DEFINIMOS SUMA
-    $suma = $datos->Pago_Propiedad
-        + $datos->Pago_Municipal
-        + $datos->Pago_Agua
-        + $datos->Pago_Electricidad
-        + $datos->Pago_Gas
-        + $datos->Honorarios;
-
-    // DEFINIMOS COMISION
-    $comision = $datos-> Pago_Propiedad * 10 / 100;
-
-    // DEFINIMOS COMISION
-    $restas = $datos-> Arreglos + $datos-> Sepelio;
-
-    //DEFINIMOS TOTAL
-    $total = $suma - ($comision + $restas);
-
-    //Defino formato a las fechas de inicio y fin
-    $F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
-
-    ?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -122,7 +123,6 @@ ob_start();
             font-style: italic;
         }
 
-        /* Estilos para la sección de firma */
         .firma {
             text-align: left;
             margin-top: 40px;
@@ -145,7 +145,7 @@ ob_start();
 <body>
     <div class="header">
         <div>
-            <img src="<?= $_SERVER['DOCUMENT_ROOT'] ?>/assets/logo-nadina.jpg" alt="Logo">
+            <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/logo-nadina.jpg" alt="Logo Nadina">
         </div>
         <div>
             <h1>Rendición de cuentas</h1>
@@ -153,7 +153,7 @@ ob_start();
         </div>
     </div>
 
-    <div class="title"><?= $datos->NYA_Dueno ?></div>
+    <div class="title"><?= htmlspecialchars($datos->NYA_Dueno) ?></div>
 
     <table class="table">
         <thead>
@@ -165,49 +165,28 @@ ob_start();
         </thead>
         <tbody>
             <tr>
-                <!-- INGRESOS -->
                 <td>
                     <table class="inner-table">
-                        <tr>
-                            <td><strong>Fecha:</strong></td>
-                            <td><?= $F_Pago ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Inquilino:</strong></td>
-                            <td><?= $datos->NYA_Inquilino ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Mes/Año:</strong></td>
-                            <td><?= $datos->Mes_Rend ?> / <?= $datos->Ano_Rend ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Alquiler:</strong></td>
-                            <td>$<?= number_format($datos->Pago_Propiedad, 2, ',', '.') ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Municipal:</strong></td>
-                            <td>$<?= number_format($datos->Pago_Municipal, 2, ',', '.') ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Agua:</strong></td>
-                            <td>$<?= number_format($datos->Pago_Agua, 2, ',', '.') ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Electricidad:</strong></td>
-                            <td>$<?= number_format($datos->Pago_Electricidad, 2, ',', '.') ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Gas:</strong></td>
-                            <td>$<?= number_format($datos->Pago_Gas, 2, ',', '.') ?></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Honorarios:</strong></td>
-                            <td>$<?= number_format($datos->Honorarios, 2, ',', '.') ?></td>
-                        </tr>
+                        <?php
+                        $labels = [
+                            "Fecha" => $F_Pago,
+                            "Inquilino" => htmlspecialchars($datos->NYA_Inquilino),
+                            "Mes/Año" => "{$datos->Mes_Rend} / {$datos->Ano_Rend}",
+                            "Alquiler" => "$" . number_format($datos->Pago_Propiedad, 2, ',', '.'),
+                            "Municipal" => "$" . number_format($datos->Pago_Municipal, 2, ',', '.'),
+                            "Agua" => "$" . number_format($datos->Pago_Agua, 2, ',', '.'),
+                            "Electricidad" => "$" . number_format($datos->Pago_Electricidad, 2, ',', '.'),
+                            "Gas" => "$" . number_format($datos->Pago_Gas, 2, ',', '.'),
+                            "Honorarios" => "$" . number_format($datos->Honorarios, 2, ',', '.')
+                        ];
+
+
+                        foreach ($labels as $key => $value) {
+                            echo "<tr><td><strong>{$key}:</strong></td><td>{$value}</td></tr>";
+                        }
+                        ?>
                     </table>
                 </td>
-
-                <!-- EGRESOS -->
                 <td>
                     <table class="inner-table">
                         <tr>
@@ -219,13 +198,11 @@ ob_start();
                             <td>$<?= number_format($datos->Arreglos, 2, ',', '.') ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Sepelio:</strong></td>
+                            <td><strong>Otros:</strong></td>
                             <td>$<?= number_format($datos->Sepelio, 2, ',', '.') ?></td>
                         </tr>
                     </table>
                 </td>
-
-                <!-- ENTREGAS -->
                 <td>
                     <table class="inner-table">
                         <tr>
@@ -239,19 +216,16 @@ ob_start();
     </table>
 
     <div class="comments">
-        <p><strong>Comentarios:</strong> <?= $datos->Comentarios ?></p>
+        <p><strong>Comentarios:</strong> <?= htmlspecialchars($datos->Comentarios) ?></p>
     </div>
 
-    <!-- Sección de firma -->
     <div class="firma">
-        <!-- Imagen de la firma -->
-        <img src="<?= $_SERVER['DOCUMENT_ROOT'] ?>assets/FirmaDigital.png" alt="Firma">
+        <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/FirmaDigital.jpg" width="150px" alt="Firma">
         <p>Firma</p>
     </div>
 </body>
 
 </html>
-
 
 <?php
 
@@ -261,25 +235,13 @@ require_once("../dompdf/autoload.inc.php");
 
 use Dompdf\Dompdf;
 
-
-
-// $options = $dompdf->getOption();
-// $options->set(array('isRemoteEnabled => true'));
-// $dompdf->setOptions($options);
-
 $dompdf = new Dompdf();
+$dompdf->set_option('isRemoteEnabled', 'true');
 $dompdf->loadHtml($html);
-
-// Configura el tamaño del papel y los márgenes
-$dompdf->setPaper('A4', 'landscape'); // 'portrait' o 'landscape'
-
+$dompdf->setPaper('A4', 'portrait');
 $dompdf->render();
 
-// Formatear la fecha de hoy
 $fecha_hoy = date("d-m-Y");
-
-// Construir el nombre del archivo PDF
 $nombre_pdf = "rendicion_{$datos->Nro_Recibo}_{$fecha_hoy}_{$datos->NYA_Dueno}.pdf";
 
-// Generar el PDF con el nombre personalizado
 $dompdf->stream($nombre_pdf, ["Attachment" => false]);

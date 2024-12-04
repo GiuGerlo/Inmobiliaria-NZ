@@ -132,8 +132,8 @@ include("controlador/eliminar-contrato.php");
                                     <td><?= $datos->NYA_Dueno ?></td>
                                     <td><?= $datos->NYA_Inquilino ?></td>
                                     <td><?= $datos->Dir_Propiedad ?></td>
-                                    <td><?= $datos->F_Inicio ?></td>
-                                    <td><?= $datos->F_Fin ?></td>
+                                    <td><?= date('d/m/Y', strtotime($datos->F_Inicio)) ?></td>
+                                    <td><?= date('d/m/Y', strtotime($datos->F_Fin)) ?></td>
                                     <td><?= $datos->Saldo ?></td>
                                     <td><?= $datos->Certificacion ?></td>
                                     <td>

@@ -41,7 +41,7 @@ include("controlador/eliminar-recibo.php");
                                 <th scope="col">Gas</th>
                                 <th scope="col">Arreglo</th>
                                 <!-- <th scope="col">Com.</th> -->
-                                <th scope="col">Sep.</th>
+                                <th scope="col">Otros</th>
                                 <th scope="col">Honor.</th>
                                 <th scope="col">Acciones</th>
                             </tr>
@@ -77,11 +77,11 @@ include("controlador/eliminar-recibo.php");
                                         <a href="recibos.php?id=<?= $datos->Nro_Recibo ?>" onclick="return confirmar()" class="btn btn-danger">
                                             <i class="fa-solid fa-trash"></i>
                                         </a>
-                                        <a href="controlador/generar-recibo.php?id=<?=$datos->Nro_Recibo?>" class="btn btn-success" target="_blank">
+                                        <a href="controlador/generar-recibo.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-success" target="_blank">
                                             <i class="fa-regular fa-file"></i>
                                         </a>
-                                        <a href="controlador/generar-rendicion.php?id=<?=$datos->Nro_Recibo?>" class="btn btn-info" target="_blank">
-                                            <i class="fa-regular fa-file"></i>
+                                        <a href="controlador/generar-rendicion.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-info" target="_blank">
+                                            <i class="fa-solid fa-file-lines"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -202,7 +202,7 @@ include("controlador/eliminar-recibo.php");
                                                     <!-- SEPELIO Y HONORARIOS  -->
                                                     <div class="col-12 d-flex justify-content-between">
                                                         <div class="form-group mb-3 p-2 col-6">
-                                                            <label for="sepelio" class="form-label">Sepelio</label>
+                                                            <label for="sepelio" class="form-label">Otros</label>
                                                             <input type="number" class="form-control" id="sepelio" name="txtSepelio" value="<?= $datos->Sepelio ?>">
                                                         </div>
                                                         <div class="form-group mb-3 p-2 col-6">
@@ -220,8 +220,8 @@ include("controlador/eliminar-recibo.php");
                 </div>
             <?php }
             ?>
-                        </tbody>
-                    </table>
+            </tbody>
+            </table>
             </div>
             <!-- FORMULARIO DE INGRESO -->
             <div class="p-3 card shadow-sm border-0">
@@ -326,7 +326,7 @@ include("controlador/eliminar-recibo.php");
                         <!-- SEPELIO Y HONORARIOS -->
                         <div class="col-12 d-flex justify-content-between">
                             <div class="form-group mb-3 p-2 col-6">
-                                <label for="sepelio" class="form-label">Sepelio</label>
+                                <label for="sepelio" class="form-label">Otros</label>
                                 <input type="number" class="form-control" id="sepelio" name="txtSepelio">
                             </div>
                             <div class="form-group mb-3 p-2 col-6">
