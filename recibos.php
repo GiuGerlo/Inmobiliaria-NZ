@@ -23,6 +23,34 @@ include("controlador/eliminar-recibo.php");
             <div class="text-center h1 fw-bold p-3 pb-0">
                 <h1>Recibos</h1>
             </div>
+            <!-- PDF PAGOS -->
+            <div class="text-center mb-3">
+                <form action="pagos.php" method="GET" target="_blank" class="d-flex justify-content-center gap-2">
+                    <!-- Select para Mes -->
+                    <select name="mes" class="form-select w-auto">
+                        <option value="" disabled selected>Seleccionar Mes</option>
+                        <option value="Enero">Enero</option>
+                        <option value="Febrero">Febrero</option>
+                        <option value="Marzo">Marzo</option>
+                        <option value="Abril">Abril</option>
+                        <option value="Mayo">Mayo</option>
+                        <option value="Junio">Junio</option>
+                        <option value="Julio">Julio</option>
+                        <option value="Agosto">Agosto</option>
+                        <option value="Septiembre">Septiembre</option>
+                        <option value="Octubre">Octubre</option>
+                        <option value="Noviembre">Noviembre</option>
+                        <option value="Diciembre">Diciembre</option>
+                    </select>
+
+                    <!-- Input para Año -->
+                    <input type="number" name="ano" class="form-control w-auto" placeholder="Año" min="2000" max="2100" required>
+
+                    <!-- Botón de Envío -->
+                    <button type="submit" class="btn btn-primary">Generar PDF</button>
+                </form>
+            </div>
+
             <div class="row">
                 <div class="col-12 p-3">
                     <table class="table table-striped table-hover table-bordered" id="tabla-recibos">
@@ -58,17 +86,17 @@ include("controlador/eliminar-recibo.php");
                                     <td><?= $datos->Contrato_Detalle ?></td>
                                     <td><?= $datos->Desc_FP ?></td>
                                     <td><?= date("d/m/y", strtotime($datos->F_Pago)) ?></td>
-                                    <td><?= $datos->Pago_Propiedad ?></td>
+                                    <td>$<?= $datos->Pago_Propiedad ?></td>
                                     <td><?= $datos->Mes_Rend ?></td>
                                     <td><?= $datos->Ano_Rend ?></td>
-                                    <td><?= $datos->Pago_Municipal ?></td>
-                                    <td><?= $datos->Pago_Agua ?></td>
-                                    <td><?= $datos->Pago_Electricidad ?></td>
-                                    <td><?= $datos->Pago_Gas ?></td>
-                                    <td><?= $datos->Arreglos ?></td>
+                                    <td>$<?= $datos->Pago_Municipal ?></td>
+                                    <td>$<?= $datos->Pago_Agua ?></td>
+                                    <td>$<?= $datos->Pago_Electricidad ?></td>
+                                    <td>$<?= $datos->Pago_Gas ?></td>
+                                    <td>$<?= $datos->Arreglos ?></td>
                                     <!-- <td>// $datos->Comentarios </td> -->
-                                    <td><?= $datos->Sepelio ?></td>
-                                    <td><?= $datos->Honorarios ?></td>
+                                    <td>$<?= $datos->Sepelio ?></td>
+                                    <td>$<?= $datos->Honorarios ?></td>
                                     <td>
                                         <!-- Botón para abrir el modal -->
                                         <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModalLong<?= $datos->Nro_Recibo ?>">
