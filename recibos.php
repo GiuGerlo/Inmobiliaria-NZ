@@ -99,18 +99,19 @@ include("controlador/eliminar-recibo.php");
                                     <td>$<?= $datos->Honorarios ?></td>
                                     <td>
                                         <!-- Botón para abrir el modal -->
-                                        <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModalLong<?= $datos->Nro_Recibo ?>">
+                                        <a href="" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModalLong<?= $datos->Nro_Recibo ?>" title="Editar">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <a href="recibos.php?id=<?= $datos->Nro_Recibo ?>" onclick="return confirmar()" class="btn btn-danger">
+                                        <a href="recibos.php?id=<?= $datos->Nro_Recibo ?>" onclick="return confirmar()" class="btn btn-danger" title="Eliminar">
                                             <i class="fa-solid fa-trash"></i>
                                         </a>
-                                        <a href="controlador/generar-recibo.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-success" target="_blank">
+                                        <a href="controlador/generar-recibo.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-success" target="_blank" title="Recibo">
                                             <i class="fa-regular fa-file"></i>
                                         </a>
-                                        <a href="controlador/generar-rendicion.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-info" target="_blank">
+                                        <a href="controlador/generar-rendicion.php?id=<?= $datos->Nro_Recibo ?>" class="btn btn-info" target="_blank" title="Rendición">
                                             <i class="fa-solid fa-file-lines"></i>
                                         </a>
+
                                     </td>
                                 </tr>
                                 <!-- MODAL DINÁMICO -->

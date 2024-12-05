@@ -1,6 +1,7 @@
 <?php
 
 include("../includes/conexion.php");
+include("../templates/utils.php");
 
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
@@ -40,7 +41,7 @@ $total = array_sum([
     $datos->Honorarios
 ]);
 
-
+$totalEnLetras = convertirNumeroALetras($total);
 
 ?>
 
@@ -226,7 +227,7 @@ $total = array_sum([
 
     <div class="accounts">
         <table>
-            <?php 
+            <?php
             // Array de los cargos
             $items = [
                 "Alquiler" => $datos->Pago_Propiedad,
@@ -247,6 +248,12 @@ $total = array_sum([
                 <td><strong>$<?= number_format($total, 2, ',', '.') ?></strong></td>
             </tr>
         </table>
+        <div style="text-align: center;">
+            <h4>
+                Recibi(mos) la suma de: Pesos <?= $totalEnLetras ?>
+            </h4>
+        </div>
+
     </div>
 
     <div class="firma">
@@ -266,7 +273,7 @@ require_once("../dompdf/autoload.inc.php");
 use Dompdf\Dompdf;
 
 $dompdf = new Dompdf();
-$dompdf-> set_option('isRemoteEnabled', 'true');
+$dompdf->set_option('isRemoteEnabled', 'true');
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'portrait'); // 'portrait' o 'landscape'
 // $options = new Options();
