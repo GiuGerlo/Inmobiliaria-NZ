@@ -127,20 +127,21 @@ if ($result_pagados->num_rows > 0) {
             $row['Pago_Electricidad']
         ) - $comision;
         echo "<tr>
-                <td>{$row['F_Pago']}</td>
-                <td>{$row['NYA_Inquilino']}</td>
-                <td>{$row['NYA_Dueno']}</td>
-                <td>{$row['F_Inicio']}</td>
-                <td>{$row['Pago_Municipal']}</td>
-                <td>{$row['Pago_Agua']}</td>
-                <td>{$row['Pago_Gas']}</td>
-                <td>{$row['Pago_Electricidad']}</td>
-                <td>{$row['Pago_Propiedad']}</td>
-                <td>" . number_format($comision, 2) . "</td>
-                <td>" . number_format($entrega, 2) . "</td>
-                <td>" . number_format($row['Honorarios'], 2) . "</td>
-                <td>{$row['Certificacion']}</td>
-            </tr>";
+        <td>{$row['F_Pago']}</td>
+        <td>{$row['NYA_Inquilino']}</td>
+        <td>{$row['NYA_Dueno']}</td>
+        <td>{$row['F_Inicio']}</td>
+        <td>$" . number_format($row['Pago_Municipal'], 0, '', '') . "</td>
+        <td>$" . number_format($row['Pago_Agua'], 0, '', '') . "</td>
+        <td>$" . number_format($row['Pago_Gas'], 0, '', '') . "</td>
+        <td>$" . number_format($row['Pago_Electricidad'], 0, '', '') . "</td>
+        <td>$" . number_format($row['Pago_Propiedad'], 0, '', '') . "</td>
+        <td>$" . number_format($comision, 0, '', '') . "</td>
+        <td>$" . number_format($entrega, 0, '', '') . "</td>
+        <td>$" . number_format($row['Honorarios'], 0, '', '') . "</td>
+        <td>{$row['Certificacion']}</td>
+    </tr>";
+
     }
     echo "</table>";
 } else {

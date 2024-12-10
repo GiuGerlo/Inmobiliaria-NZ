@@ -1,5 +1,4 @@
 <?php
-session_start(); // Asegúrate de iniciar la sesión
 
 if (!empty($_POST['btnRegistrar'])) {
     $cp = $_POST['txtCodP'];

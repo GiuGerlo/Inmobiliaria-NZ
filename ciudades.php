@@ -95,7 +95,7 @@ include("controlador/eliminar-ciudad.php");
                                                     <!-- ID -->
                                                     <div class="form-group mb-3">
                                                         <label for="codp" class="form-label">Código Postal</label>
-                                                        <input type="number" class="form-control" id="codp" name="txtCodP" value="<?= $datos->CodP ?>">
+                                                        <input type="number" class="form-control" id="codp" name="txtCodP" value="<?= $datos->CodP ?>" readonly>
                                                     </div>
                                                     <!-- NOMBRE LOCALIDAD -->
                                                     <div class="form-group mb-3">
