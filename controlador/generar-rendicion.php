@@ -13,13 +13,14 @@ $id_recibo = intval($_GET['id']);
 ob_start();
 
 $stmt = $conexion->prepare("
-    SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, ci.Nombre_Ciudad, d.NYA_Dueno 
+    SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, p.Dir_Propiedad, ci.Nombre_Ciudad, d.NYA_Dueno, fp.Desc_FP
     FROM recibo r 
     INNER JOIN contrato c ON r.ID_Contrato = c.ID_Contrato 
     INNER JOIN inquilino i ON c.ID_Inquilino = i.ID_Inquilino 
     INNER JOIN dueno d ON c.ID_Dueno = d.ID_Dueno 
     INNER JOIN propiedad p ON c.ID_Propiedad = p.ID_Propiedad 
-    INNER JOIN ciudad ci ON p.CodP = ci.CodP 
+    INNER JOIN ciudad ci ON p.CodP = ci.CodP
+    INNER JOIN formadepago fp on fp.ID_FP = r.ID_FP
     WHERE r.Nro_Recibo = ?
 ");
 
@@ -146,10 +147,13 @@ $F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
     <div class="header">
         <div>
             <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/logo-nadina.jpg" alt="Logo Nadina">
+            <!-- <img src="https://nz-administracion.net/assets/logo-nadina.jpg" alt="Logo Nadina"> -->
         </div>
         <div>
             <h1>Rendición de cuentas</h1>
             <p><strong>Fecha de emisión:</strong> <?= date("d/m/Y") ?></p>
+            <p><strong>Dirección:</strong> <?= $datos->Dir_Propiedad ?></p>
+            <p><strong>Forma de pago:</strong> <?= $datos->Desc_FP ?></p>
         </div>
     </div>
 
@@ -172,12 +176,15 @@ $F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
                             "Fecha" => $F_Pago,
                             "Inquilino" => htmlspecialchars($datos->NYA_Inquilino),
                             "Mes/Año" => "{$datos->Mes_Rend} / {$datos->Ano_Rend}",
+                            //"Direccion" => htmlspecialchars($datos->$Dir_Propiedad),
+                            //"FP" => htmlspecialchars($datos->$Desc_FP),
                             "Alquiler" => "$" . number_format($datos->Pago_Propiedad, 2, ',', '.'),
                             "Municipal" => "$" . number_format($datos->Pago_Municipal, 2, ',', '.'),
                             "Agua" => "$" . number_format($datos->Pago_Agua, 2, ',', '.'),
                             "Electricidad" => "$" . number_format($datos->Pago_Electricidad, 2, ',', '.'),
                             "Gas" => "$" . number_format($datos->Pago_Gas, 2, ',', '.'),
                             "Honorarios" => "$" . number_format($datos->Honorarios, 2, ',', '.')
+
                         ];
 
 
@@ -221,6 +228,7 @@ $F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
 
     <div class="firma">
         <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/FirmaDigital.jpg" width="150px" alt="Firma">
+        <!-- <img src="https://nz-administracion.net/assets/FirmaDigital.jpg" width="150px" alt="Firma"> -->
         <p>Firma</p>
     </div>
 </body>

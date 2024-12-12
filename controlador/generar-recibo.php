@@ -13,13 +13,14 @@ $id_recibo = intval($_GET['id']);
 ob_start();
 
 $stmt = $conexion->prepare("
-    SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, ci.Nombre_Ciudad, d.NYA_Dueno 
+    SELECT r.*, c.F_Inicio, c.F_Fin, i.NYA_Inquilino, i.Tel_Inquilino, p.CodP, p.Dir_Propiedad, ci.Nombre_Ciudad, d.NYA_Dueno, fp.Desc_FP
     FROM recibo r 
     INNER JOIN contrato c ON r.ID_Contrato = c.ID_Contrato 
     INNER JOIN inquilino i ON c.ID_Inquilino = i.ID_Inquilino 
     INNER JOIN dueno d ON c.ID_Dueno = d.ID_Dueno 
     INNER JOIN propiedad p ON c.ID_Propiedad = p.ID_Propiedad 
-    INNER JOIN ciudad ci ON p.CodP = ci.CodP 
+    INNER JOIN ciudad ci ON p.CodP = ci.CodP
+    INNER JOIN formadepago fp on fp.ID_FP = r.ID_FP
     WHERE r.Nro_Recibo = ?
 ");
 
@@ -197,6 +198,7 @@ $totalEnLetras = convertirNumeroALetras($total);
     <div class="header">
         <div class="header-left">
             <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/logo-nadina.jpg" alt="Logo Nadina">
+            <!-- <img src="https://nz-administracion.net/assets/logo-nadina.jpg" alt="Logo Nadina"> -->
             <div class="info">
                 <strong>Localidad:</strong> Guatimozín | <strong>Teléfono:</strong> 3468-495281<br>
                 <strong>Dirección:</strong> Catamarca 227 | <strong>Horario:</strong> 8 hs a 12hs - 16hs a 20hs<br>
@@ -219,9 +221,10 @@ $totalEnLetras = convertirNumeroALetras($total);
         <div class="header-right">
             <strong>Contrato:</strong> Inicio: <?= $F_Ini ?> <b>-</b> Fin: <?= $F_Fin ?><br>
             <strong>En concepto de:</strong> Alquiler<br>
-            <strong>Propiedad:</strong> <?= $datos->Nombre_Ciudad ?><br>
+            <strong>Dirección:</strong> <?= $datos->Dir_Propiedad ?><br>
             <strong>Dueño:</strong> <?= $datos->NYA_Dueno ?><br>
-            <strong>Mes/Año:</strong> <?= $datos->Mes_Rend ?> / <?= $datos->Ano_Rend ?>
+            <strong>Mes/Año:</strong> <?= $datos->Mes_Rend ?> / <?= $datos->Ano_Rend ?><br>
+            <strong>Forma de pago:</strong> <?= $datos->Desc_FP ?><br>
         </div>
     </div>
 
@@ -258,6 +261,7 @@ $totalEnLetras = convertirNumeroALetras($total);
 
     <div class="firma">
         <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/FirmaDigital.jpg" width="150px" alt="Firma">
+        <!-- <img src="https://nz-administracion.net/assets/FirmaDigital.jpg" width="150px" alt="Firma"> -->
         <p>Firma</p>
     </div>
 </body>
