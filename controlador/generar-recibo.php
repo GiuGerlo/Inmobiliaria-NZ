@@ -256,7 +256,9 @@ $totalEnLetras = convertirNumeroALetras($total);
                 Recibi(mos) la suma de: Pesos <?= $totalEnLetras ?>
             </h4>
         </div>
-
+        <div class="comments">
+            <p><strong>Comentarios:</strong> <?= htmlspecialchars($datos->Comentarios) ?></p>
+        </div>
     </div>
 
     <div class="firma">

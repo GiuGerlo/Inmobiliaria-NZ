@@ -39,8 +39,7 @@ $ingresos = [
     $datos->Pago_Municipal,
     $datos->Pago_Agua,
     $datos->Pago_Electricidad,
-    $datos->Pago_Gas,
-    $datos->Honorarios
+    $datos->Pago_Gas
 ];
 $suma = array_sum($ingresos);
 
@@ -182,8 +181,7 @@ $F_Pago = date("d-m-Y", strtotime($datos->F_Pago));
                             "Municipal" => "$" . number_format($datos->Pago_Municipal, 2, ',', '.'),
                             "Agua" => "$" . number_format($datos->Pago_Agua, 2, ',', '.'),
                             "Electricidad" => "$" . number_format($datos->Pago_Electricidad, 2, ',', '.'),
-                            "Gas" => "$" . number_format($datos->Pago_Gas, 2, ',', '.'),
-                            "Honorarios" => "$" . number_format($datos->Honorarios, 2, ',', '.')
+                            "Gas" => "$" . number_format($datos->Pago_Gas, 2, ',', '.')
 
                         ];
 
