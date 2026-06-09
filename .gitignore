@@ -1,0 +1,37 @@
+# Claude local
+.claude/settings.local.json
+
+# CodeGraph index
+.codegraph/
+
+# Env
+.env
+.env.*.local
+!.env.example
+
+# Data (PII real fuera de git)
+db/db.sql
+db/backups/
+db/*.sql
+!db/.empty.sql
+
+# Dependencies (nuevo stack — apps/ aún no existe pero anticipamos)
+apps/api/vendor/
+apps/api/node_modules/
+apps/web/node_modules/
+node_modules/
+
+# Build
+apps/web/dist/
+apps/api/public/build/
+apps/api/storage/logs/*.log
+apps/api/storage/framework/cache/
+apps/api/storage/framework/sessions/
+apps/api/storage/framework/views/
+apps/api/bootstrap/cache/*.php
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
