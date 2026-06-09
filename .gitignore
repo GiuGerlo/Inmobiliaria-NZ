@@ -21,6 +21,8 @@ apps/api/node_modules/
 apps/web/node_modules/
 node_modules/
 
+# NOTA: legacy/dompdf/vendor/ se commitea (es vendor manual del legacy, lo necesita)
+
 # Build
 apps/web/dist/
 apps/api/public/build/

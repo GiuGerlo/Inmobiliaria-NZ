@@ -1,0 +1,3 @@
+-- Placeholder vacio para docker-compose: cuando DB_DUMP_PATH no esta seteado,
+-- este archivo se monta en /docker-entrypoint-initdb.d/ y MariaDB lo ignora.
+-- No borrar.

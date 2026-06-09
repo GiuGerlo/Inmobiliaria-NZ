@@ -1,0 +1,23 @@
+{
+  "name": "inmobiliaria-nz",
+  "private": true,
+  "description": "App de administración de alquileres — reformulación a Laravel + React + Docker.",
+  "scripts": {
+    "up": "docker compose up -d",
+    "up:build": "docker compose up -d --build",
+    "down": "docker compose down",
+    "down:clean": "docker compose down -v",
+    "logs": "docker compose logs -f",
+    "ps": "docker compose ps",
+    "sh:api": "docker compose exec php-fpm sh",
+    "sh:web": "docker compose exec node-dev sh",
+    "sh:db": "docker compose exec mariadb mariadb -uinmo -p inmobiliaria",
+    "pest": "docker compose exec php-fpm ./vendor/bin/pest",
+    "pint": "docker compose exec php-fpm ./vendor/bin/pint",
+    "artisan": "docker compose exec php-fpm php artisan",
+    "init:api": "docker compose exec php-fpm php artisan key:generate",
+    "test:web": "docker compose exec node-dev pnpm test",
+    "lint:web": "docker compose exec node-dev pnpm lint",
+    "build:web": "docker compose exec node-dev pnpm build"
+  }
+}

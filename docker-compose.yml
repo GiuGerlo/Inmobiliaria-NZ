@@ -1,0 +1,117 @@
+# Inmobiliaria NZ — stack local zero-touch
+# Levantar: docker compose up -d --build
+# Puertos por defecto (cambiar via .env):
+#   8080 -> app nueva (React + Laravel via nginx)
+#   8081 -> phpMyAdmin
+#   8082 -> legacy PHP
+#   3307 -> MariaDB (cliente externo)
+
+name: inmobiliaria-nz
+
+services:
+  # ----------------------- Nginx gateway -----------------------
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - ./apps/api:/var/www/api:ro
+      - ./apps/web:/var/www/web:ro
+    depends_on:
+      php-fpm:
+        condition: service_started
+      node-dev:
+        condition: service_started
+    networks: [appnet]
+
+  # ----------------------- Laravel PHP-FPM -----------------------
+  php-fpm:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./apps/api:/var/www/api
+      # Volumen nombrado para vendor/ — evita que el bind mount lo tape.
+      - api-vendor:/var/www/api/vendor
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+    # Config de Laravel vive en apps/api/.env (auto-creado por el entrypoint).
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [appnet]
+
+  # ----------------------- Node + Vite (HMR) -----------------------
+  node-dev:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    volumes:
+      - ./apps/web:/var/www/web
+      # Volumen nombrado para node_modules — protege del bind mount.
+      - web-node-modules:/var/www/web/node_modules
+    environment:
+      VITE_API_URL: /api/v1
+    networks: [appnet]
+
+  # ----------------------- MariaDB -----------------------
+  mariadb:
+    # Versión fijada — espejo de producción Hostinger (11.8.x)
+    image: mariadb:11.8
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE:-inmobiliaria}
+      MARIADB_USER: ${DB_USERNAME:-inmo}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-cambiar_en_local}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-cambiar_root_en_local}
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      # Si DB_DUMP_PATH apunta a un .sql, se importa en el primer boot.
+      # Si está vacío, se monta el placeholder ./db/.empty.sql (no-op).
+      - ${DB_DUMP_PATH:-./db/.empty.sql}:/docker-entrypoint-initdb.d/01-dump.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [appnet]
+
+  # ----------------------- phpMyAdmin -----------------------
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [appnet]
+
+  # ----------------------- Legacy PHP -----------------------
+  legacy:
+    build:
+      context: .
+      dockerfile: docker/legacy/Dockerfile
+    ports:
+      - "${LEGACY_PORT:-8082}:80"
+    volumes:
+      - ./legacy:/var/www/legacy
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [appnet]
+
+volumes:
+  mariadb-data:
+  api-vendor:
+  web-node-modules:
+
+networks:
+  appnet:
+    driver: bridge

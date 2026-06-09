@@ -17,8 +17,8 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 
 | ID | Nombre | Estado | Depende de | Entregable corto |
 |----|--------|--------|------------|------------------|
-| **A** | Infra + Bootstrap | 🟡 brainstorming | — | `docker compose up` levanta Laravel + React + MariaDB + phpMyAdmin con dump auto-importado. |
-| **B** | Schema + Migrations Laravel | ⚪ pendiente | A | Migraciones, modelos Eloquent, factories y seeders que reproducen la DB actual. |
+| **A** | Infra + Bootstrap | 🟢 DONE 2026-06-08 | — | `docker compose up` levanta Laravel + React + MariaDB + phpMyAdmin con dump auto-importado. |
+| **B** | Schema + Migrations Laravel | 🟡 siguiente | A | Migraciones, modelos Eloquent, factories y seeders que reproducen la DB actual. |
 | **C** | Auth moderna | ⚪ pendiente | B | Sanctum + rate limit + bcrypt + perfil + CSRF + rehash de usuarios MD5. |
 | **D** | API REST CRUD | ⚪ pendiente | C | Endpoints de ciudades, dueños, inquilinos, propiedades, contratos, recibos, formas de pago. |
 | **E** | Frontend React core | ⚪ pendiente | D | SPA con login, layout, tablas, modales, toasts, react-query. Identidad NZ. |
@@ -39,4 +39,5 @@ Estas se resuelven cuando empieza la fase que las necesita, no antes.
 
 ## Bitácora
 
-- **2026-06-08** — Inicio del roadmap. Estructura `docs/` + `.claude/rules/` scaffolded. Sub-proyecto A en brainstorming.
+- **2026-06-08** — Inicio del roadmap. Estructura `docs/` + `.claude/rules/` scaffolded.
+- **2026-06-08** — Sub-A DONE. Docker stack zero-touch funcionando con Laravel 13 + React 19 + MariaDB 11.8. Próximo: sub-B (schema + migrations).

@@ -2,7 +2,7 @@
 
 ## Backend
 
-- **PHP 8.5** (la versión más nueva al momento; verificar imagen oficial `php:8.5-fpm-alpine` disponible — si no, fallback a `8.4` y actualizar al salir 8.5).
+- **PHP 8.4** (versión fijada — ver `docs/adr/0005-php-version-pinning.md`). Imagen base `php:8.4-fpm-alpine`. Upgrade a 8.5 = ADR + sub-fase futura cuando todo el ecosistema (dompdf, spatie, etc.) lo confirme.
 - **Laravel 12** (última estable) — API REST. Decisión "API-only vs Inertia" se documenta en `docs/adr/0001-laravel-api-only-vs-inertia.md`.
 - **Laravel Sanctum** para auth SPA (cookies HttpOnly + CSRF).
 - **Eloquent ORM** + migrations + seeders + factories.

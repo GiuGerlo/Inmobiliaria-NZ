@@ -1,0 +1,12 @@
+# Archivos que DEBEN quedar LF en cualquier checkout (corren dentro de containers Linux)
+*.sh text eol=lf
+docker/** text eol=lf
+docker-compose.yml text eol=lf
+.env.example text eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary
+*.afm binary
