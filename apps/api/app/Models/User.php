@@ -1,31 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+/**
+ * Mapea la tabla users legacy. Pass_User (MD5) queda solo para la migración
+ * de credenciales en sub-C; password (bcrypt) es el destino.
+ */
+final class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    use Notifiable;
+
+    protected $table = 'users';
+
+    protected $primaryKey = 'ID_User';
+
+    public $timestamps = false;
+
+    protected $fillable = ['Nombre_User', 'Email_User', 'password'];
+
+    protected $hidden = ['Pass_User', 'password', 'remember_token'];
+
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

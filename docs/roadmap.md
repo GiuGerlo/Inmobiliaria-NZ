@@ -18,8 +18,8 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 | ID | Nombre | Estado | Depende de | Entregable corto |
 |----|--------|--------|------------|------------------|
 | **A** | Infra + Bootstrap | 🟢 DONE 2026-06-08 | — | `docker compose up` levanta Laravel + React + MariaDB + phpMyAdmin con dump auto-importado. |
-| **B** | Schema + Migrations Laravel | 🟡 siguiente | A | Migraciones, modelos Eloquent, factories y seeders que reproducen la DB actual. |
-| **C** | Auth moderna | ⚪ pendiente | B | Sanctum + rate limit + bcrypt + perfil + CSRF + rehash de usuarios MD5. |
+| **B** | Schema + Migrations Laravel | 🟢 DONE 2026-06-09 | A | Migraciones, modelos Eloquent, factories y seeders que reproducen la DB actual. |
+| **C** | Auth moderna | 🟡 siguiente | B | Sanctum + rate limit + bcrypt + perfil + CSRF + rehash de usuarios MD5. |
 | **D** | API REST CRUD | ⚪ pendiente | C | Endpoints de ciudades, dueños, inquilinos, propiedades, contratos, recibos, formas de pago. |
 | **E** | Frontend React core | ⚪ pendiente | D | SPA con login, layout, tablas, modales, toasts, react-query. Identidad NZ. |
 | **F** | PDFs (recibos + rendiciones) | ⚪ pendiente | D | Generación de recibo individual y rendición mensual a dueños desde Laravel. |
@@ -41,3 +41,4 @@ Estas se resuelven cuando empieza la fase que las necesita, no antes.
 
 - **2026-06-08** — Inicio del roadmap. Estructura `docs/` + `.claude/rules/` scaffolded.
 - **2026-06-08** — Sub-A DONE. Docker stack zero-touch funcionando con Laravel 13 + React 19 + MariaDB 11.8. Próximo: sub-B (schema + migrations).
+- **2026-06-09** — Sub-B DONE. Migrations espejo + FKs gated + 8 modelos Eloquent + factories + 11 tests verdes contra MariaDB. ADR-0002 cerrado. Próximo: sub-C (auth).

@@ -68,6 +68,8 @@ services:
       - "${DB_PORT:-3307}:3306"
     volumes:
       - mariadb-data:/var/lib/mysql
+      # Test DB — corre antes que el dump (orden alfabético del entrypoint).
+      - ./db/init/01-test-db.sql:/docker-entrypoint-initdb.d/00-test-db.sql:ro
       # Si DB_DUMP_PATH apunta a un .sql, se importa en el primer boot.
       # Si está vacío, se monta el placeholder ./db/.empty.sql (no-op).
       - ${DB_DUMP_PATH:-./db/.empty.sql}:/docker-entrypoint-initdb.d/01-dump.sql:ro

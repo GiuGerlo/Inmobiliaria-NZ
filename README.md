@@ -33,6 +33,14 @@ Cuando termine, abrí en el browser:
 | http://localhost:8082     | Legacy PHP intacto.                                 |
 | `localhost:3307`          | MariaDB para clientes externos (TablePlus, DBeaver).|
 
+### DB de tests
+
+Los tests Pest corren contra `inmobiliaria_test` (mismo container MariaDB). Se crea sola en el primer boot del volumen. Si tu volumen es anterior a sub-B, crearla una vez:
+
+```bash
+docker compose exec mariadb sh -c 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" < /docker-entrypoint-initdb.d/00-test-db.sql'
+```
+
 ### Importar dump real (opcional)
 
 En tu `.env`:
@@ -58,7 +66,7 @@ docker compose ps                 # estado de servicios
 
 # Backend
 docker compose exec php-fpm sh                       # shell en container Laravel
-docker compose exec php-fpm ./vendor/bin/pest        # tests Pest
+docker compose exec php-fpm ./vendor/bin/pest        # tests Pest (usan inmobiliaria_test)
 docker compose exec php-fpm ./vendor/bin/pint        # formato PHP
 docker compose exec php-fpm php artisan <comando>    # cualquier artisan
 

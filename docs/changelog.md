@@ -2,6 +2,23 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-09] sub-B — Schema + Migrations Laravel
+
+**Resumen**: Capa de datos Laravel sobre la DB legacy compartida. Migrations espejo del schema (baseline skip si la tabla existe), FKs RESTRICT verificables con `legacy:check-orphans`, 8 modelos Eloquent en inglés, factories sin PII y tests contra MariaDB real.
+
+**Cambios**:
+- 12 migrations: 7 tablas dominio espejo exacto + users híbrida (legacy + password bcrypt nullable) + FKs/índices idempotentes.
+- Comando `php artisan legacy:check-orphans` (gate de la migration de FKs sobre datos viejos).
+- Modelos: City, Owner, Tenant, Property, Contract, PaymentMethod, Receipt, User — `$table` legacy, relationships completas, `$timestamps=false`.
+- Factories es_AR + `DemoSeeder` (solo local). Cero PII.
+- Test DB `inmobiliaria_test` (mismo container, se crea en primer boot del volumen).
+- `phpunit.xml` apunta a MariaDB real (paridad de motor).
+- Suite Pest: 11 passed.
+- ADR-0002: preservar nombres legacy; modelos en inglés como capa de traducción.
+
+**Breaking**: nada — el legacy sigue funcionando igual (mismas tablas).
+**Migración**: en DB con dump real: `artisan migrate` → `artisan legacy:check-orphans` → corregir huérfanos si los hay.
+
 ## [2026-06-08] sub-A — Infra + Bootstrap (Docker zero-touch)
 
 **Resumen**: Stack nuevo en Docker funcionando con un solo comando. Laravel 13 + React 19 + MariaDB 11.8 + nginx + phpMyAdmin + legacy PHP conviviendo. Tests Pest y Vitest verdes. Legacy preservado en `legacy/` corre en paralelo durante toda la transición.

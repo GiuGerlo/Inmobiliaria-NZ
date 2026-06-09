@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------
@@ -8,8 +9,8 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
     ->in('Feature');
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
     ->in('Unit');
