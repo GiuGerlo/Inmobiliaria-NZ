@@ -2,6 +2,22 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-09] sub-C — Auth moderna (Sanctum SPA)
+
+**Resumen**: Auth cookie-based para la SPA con Sanctum stateful, rate limit en login, perfil de usuario y migración transparente de credenciales MD5 legacy a bcrypt en el primer login. El legacy sigue funcionando: `Pass_User` no se toca.
+
+**Cambios**:
+- `statefulApi()` + sesiones en DB (`SESSION_DRIVER=database`), cookies `HttpOnly`/`SameSite=Lax`, CSRF vía `/sanctum/csrf-cookie` (nueva location en nginx).
+- Endpoints: `POST /api/v1/auth/login` (rate limit 5/min por email+IP, remember me), `POST /api/v1/auth/logout`, `GET/PATCH /api/v1/me`, `PUT /api/v1/me/password` (requiere password actual; invalida las demás sesiones).
+- Rehash transitorio MD5→bcrypt en `AuthController::attemptLegacyMd5()` — borrar al deprecar el legacy.
+- Form Requests con mensajes en español + `UserResource` (id/name/email).
+- Middleware `NoStoreHeaders` (`Cache-Control: no-store` + `nosniff`) en endpoints autenticados.
+- Factory state `legacyMd5()` para tests del flujo de migración.
+- Suite Pest: 29 passed (18 nuevos de auth). Security review: sin hallazgos.
+
+**Breaking**: nada — el login legacy sigue usando `Pass_User`.
+**Migración**: nada. El usuario MD5 existente migra solo en su primer login al sistema nuevo.
+
 ## [2026-06-09] sub-B — Schema + Migrations Laravel
 
 **Resumen**: Capa de datos Laravel sobre la DB legacy compartida. Migrations espejo del schema (baseline skip si la tabla existe), FKs RESTRICT verificables con `legacy:check-orphans`, 8 modelos Eloquent en inglés, factories sin PII y tests contra MariaDB real.

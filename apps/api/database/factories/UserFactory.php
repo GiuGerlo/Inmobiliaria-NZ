@@ -26,4 +26,16 @@ final class UserFactory extends Factory
             'remember_token' => Str::random(10),
         ];
     }
+
+    /**
+     * Usuario legacy sin migrar: solo credencial MD5, password bcrypt null.
+     */
+    public function legacyMd5(string $plainPassword = 'password'): static
+    {
+        return $this->state(fn () => [
+            'Pass_User' => md5($plainPassword),
+            'password' => null,
+            'remember_token' => null,
+        ]);
+    }
 }
