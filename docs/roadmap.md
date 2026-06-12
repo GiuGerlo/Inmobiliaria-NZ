@@ -21,7 +21,7 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 | **B** | Schema + Migrations Laravel | 🟢 DONE 2026-06-09 | A | Migraciones, modelos Eloquent, factories y seeders que reproducen la DB actual. |
 | **C** | Auth moderna | 🟢 DONE 2026-06-09 | B | Sanctum + rate limit + bcrypt + perfil + CSRF + rehash de usuarios MD5. |
 | **D** | API REST CRUD | 🟢 DONE 2026-06-10 | C | Endpoints de ciudades, dueños, inquilinos, propiedades, contratos, recibos, formas de pago. |
-| **E** | Frontend React core | 🟡 siguiente | D | SPA con login, layout, tablas, modales, toasts, react-query. Identidad NZ. |
+| **E** | Frontend React core | 🟡 fundación DONE 2026-06-12 | D | Fundación (login Sanctum, layout NZ, DataTable server-side, modales, toasts, react-query) + slice CRUD Ciudades. CRUD del resto de recursos = sub-fases E2+. |
 | **F** | PDFs (recibos + rendiciones) | ⚪ pendiente | D | Generación de recibo individual y rendición mensual a dueños desde Laravel. |
 | **G** | Features nuevos | ⚪ pendiente | E, F | Por definir con el usuario (dashboard, alertas de vencimiento, roles, exports, etc.). |
 | **H** | Deploy + CI/CD | ⚪ pendiente | E, F | Pipeline a Hostinger (o VPS si decidimos). Builds reproducibles. |
@@ -46,3 +46,4 @@ Estas se resuelven cuando empieza la fase que las necesita, no antes.
 - **2026-06-09** — Sub-B DONE. Migrations espejo + FKs gated + 8 modelos Eloquent + factories + 11 tests verdes contra MariaDB. ADR-0002 cerrado. Próximo: sub-C (auth).
 - **2026-06-09** — Sub-C DONE. Sanctum stateful SPA + login con rate limit y rehash MD5→bcrypt transparente + perfil completo. 29 tests verdes. Security review sin hallazgos. Próximo: sub-D (API CRUD).
 - **2026-06-10** — Sub-D DONE. API REST de los 7 recursos (apiResource + spatie/query-builder + 409 en FK RESTRICT), upload de foto WebP a disco, OpenAPI autogenerada con scramble. 83 tests verdes. ADR-0006 (scramble) y ADR-0007 (foto file storage) cerrados. Security review sin hallazgos. Próximo: sub-E (frontend) y sub-F (PDFs).
+- **2026-06-12** — Sub-E fundación DONE. SPA real: Tailwind 4 + shadcn + RHF/zod + TanStack Table; auth Sanctum cookie (login/guard/401), layout navy NZ, DataTable server-side, slice CRUD Ciudades con 409. 9 tests (Vitest 3 + MSW). lint/build/typecheck verdes. Pendiente: `/security-review` del branch. Próximo: E2+ (CRUD del resto de recursos), sub-F (PDFs).

@@ -2,6 +2,26 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-12] sub-E — Frontend React core (fundación + slice Ciudades)
+
+**Resumen**: Fundación de la SPA con identidad NZ y un vertical slice CRUD completo de Ciudades como patrón replicable. La SPA pasó de scaffold (health-check) a app real: login Sanctum, layout navy, tablas server-side y modales. Los otros 6 recursos quedan para sub-fases E2+.
+
+**Cambios**:
+- Tooling: Tailwind CSS 4 (`@tailwindcss/vite`, config CSS-first con tokens NZ en `@theme`), shadcn/ui (new-york, 18 componentes base), react-hook-form + zod, `@tanstack/react-table`, alias `@/*`. Poppins por `<link>`.
+- ESLint flat config real: `typescript-eslint` + `react-hooks` + `jsx-a11y` + `react-refresh` (la de sub-A no parseaba TS). Vitest 2 → 3 (vitest 2 fija vite 5 y choca con vite 6).
+- Auth Sanctum cookie: `lib/api.ts` (axios `withCredentials`+`withXSRFToken`, interceptor 401), `lib/csrf.ts` (`ensureCsrf`), `useAuth`/`useLogin`/`useLogout` (React Query), `RequireAuth` guard, `LoginPage` (RHF+zod, 422→campos, 429→toast, logo NZ).
+- Layout: `AppLayout` (sidebar navy `#05172D` desktop + drawer mobile), `SidebarNav` (7 secciones, solo Ciudades activa, resto "Próximamente"), `UserMenu` (logout).
+- DataTable genérico server-side (`@tanstack/react-table` manual sort/pagination) + `DataTablePagination` (meta Laravel) + `DataTableToolbar` (search debounce 300ms) + `DataTableColumnHeader` + `ConfirmDialog`.
+- Slice Ciudades (`features/cities/`): api, queries (React Query + `keepPreviousData`), schema zod, columns, `CitiesPage`, `CityFormDialog`. CRUD end-to-end; borrado maneja **409** (FK RESTRICT) mostrando el mensaje del backend.
+- Router (`createBrowserRouter`): `/login` pública + zona privada bajo `RequireAuth` → `AppLayout` → `/ciudades`. 401 global → vuelve a login.
+- Identidad: `LoginPage` rediseñado split-brand (panel navy con logo/marca + detalle dorado, form a la derecha; colapsa a card en mobile). Primary = navy de marca `#13294b` (reemplaza el azul tipo Bootstrap); acento activo del sidebar en dorado `#c5a572` (token `--nz-gold`).
+- Provincia (alta/edición de ciudad) = `Select` con las 24 jurisdicciones argentinas (`provinces.ts`), no texto libre; incluye el valor legacy si cae fuera de la lista.
+- Tests: Vitest 3 + Testing Library + MSW (handlers con store en memoria). **9 passed** (LoginPage ok/422/429, DataTable render/paginación, Ciudades lista/crear/409). Reemplazado el test de health de sub-A.
+- Verificación: `tsc -b`, `pnpm lint`, `pnpm build` y `pnpm test` verdes. SPA sirve por nginx :8080; CSRF y stateful (`localhost:8080`) ya configurados en sub-C.
+
+**Breaking**: nada — solo frontend. La API no cambió.
+**Migración**: `pnpm install` (deps nuevas) — automático en `docker compose up` del container `node-dev`.
+
 ## [2026-06-10] sub-D — API REST CRUD
 
 **Resumen**: API REST completa de los 7 recursos del dominio (ciudades, dueños, inquilinos, propiedades, contratos, recibos, formas de pago) sobre los modelos de sub-B, protegida con la auth Sanctum de sub-C. Incluye upload de foto de propiedad a disco en WebP y documentación OpenAPI autogenerada.
