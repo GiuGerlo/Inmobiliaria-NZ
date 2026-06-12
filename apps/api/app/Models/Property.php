@@ -28,6 +28,7 @@ final class Property extends Model
         'Caract_Propiedad',
         'Foto_Propiedad',
         'Foto_Propiedad_GXI',
+        'foto_path',
     ];
 
     protected $hidden = ['Foto_Propiedad']; // longblob — no serializar por default

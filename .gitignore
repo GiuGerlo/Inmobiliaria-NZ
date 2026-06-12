@@ -32,6 +32,14 @@ apps/api/storage/framework/sessions/
 apps/api/storage/framework/views/
 apps/api/bootstrap/cache/*.php
 
+# Skills de diseño instaladas localmente (npx skills / impeccable).
+# Son herramientas del agente, no parte funcional del sistema. Catálogo
+# en docs/skills-frontend.md. Reinstalables con los comandos de ese doc.
+.agents/
+.claude/skills/
+skills-lock.json
+.impeccable/
+
 # OS / IDE
 .DS_Store
 Thumbs.db

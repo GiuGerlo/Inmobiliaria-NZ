@@ -5,9 +5,9 @@ FROM php:${PHP_VERSION}-fpm-alpine
 # Extensiones del sistema requeridas por Laravel + librerías comunes
 RUN apk add --no-cache \
       git unzip libzip-dev oniguruma-dev icu-dev \
-      libpng-dev libjpeg-turbo-dev freetype-dev \
+      libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev \
       mariadb-client \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
        pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
