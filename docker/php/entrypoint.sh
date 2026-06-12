@@ -15,4 +15,8 @@ if ! grep -q "^APP_KEY=base64:" .env; then
     php artisan key:generate --force
 fi
 
+# Los workers fpm corren como www-data; el bind mount llega como root.
+# Sin esto no se escriben view cache ni uploads (storage/app/public).
+chmod -R ugo+rwX storage bootstrap/cache
+
 exec php-fpm

@@ -2,6 +2,26 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-10] sub-D — API REST CRUD
+
+**Resumen**: API REST completa de los 7 recursos del dominio (ciudades, dueños, inquilinos, propiedades, contratos, recibos, formas de pago) sobre los modelos de sub-B, protegida con la auth Sanctum de sub-C. Incluye upload de foto de propiedad a disco en WebP y documentación OpenAPI autogenerada.
+
+**Cambios**:
+- 7 controllers `apiResource` (index/store/show/update/destroy) bajo `auth:sanctum` + `NoStoreHeaders`, prefix `/api/v1`.
+- Filtros/orden/includes con `spatie/laravel-query-builder` (whitelist por recurso) + búsqueda `?q=` + paginación con tope 100.
+- FormRequests Store/Update por entidad (validación espejo del schema legacy, mensajes en español vía `lang/es/validation.php`).
+- API Resources con campos en inglés (capa de traducción, ADR-0002).
+- Borrado: 409 Conflict cuando una FK RESTRICT lo impide (trait `HandlesRestrictedDelete`); mensaje específico por recurso. Recibos borran directo (son hoja).
+- Trait `MapsLegacyFields` (input inglés → columnas legacy) + helper de paginación.
+- Foto de propiedad: `POST/DELETE /properties/{id}/photo`. Conversión a WebP (Intervention Image v3 + GD con `--with-webp`), guardada en `storage/app/public/propiedades/{id}/foto.webp`, columna nueva `foto_path`. Validación de mime real (finfo) + máx 5 MB. Borrar propiedad limpia su carpeta.
+- `dedoc/scramble`: OpenAPI en `/docs/api` (solo local). nginx: locations `/storage/` (alias al disk public) y `/docs/`.
+- Imagen php-fpm: `libwebp-dev` + gd `--with-webp`. Entrypoint: `chmod ugo+rwX storage bootstrap/cache` (workers fpm = www-data sobre bind mount).
+- 54 tests Pest nuevos (CRUD + filtros + 409 + foto webp verificada por magic bytes) → suite total **83 passed (301 assertions)**.
+- ADR-0006 (scramble) y ADR-0007 (foto file storage). Security review: sin hallazgos.
+
+**Breaking**: nada — `foto_path` es columna aditiva nullable; el legacy sigue insertando sin listarla.
+**Migración**: `artisan migrate` agrega `foto_path` a `propiedad`. En deploy (sub-H) contemplar persistencia de `storage/app/public`.
+
 ## [2026-06-09] sub-C — Auth moderna (Sanctum SPA)
 
 **Resumen**: Auth cookie-based para la SPA con Sanctum stateful, rate limit en login, perfil de usuario y migración transparente de credenciales MD5 legacy a bcrypt en el primer login. El legacy sigue funcionando: `Pass_User` no se toca.
