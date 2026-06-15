@@ -20,9 +20,9 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { label: 'Recibos', to: '/recibos', icon: Receipt, enabled: false },
   { label: 'Contratos', to: '/contratos', icon: FileText, enabled: false },
-  { label: 'Propiedades', to: '/propiedades', icon: Home, enabled: false },
+  { label: 'Propiedades', to: '/propiedades', icon: Home, enabled: true },
   { label: 'Ciudades', to: '/ciudades', icon: MapPin, enabled: true },
-  { label: 'Inquilinos', to: '/inquilinos', icon: Users, enabled: false },
-  { label: 'Dueños', to: '/duenos', icon: UserSquare, enabled: false },
-  { label: 'Formas de pago', to: '/formas-pago', icon: Building2, enabled: false },
+  { label: 'Inquilinos', to: '/inquilinos', icon: Users, enabled: true },
+  { label: 'Dueños', to: '/duenos', icon: UserSquare, enabled: true },
+  { label: 'Formas de pago', to: '/formas-pago', icon: Building2, enabled: true },
 ];

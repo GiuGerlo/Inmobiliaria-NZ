@@ -31,3 +31,12 @@ export async function updateCity(code: string, input: CityInput): Promise<City> 
 export async function deleteCity(code: string): Promise<void> {
   await api.delete(`/cities/${encodeURIComponent(code)}`);
 }
+
+/** Opciones para el EntityCombobox de ciudad (value = código postal). */
+export async function fetchCityOptions(query: string) {
+  const { data } = await listCities({ page: 1, perPage: 20, q: query || undefined });
+  return data.map((city) => ({
+    value: city.code,
+    label: `${city.name} — ${city.province} (${city.code})`,
+  }));
+}

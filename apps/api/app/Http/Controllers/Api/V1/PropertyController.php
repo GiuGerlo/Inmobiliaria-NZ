@@ -42,11 +42,12 @@ final class PropertyController extends Controller
                 AllowedFilter::partial('type', 'Tipo_Propiedad'),
             )
             ->allowedSorts(
+                AllowedSort::field('id', 'ID_Propiedad'),
                 AllowedSort::field('address', 'Dir_Propiedad'),
                 AllowedSort::field('price', 'Precio_Propiedad'),
                 AllowedSort::field('type', 'Tipo_Propiedad'),
             )
-            ->defaultSort(AllowedSort::field('address', 'Dir_Propiedad'))
+            ->defaultSort(AllowedSort::field('-id', 'ID_Propiedad'))
             ->allowedIncludes('city')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $q = $request->string('q')->value();

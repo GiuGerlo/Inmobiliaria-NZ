@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { MadeByGerlo } from '@/components/MadeByGerlo';
 import { isValidationError, errorStatus, errorMessage } from '@/lib/api-error';
 import { useAuth, useLogin } from './useAuth';
 import { loginSchema, type LoginFormValues } from './schema';
@@ -100,12 +101,13 @@ export function LoginPage() {
         </div>
 
         <p className="relative text-xs text-sidebar-foreground/40">
-          © {new Date().getFullYear()} · Estudio Jurídico-Inmobiliario
+          © {new Date().getFullYear()} · Estudio Jurídico-Inmobiliario Nadina Zaranich
         </p>
       </aside>
 
       {/* Panel del formulario */}
-      <main className="flex items-center justify-center bg-background p-6 sm:p-10">
+      <main className="flex flex-col bg-background p-6 sm:p-10">
+        <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-sm">
           {/* Logo compacto solo en mobile (el panel navy está oculto) */}
           <div className="mb-8 flex flex-col items-center text-center lg:hidden">
@@ -177,6 +179,10 @@ export function LoginPage() {
               </Button>
             </form>
           </Form>
+        </div>
+        </div>
+        <div className="flex justify-center pt-6">
+          <MadeByGerlo variant="light" className="items-center text-center" />
         </div>
       </main>
     </div>

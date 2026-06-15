@@ -38,10 +38,11 @@ final class OwnerController extends Controller
                 AllowedFilter::exact('city_code', 'CodP'),
             )
             ->allowedSorts(
+                AllowedSort::field('id', 'ID_Dueno'),
                 AllowedSort::field('name', 'NYA_Dueno'),
                 AllowedSort::field('email', 'Email_Dueno'),
             )
-            ->defaultSort(AllowedSort::field('name', 'NYA_Dueno'))
+            ->defaultSort(AllowedSort::field('-id', 'ID_Dueno'))
             ->allowedIncludes('city')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $q = $request->string('q')->value();

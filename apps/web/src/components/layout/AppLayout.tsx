@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
+import { MadeByGerlo } from '@/components/MadeByGerlo';
 
 function Brand() {
   return (
@@ -28,14 +29,25 @@ export function AppLayout() {
         <div className="flex-1 overflow-y-auto pb-4">
           <SidebarNav />
         </div>
+        <div className="border-t border-sidebar-border px-5 py-4">
+          <MadeByGerlo variant="dark" orientation="horizontal" />
+        </div>
       </aside>
 
       {/* Drawer mobile */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-64 border-0 bg-sidebar p-0 text-sidebar-foreground">
+        <SheetContent
+          side="left"
+          className="flex w-64 flex-col border-0 bg-sidebar p-0 text-sidebar-foreground"
+        >
           <SheetTitle className="sr-only">Navegación</SheetTitle>
           <Brand />
-          <SidebarNav onNavigate={() => setMobileOpen(false)} />
+          <div className="flex-1 overflow-y-auto">
+            <SidebarNav onNavigate={() => setMobileOpen(false)} />
+          </div>
+          <div className="border-t border-sidebar-border px-5 py-4">
+            <MadeByGerlo variant="dark" orientation="horizontal" />
+          </div>
         </SheetContent>
       </Sheet>
 

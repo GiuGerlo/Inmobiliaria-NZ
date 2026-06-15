@@ -16,6 +16,8 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 };
+globalThis.URL.createObjectURL ??= () => 'blob:mock';
+globalThis.URL.revokeObjectURL ??= () => {};
 globalThis.matchMedia ??= ((query: string) => ({
   matches: false,
   media: query,

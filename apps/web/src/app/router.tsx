@@ -3,6 +3,10 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { CitiesPage } from '@/features/cities/CitiesPage';
+import { PaymentMethodsPage } from '@/features/payment-methods/PaymentMethodsPage';
+import { OwnersPage } from '@/features/owners/OwnersPage';
+import { TenantsPage } from '@/features/tenants/TenantsPage';
+import { PropertiesPage } from '@/features/properties/PropertiesPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -14,6 +18,10 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="/ciudades" replace /> },
           { path: 'ciudades', element: <CitiesPage /> },
+          { path: 'formas-pago', element: <PaymentMethodsPage /> },
+          { path: 'duenos', element: <OwnersPage /> },
+          { path: 'inquilinos', element: <TenantsPage /> },
+          { path: 'propiedades', element: <PropertiesPage /> },
           { path: '*', element: <Navigate to="/ciudades" replace /> },
         ],
       },

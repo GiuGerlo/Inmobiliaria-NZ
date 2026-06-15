@@ -38,10 +38,11 @@ final class TenantController extends Controller
                 AllowedFilter::exact('city_code', 'CodP'),
             )
             ->allowedSorts(
+                AllowedSort::field('id', 'ID_Inquilino'),
                 AllowedSort::field('name', 'NYA_Inquilino'),
                 AllowedSort::field('email', 'Email_Inquilino'),
             )
-            ->defaultSort(AllowedSort::field('name', 'NYA_Inquilino'))
+            ->defaultSort(AllowedSort::field('-id', 'ID_Inquilino'))
             ->allowedIncludes('city')
             ->when($request->filled('q'), function ($query) use ($request) {
                 $q = $request->string('q')->value();

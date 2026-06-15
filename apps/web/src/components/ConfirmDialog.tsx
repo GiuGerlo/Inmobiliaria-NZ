@@ -1,4 +1,5 @@
-import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Loader2, TriangleAlert } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -18,10 +19,12 @@ type ConfirmDialogProps = {
   cancelLabel?: string;
   destructive?: boolean;
   loading?: boolean;
+  /** Pide un segundo "¿estás seguro?" antes de ejecutar (default true). */
+  doubleConfirm?: boolean;
   onConfirm: () => void;
 };
 
-/** Diálogo de confirmación reutilizable (borrados, acciones irreversibles). */
+/** Diálogo de confirmación reutilizable con doble confirmación para acciones irreversibles. */
 export function ConfirmDialog({
   open,
   onOpenChange,
@@ -31,14 +34,39 @@ export function ConfirmDialog({
   cancelLabel = 'Cancelar',
   destructive = false,
   loading = false,
+  doubleConfirm = true,
   onConfirm,
 }: ConfirmDialogProps) {
+  const [armed, setArmed] = useState(false);
+
+  // Resetea el segundo paso cada vez que se cierra el diálogo (patrón estándar
+  // de sincronizar estado transitorio con una prop controlada).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!open) setArmed(false);
+  }, [open]);
+
+  function handleConfirm() {
+    if (doubleConfirm && !armed) {
+      setArmed(true);
+      return;
+    }
+    onConfirm();
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle>{armed ? '¿Estás seguro?' : title}</DialogTitle>
+          {armed ? (
+            <DialogDescription className="flex items-start gap-2 text-destructive">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+              Esta acción es permanente y no se puede deshacer. Confirmá para continuar.
+            </DialogDescription>
+          ) : (
+            description && <DialogDescription>{description}</DialogDescription>
+          )}
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
@@ -46,11 +74,11 @@ export function ConfirmDialog({
           </Button>
           <Button
             variant={destructive ? 'destructive' : 'default'}
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={loading}
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            {confirmLabel}
+            {armed ? `Sí, ${confirmLabel.toLowerCase()}` : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

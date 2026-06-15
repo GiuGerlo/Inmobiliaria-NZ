@@ -49,6 +49,7 @@ describe('CitiesPage', () => {
 
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }));
+    await user.click(within(dialog).getByRole('button', { name: /Sí, eliminar/i }));
 
     expect(
       await screen.findByText(/tiene propiedades asociadas/i),

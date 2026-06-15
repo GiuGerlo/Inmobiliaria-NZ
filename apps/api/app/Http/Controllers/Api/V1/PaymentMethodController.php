@@ -34,7 +34,7 @@ final class PaymentMethodController extends Controller
                 AllowedSort::field('id', 'ID_FP'),
                 AllowedSort::field('description', 'Desc_FP'),
             )
-            ->defaultSort(AllowedSort::field('description', 'Desc_FP'))
+            ->defaultSort(AllowedSort::field('-id', 'ID_FP'))
             ->when($request->filled('q'), function ($query) use ($request) {
                 $query->where('Desc_FP', 'like', '%'.$request->string('q')->value().'%');
             })
