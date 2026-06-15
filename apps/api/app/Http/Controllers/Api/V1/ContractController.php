@@ -13,6 +13,7 @@ use App\Http\Resources\ContractResource;
 use App\Models\Contract;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -42,6 +43,13 @@ final class ContractController extends Controller
                 AllowedFilter::exact('tenant_id', 'ID_Inquilino'),
                 AllowedFilter::exact('property_id', 'ID_Propiedad'),
                 AllowedFilter::exact('certification', 'Certificacion'),
+                // Rango por fecha de inicio del contrato.
+                AllowedFilter::callback('start_from', function (Builder $query, $value): void {
+                    $query->whereDate('F_Inicio', '>=', $value);
+                }),
+                AllowedFilter::callback('start_to', function (Builder $query, $value): void {
+                    $query->whereDate('F_Inicio', '<=', $value);
+                }),
             )
             ->allowedSorts(
                 AllowedSort::field('id', 'ID_Contrato'),

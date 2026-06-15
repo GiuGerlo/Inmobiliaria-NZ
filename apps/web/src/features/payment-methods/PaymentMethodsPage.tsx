@@ -20,7 +20,7 @@ function toSortParam(sorting: SortingState): string | undefined {
 }
 
 export function PaymentMethodsPage() {
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 15 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   // Sin sort inicial → el backend ordena por más reciente (default -id).
   const [sorting, setSorting] = useState<SortingState>([]);
   const [search, setSearch] = useState('');

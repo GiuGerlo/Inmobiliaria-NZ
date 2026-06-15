@@ -6,12 +6,17 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/data-table/DataTable';
 import { DataTableToolbar } from '@/components/data-table/DataTableToolbar';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
-import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { errorMessage } from '@/lib/api-error';
-import { buildPropertyColumns } from './columns';
-import { PropertyFormDialog } from './PropertyFormDialog';
-import { useProperties, useDeleteProperty } from './queries';
-import type { Property, PropertyListParams } from './types';
+import { buildContractColumns } from './columns';
+import { ContractFormDialog } from './ContractFormDialog';
+import { ContractFilters } from './ContractFilters';
+import { useContracts, useDeleteContract } from './queries';
+import {
+  emptyContractFilters,
+  type Contract,
+  type ContractFilters as Filters,
+  type ContractListParams,
+} from './types';
 
 function toSortParam(sorting: SortingState): string | undefined {
   const sort = sorting[0];
@@ -19,40 +24,43 @@ function toSortParam(sorting: SortingState): string | undefined {
   return sort.desc ? `-${sort.id}` : sort.id;
 }
 
-export function PropertiesPage() {
+export function ContractsPage() {
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   // Sin sort inicial → el backend ordena por más reciente (default -id).
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebouncedValue(search, 300);
+  const [filters, setFilters] = useState<Filters>(emptyContractFilters);
 
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Property | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
+  const [editing, setEditing] = useState<Contract | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Contract | null>(null);
 
-  function handleSearchChange(value: string) {
-    setSearch(value);
+  function handleFiltersChange(next: Filters) {
+    setFilters(next);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }
 
-  const params: PropertyListParams = {
+  const params: ContractListParams = {
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
     sort: toSortParam(sorting),
-    q: debouncedSearch || undefined,
+    certification: filters.certification === 'all' ? undefined : filters.certification,
+    ownerId: filters.ownerId ?? undefined,
+    tenantId: filters.tenantId ?? undefined,
+    startFrom: filters.startFrom || undefined,
+    startTo: filters.startTo || undefined,
   };
 
-  const { data, isLoading, isFetching } = useProperties(params);
-  const deleteProperty = useDeleteProperty();
+  const { data, isLoading, isFetching } = useContracts(params);
+  const deleteContract = useDeleteContract();
 
   const columns = useMemo(
     () =>
-      buildPropertyColumns({
-        onEdit: (property) => {
-          setEditing(property);
+      buildContractColumns({
+        onEdit: (contract) => {
+          setEditing(contract);
           setFormOpen(true);
         },
-        onDelete: (property) => setDeleteTarget(property),
+        onDelete: (contract) => setDeleteTarget(contract),
       }),
     [],
   );
@@ -64,13 +72,13 @@ export function PropertiesPage() {
 
   function confirmDelete() {
     if (!deleteTarget) return;
-    deleteProperty.mutate(deleteTarget.id, {
+    deleteContract.mutate(deleteTarget.id, {
       onSuccess: () => {
-        toast.success('Propiedad eliminada.');
+        toast.success('Contrato eliminado.');
         setDeleteTarget(null);
       },
       onError: (error) => {
-        toast.error(errorMessage(error, 'No pudimos eliminar la propiedad.'));
+        toast.error(errorMessage(error, 'No pudimos eliminar el contrato.'));
         setDeleteTarget(null);
       },
     });
@@ -80,8 +88,8 @@ export function PropertiesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Propiedades</h1>
-          <p className="text-sm text-muted-foreground">Inmuebles administrados y sus datos.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Contratos</h1>
+          <p className="text-sm text-muted-foreground">Contratos de alquiler vigentes e históricos.</p>
         </div>
       </div>
 
@@ -95,36 +103,34 @@ export function PropertiesPage() {
         sorting={sorting}
         onSortingChange={setSorting}
         isLoading={isLoading || isFetching}
-        emptyMessage="No hay propiedades cargadas."
+        emptyMessage="No hay contratos cargados."
         toolbar={
           <DataTableToolbar
-            search={search}
-            onSearchChange={handleSearchChange}
-            searchPlaceholder="Buscar por dirección o características…"
+            filters={<ContractFilters filters={filters} onChange={handleFiltersChange} />}
             actions={
               <Button onClick={openCreate}>
                 <Plus className="size-4" />
-                Nueva propiedad
+                Nuevo contrato
               </Button>
             }
           />
         }
       />
 
-      <PropertyFormDialog open={formOpen} onOpenChange={setFormOpen} property={editing} />
+      <ContractFormDialog open={formOpen} onOpenChange={setFormOpen} contract={editing} />
 
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Eliminar propiedad"
+        title="Eliminar contrato"
         description={
           deleteTarget
-            ? `¿Eliminar "${deleteTarget.address}"? Esta acción no se puede deshacer.`
+            ? `¿Eliminar el contrato #${deleteTarget.id}? Esta acción no se puede deshacer.`
             : undefined
         }
         confirmLabel="Eliminar"
         destructive
-        loading={deleteProperty.isPending}
+        loading={deleteContract.isPending}
         onConfirm={confirmDelete}
       />
     </div>

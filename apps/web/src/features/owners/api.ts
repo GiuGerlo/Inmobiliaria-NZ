@@ -31,3 +31,9 @@ export async function updateOwner(id: number, input: OwnerInput): Promise<Owner>
 export async function deleteOwner(id: number): Promise<void> {
   await api.delete(`/owners/${id}`);
 }
+
+/** Opciones para el EntityCombobox de dueño (value = id, label = nombre). */
+export async function fetchOwnerOptions(query: string) {
+  const { data } = await listOwners({ page: 1, perPage: 20, q: query || undefined });
+  return data.map((owner) => ({ value: owner.id, label: owner.name }));
+}

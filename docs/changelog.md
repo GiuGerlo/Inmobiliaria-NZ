@@ -2,6 +2,25 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-15] sub-E (cont.) — CRUD de recursos (5 de 6) — EN PROGRESO
+
+**Resumen**: Sobre el patrón de Ciudades, se construyó el CRUD de 5 recursos más en `fase/E-frontend`. Falta **Recibos** y el cierre de fase (changelog final + roadmap DONE + /security-review).
+
+**Hecho**:
+- **Formas de pago, Dueños, Inquilinos, Propiedades (con foto), Contratos** — cada uno como módulo `features/<x>/` (types, api, queries, schema, columns, Page, FormDialog) espejo de `features/cities/`.
+- **`EntityCombobox`** (`components/form/`): selector FK con búsqueda server-side (`?q`), `clearable` opcional. Usado para ciudad (dueños/inquilinos/propiedades) y dueño/inquilino/propiedad (contratos). shadcn `command`+`popover`.
+- **Foto de propiedad**: upload/preview/borrado (`POST/DELETE /properties/{id}/photo`); el guardado de datos no se bloquea si falla la foto.
+- **`ConfirmDialog`**: doble confirmación ("¿Estás seguro?") en todos los borrados.
+- **Paginación** (en `DataTablePagination`): default **10**, selector 10/20/30/50.
+- **Orden "más recientes primero"**: `defaultSort(-id)` en owners/tenants/properties/payment-methods (api) + tablas sin sort inicial. Ciudades por nombre (sin id de alta).
+- **Contratos**: filtros por certificación, dueño, inquilino y rango de fecha de inicio (`start_from`/`start_to`, nuevos callbacks en `ContractController`). Toolbar con search opcional + popover de filtros.
+- **Identidad**: login split-brand navy, primary `#13294b`, dorado `--nz-gold`, favicon, crédito "Desarrollado por Giuliano Gerlo" (`MadeByGerlo`) en sidebar/login.
+- Tests Vitest+MSW por recurso. Suite web **26 verde**; pest **sin romper** (controllers tocados verdes).
+
+**Pendiente**: Recibos (contrato+forma de pago comboboxes, fecha de pago, 8 montos, mes/año, comentarios; es hoja → borrado directo) + cierre.
+
+**Breaking**: nada. **Migración**: `pnpm install` (deps nuevas) — automático en `docker compose up` del container `node-dev`.
+
 ## [2026-06-12] sub-E — Frontend React core (fundación + slice Ciudades)
 
 **Resumen**: Fundación de la SPA con identidad NZ y un vertical slice CRUD completo de Ciudades como patrón replicable. La SPA pasó de scaffold (health-check) a app real: login Sanctum, layout navy, tablas server-side y modales. Los otros 6 recursos quedan para sub-fases E2+.

@@ -5,6 +5,7 @@ import type { PaymentMethod } from '@/features/payment-methods/types';
 import type { Owner } from '@/features/owners/types';
 import type { Tenant } from '@/features/tenants/types';
 import type { Property } from '@/features/properties/types';
+import type { Contract } from '@/features/contracts/types';
 
 const API = '/api/v1';
 
@@ -25,6 +26,7 @@ let paymentMethods: PaymentMethod[] = [];
 let owners: Owner[] = [];
 let tenants: Tenant[] = [];
 let properties: Property[] = [];
+let contracts: Contract[] = [];
 
 export function seedCities(rows: City[]): void {
   cities = [...rows];
@@ -75,6 +77,43 @@ export function resetStore(): void {
       city: cities[1],
     },
   ];
+  contracts = [
+    {
+      id: 1,
+      owner_id: 1,
+      tenant_id: 1,
+      property_id: 1,
+      start_date: '2025-01-01',
+      end_date: '2026-01-01',
+      balance: 0,
+      certification: 'Si',
+      owner: owners[0],
+      tenant: tenants[0],
+      property: properties[0],
+    },
+    {
+      id: 2,
+      owner_id: 2,
+      tenant_id: 2,
+      property_id: 2,
+      start_date: '2025-03-01',
+      end_date: '2026-03-01',
+      balance: 5000,
+      certification: 'No',
+      owner: owners[1],
+      tenant: tenants[1],
+      property: properties[1],
+    },
+  ];
+}
+
+function withContractRelations(contract: Contract): Contract {
+  return {
+    ...contract,
+    owner: owners.find((o) => o.id === contract.owner_id),
+    tenant: tenants.find((t) => t.id === contract.tenant_id),
+    property: properties.find((p) => p.id === contract.property_id),
+  };
 }
 
 /** Handlers por defecto: usuario autenticado + CRUD de ciudades funcional. */
@@ -272,6 +311,42 @@ export const handlers = [
   http.delete(`${API}/properties/:id/photo`, ({ params }) => {
     const id = Number(params.id);
     properties = properties.map((p) => (p.id === id ? { ...p, photo_url: null } : p));
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get(`${API}/contracts`, ({ request }) => {
+    const sp = new URL(request.url).searchParams;
+    const cert = sp.get('filter[certification]');
+    const ownerId = sp.get('filter[owner_id]');
+    const tenantId = sp.get('filter[tenant_id]');
+    const startFrom = sp.get('filter[start_from]');
+    const startTo = sp.get('filter[start_to]');
+    let filtered = contracts;
+    if (cert) filtered = filtered.filter((c) => c.certification === cert);
+    if (ownerId) filtered = filtered.filter((c) => c.owner_id === Number(ownerId));
+    if (tenantId) filtered = filtered.filter((c) => c.tenant_id === Number(tenantId));
+    if (startFrom) filtered = filtered.filter((c) => c.start_date >= startFrom);
+    if (startTo) filtered = filtered.filter((c) => c.start_date <= startTo);
+    return HttpResponse.json(paginated(filtered.map(withContractRelations)));
+  }),
+
+  http.post(`${API}/contracts`, async ({ request }) => {
+    const input = (await request.json()) as Omit<Contract, 'id' | 'owner' | 'tenant' | 'property'>;
+    const created = withContractRelations({ ...input, id: contracts.length + 1, balance: input.balance ?? 0 });
+    contracts.push(created);
+    return HttpResponse.json({ data: created }, { status: 201 });
+  }),
+
+  http.patch(`${API}/contracts/:id`, async ({ request, params }) => {
+    const input = (await request.json()) as Omit<Contract, 'id' | 'owner' | 'tenant' | 'property'>;
+    const id = Number(params.id);
+    const updated = withContractRelations({ ...input, id, balance: input.balance ?? 0 });
+    contracts = contracts.map((c) => (c.id === id ? updated : c));
+    return HttpResponse.json({ data: updated });
+  }),
+
+  http.delete(`${API}/contracts/:id`, ({ params }) => {
+    contracts = contracts.filter((c) => c.id !== Number(params.id));
     return new HttpResponse(null, { status: 204 });
   }),
 ];

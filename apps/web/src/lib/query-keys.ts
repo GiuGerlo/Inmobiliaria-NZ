@@ -3,6 +3,7 @@ import type { PaymentMethodListParams } from '@/features/payment-methods/types';
 import type { OwnerListParams } from '@/features/owners/types';
 import type { TenantListParams } from '@/features/tenants/types';
 import type { PropertyListParams } from '@/features/properties/types';
+import type { ContractListParams } from '@/features/contracts/types';
 
 /** Factories de query keys para React Query — una fuente de verdad por recurso. */
 export const queryKeys = {
@@ -27,5 +28,9 @@ export const queryKeys = {
   properties: {
     all: ['properties'] as const,
     list: (params: PropertyListParams) => ['properties', 'list', params] as const,
+  },
+  contracts: {
+    all: ['contracts'] as const,
+    list: (params: ContractListParams) => ['contracts', 'list', params] as const,
   },
 };

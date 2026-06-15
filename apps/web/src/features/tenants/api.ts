@@ -31,3 +31,9 @@ export async function updateTenant(id: number, input: TenantInput): Promise<Tena
 export async function deleteTenant(id: number): Promise<void> {
   await api.delete(`/tenants/${id}`);
 }
+
+/** Opciones para el EntityCombobox de inquilino (value = id, label = nombre). */
+export async function fetchTenantOptions(query: string) {
+  const { data } = await listTenants({ page: 1, perPage: 20, q: query || undefined });
+  return data.map((tenant) => ({ value: tenant.id, label: tenant.name }));
+}

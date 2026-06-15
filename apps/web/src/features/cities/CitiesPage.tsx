@@ -20,7 +20,7 @@ function toSortParam(sorting: SortingState): string | undefined {
 }
 
 export function CitiesPage() {
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 15 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
   const [sorting, setSorting] = useState<SortingState>([{ id: 'name', desc: false }]);
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -31,6 +31,8 @@ type EntityComboboxProps<V extends string | number> = {
   searchPlaceholder?: string;
   emptyMessage?: string;
   disabled?: boolean;
+  /** Muestra un botón para limpiar la selección (útil en filtros). */
+  clearable?: boolean;
   id?: string;
 };
 
@@ -48,6 +50,7 @@ export function EntityCombobox<V extends string | number>({
   searchPlaceholder = 'Buscar…',
   emptyMessage = 'Sin resultados.',
   disabled,
+  clearable,
   id,
 }: EntityComboboxProps<V>) {
   const [open, setOpen] = useState(false);
@@ -66,20 +69,41 @@ export function EntityCombobox<V extends string | number>({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          id={id}
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn('w-full justify-between font-normal', !selectedLabel && 'text-muted-foreground')}
-        >
-          <span className="truncate">{selectedLabel ?? placeholder}</span>
-          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+      <div className="relative">
+        <PopoverTrigger asChild>
+          <Button
+            id={id}
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              'w-full justify-between font-normal',
+              !selectedLabel && 'text-muted-foreground',
+              clearable && value !== null && 'pr-9',
+            )}
+          >
+            <span className="truncate">{selectedLabel ?? placeholder}</span>
+            {!(clearable && value !== null) && (
+              <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+            )}
+          </Button>
+        </PopoverTrigger>
+        {clearable && value !== null && (
+          <button
+            type="button"
+            aria-label="Quitar selección"
+            onClick={(event) => {
+              event.stopPropagation();
+              onChange(null);
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-0.5 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        )}
+      </div>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command shouldFilter={false}>
           <CommandInput placeholder={searchPlaceholder} value={search} onValueChange={setSearch} />

@@ -7,6 +7,7 @@ import { PaymentMethodsPage } from '@/features/payment-methods/PaymentMethodsPag
 import { OwnersPage } from '@/features/owners/OwnersPage';
 import { TenantsPage } from '@/features/tenants/TenantsPage';
 import { PropertiesPage } from '@/features/properties/PropertiesPage';
+import { ContractsPage } from '@/features/contracts/ContractsPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
           { path: 'duenos', element: <OwnersPage /> },
           { path: 'inquilinos', element: <TenantsPage /> },
           { path: 'propiedades', element: <PropertiesPage /> },
+          { path: 'contratos', element: <ContractsPage /> },
           { path: '*', element: <Navigate to="/ciudades" replace /> },
         ],
       },
