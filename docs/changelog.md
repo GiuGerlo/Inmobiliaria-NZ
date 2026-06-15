@@ -2,22 +2,23 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
-## [2026-06-15] sub-E (cont.) — CRUD de recursos (5 de 6) — EN PROGRESO
+## [2026-06-15] sub-E — Frontend React core (CRUD de los 7 recursos) — DONE
 
-**Resumen**: Sobre el patrón de Ciudades, se construyó el CRUD de 5 recursos más en `fase/E-frontend`. Falta **Recibos** y el cierre de fase (changelog final + roadmap DONE + /security-review).
+**Resumen**: Sobre el patrón de Ciudades se completó el CRUD de los 6 recursos restantes en `fase/E-frontend`, cerrando el frontend core. Todo el dominio (Ciudades, Formas de pago, Dueños, Inquilinos, Propiedades, Contratos, Recibos) ya tiene su slice React. La generación de PDFs (recibo individual, rendición y listado mensual) queda explícitamente diferida a **sub-F**.
 
 **Hecho**:
-- **Formas de pago, Dueños, Inquilinos, Propiedades (con foto), Contratos** — cada uno como módulo `features/<x>/` (types, api, queries, schema, columns, Page, FormDialog) espejo de `features/cities/`.
-- **`EntityCombobox`** (`components/form/`): selector FK con búsqueda server-side (`?q`), `clearable` opcional. Usado para ciudad (dueños/inquilinos/propiedades) y dueño/inquilino/propiedad (contratos). shadcn `command`+`popover`.
+- **Formas de pago, Dueños, Inquilinos, Propiedades (con foto), Contratos, Recibos** — cada uno como módulo `features/<x>/` (types, api, queries, schema, columns, Page, FormDialog) espejo de `features/cities/`.
+- **`EntityCombobox`** (`components/form/`): selector FK con búsqueda server-side (`?q`), `clearable` opcional. Usado para ciudad (dueños/inquilinos/propiedades), dueño/inquilino/propiedad (contratos) y contrato/forma de pago (recibos). shadcn `command`+`popover`.
 - **Foto de propiedad**: upload/preview/borrado (`POST/DELETE /properties/{id}/photo`); el guardado de datos no se bloquea si falla la foto.
 - **`ConfirmDialog`**: doble confirmación ("¿Estás seguro?") en todos los borrados.
 - **Paginación** (en `DataTablePagination`): default **10**, selector 10/20/30/50.
-- **Orden "más recientes primero"**: `defaultSort(-id)` en owners/tenants/properties/payment-methods (api) + tablas sin sort inicial. Ciudades por nombre (sin id de alta).
+- **Orden "más recientes primero"**: `defaultSort(-id)` en owners/tenants/properties/payment-methods (api) + tablas sin sort inicial. Ciudades por nombre; recibos por `-number`.
 - **Contratos**: filtros por certificación, dueño, inquilino y rango de fecha de inicio (`start_from`/`start_to`, nuevos callbacks en `ContractController`). Toolbar con search opcional + popover de filtros.
+- **Recibos** (`features/receipts/`): es **hoja** → borrado directo (sin 409). Form con contrato + forma de pago (comboboxes), fecha de pago, los 8 montos, mes (Enero..Diciembre) / año, comentarios; validación espejo de `StoreReceiptRequest`. Filtros por contrato + forma de pago + mes + año. Tabla con paridad legacy: **Nº · Contrato (Dueño - Inquilino) · FP · Fecha · Pago · Mes · Año · Mun. · Agua · Electr. · Gas · Arreglo · Otros · Honor.** Combobox de contrato muestra `Dueño - Inquilino` (espejo del `CONCAT` legacy). Nuevo `Textarea` (shadcn) para comentarios y `fetchPaymentMethodOptions`.
 - **Identidad**: login split-brand navy, primary `#13294b`, dorado `--nz-gold`, favicon, crédito "Desarrollado por Giuliano Gerlo" (`MadeByGerlo`) en sidebar/login.
-- Tests Vitest+MSW por recurso. Suite web **26 verde**; pest **sin romper** (controllers tocados verdes).
+- Tests Vitest+MSW por recurso. Suite web **30 verde**; pest **sin romper** (controllers tocados verdes).
 
-**Pendiente**: Recibos (contrato+forma de pago comboboxes, fecha de pago, 8 montos, mes/año, comentarios; es hoja → borrado directo) + cierre.
+**Diferido a sub-F (PDFs)**: el legacy de recibos incluye "Generar PDF" mensual (`pagos.php`), PDF de recibo individual (`generar-recibo.php`) y PDF de rendición (`generar-rendicion.php`). Esas 3 funcionalidades son generación de documentos desde Laravel = entregable de sub-F; no se pierden, se hacen en esa fase.
 
 **Breaking**: nada. **Migración**: `pnpm install` (deps nuevas) — automático en `docker compose up` del container `node-dev`.
 

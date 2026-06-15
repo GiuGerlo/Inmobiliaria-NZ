@@ -38,11 +38,21 @@ export async function deleteContract(id: number): Promise<void> {
   await api.delete(`/contracts/${id}`);
 }
 
-/** Opciones para el EntityCombobox de contrato (value = id, label = #id · propiedad). */
+/** Opciones para el EntityCombobox de contrato (value = id, label = "Dueño - Inquilino", espejo del legacy). */
 export async function fetchContractOptions(query: string) {
   const { data } = await listContracts({ page: 1, perPage: 20 });
   const q = query.toLowerCase();
   return data
-    .filter((c) => !q || c.property?.address.toLowerCase().includes(q) || String(c.id).includes(q))
-    .map((c) => ({ value: c.id, label: `#${c.id} · ${c.property?.address ?? 'Propiedad'}` }));
+    .filter(
+      (c) =>
+        !q ||
+        c.owner?.name.toLowerCase().includes(q) ||
+        c.tenant?.name.toLowerCase().includes(q) ||
+        c.property?.address.toLowerCase().includes(q) ||
+        String(c.id).includes(q),
+    )
+    .map((c) => ({
+      value: c.id,
+      label: `${c.owner?.name ?? 'Dueño'} - ${c.tenant?.name ?? 'Inquilino'}`,
+    }));
 }

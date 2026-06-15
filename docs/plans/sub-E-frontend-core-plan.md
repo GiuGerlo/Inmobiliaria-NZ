@@ -1,6 +1,6 @@
 # Plan — Sub-E Frontend React core (fundación + slice Ciudades)
 
-> Spec: `docs/superpowers/specs/2026-06-12-sub-E-frontend-core-design.md`. Estado: **DONE 2026-06-12** (pendiente solo `/security-review` del branch).
+> Spec: `docs/superpowers/specs/2026-06-12-sub-E-frontend-core-design.md`. Estado: **DONE 2026-06-15** (fundación + slice Ciudades el 2026-06-12; CRUD de los 6 recursos restantes + `/security-review` sin hallazgos el 2026-06-15). Recibos completó el último slice; PDFs del legacy diferidos a sub-F.
 
 ## Pasos
 

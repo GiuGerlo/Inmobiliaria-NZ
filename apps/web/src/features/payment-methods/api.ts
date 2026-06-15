@@ -37,3 +37,9 @@ export async function updatePaymentMethod(
 export async function deletePaymentMethod(id: number): Promise<void> {
   await api.delete(`/payment-methods/${id}`);
 }
+
+/** Opciones para el EntityCombobox de forma de pago (value = id, label = descripción). */
+export async function fetchPaymentMethodOptions(query: string) {
+  const { data } = await listPaymentMethods({ page: 1, perPage: 20, q: query || undefined });
+  return data.map((pm) => ({ value: pm.id, label: pm.description }));
+}

@@ -6,6 +6,7 @@ import type { Owner } from '@/features/owners/types';
 import type { Tenant } from '@/features/tenants/types';
 import type { Property } from '@/features/properties/types';
 import type { Contract } from '@/features/contracts/types';
+import type { Receipt, ReceiptInput } from '@/features/receipts/types';
 
 const API = '/api/v1';
 
@@ -27,6 +28,7 @@ let owners: Owner[] = [];
 let tenants: Tenant[] = [];
 let properties: Property[] = [];
 let contracts: Contract[] = [];
+let receipts: Receipt[] = [];
 
 export function seedCities(rows: City[]): void {
   cities = [...rows];
@@ -105,6 +107,50 @@ export function resetStore(): void {
       property: properties[1],
     },
   ];
+  receipts = [
+    {
+      number: 1,
+      contract_id: 1,
+      payment_method_id: 1,
+      paid_at: '2025-01-05',
+      property_amount: 120000,
+      municipal_amount: 0,
+      water_amount: 0,
+      electricity_amount: 0,
+      gas_amount: 0,
+      repairs_amount: 0,
+      funeral_amount: 0,
+      fees_amount: 0,
+      month: 'Enero',
+      year: 2025,
+      comments: null,
+    },
+    {
+      number: 2,
+      contract_id: 2,
+      payment_method_id: 2,
+      paid_at: '2025-02-05',
+      property_amount: 250000,
+      municipal_amount: 0,
+      water_amount: 0,
+      electricity_amount: 0,
+      gas_amount: 0,
+      repairs_amount: 0,
+      funeral_amount: 0,
+      fees_amount: 0,
+      month: 'Febrero',
+      year: 2025,
+      comments: null,
+    },
+  ];
+}
+
+function withReceiptRelations(receipt: Receipt): Receipt {
+  return {
+    ...receipt,
+    contract: contracts.find((c) => c.id === receipt.contract_id),
+    payment_method: paymentMethods.find((p) => p.id === receipt.payment_method_id),
+  };
 }
 
 function withContractRelations(contract: Contract): Contract {
@@ -347,6 +393,63 @@ export const handlers = [
 
   http.delete(`${API}/contracts/:id`, ({ params }) => {
     contracts = contracts.filter((c) => c.id !== Number(params.id));
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get(`${API}/receipts`, ({ request }) => {
+    const sp = new URL(request.url).searchParams;
+    const contractId = sp.get('filter[contract_id]');
+    const paymentMethodId = sp.get('filter[payment_method_id]');
+    const month = sp.get('filter[month]');
+    const year = sp.get('filter[year]');
+    let filtered = receipts;
+    if (contractId) filtered = filtered.filter((r) => r.contract_id === Number(contractId));
+    if (paymentMethodId)
+      filtered = filtered.filter((r) => r.payment_method_id === Number(paymentMethodId));
+    if (month) filtered = filtered.filter((r) => r.month === month);
+    if (year) filtered = filtered.filter((r) => r.year === Number(year));
+    return HttpResponse.json(paginated(filtered.map(withReceiptRelations)));
+  }),
+
+  http.post(`${API}/receipts`, async ({ request }) => {
+    const input = (await request.json()) as ReceiptInput;
+    const created = withReceiptRelations({
+      number: receipts.length + 1,
+      ...input,
+      municipal_amount: input.municipal_amount ?? 0,
+      water_amount: input.water_amount ?? 0,
+      electricity_amount: input.electricity_amount ?? 0,
+      gas_amount: input.gas_amount ?? 0,
+      repairs_amount: input.repairs_amount ?? 0,
+      funeral_amount: input.funeral_amount ?? 0,
+      fees_amount: input.fees_amount ?? 0,
+      comments: input.comments ?? null,
+    });
+    receipts.push(created);
+    return HttpResponse.json({ data: created }, { status: 201 });
+  }),
+
+  http.patch(`${API}/receipts/:number`, async ({ request, params }) => {
+    const input = (await request.json()) as ReceiptInput;
+    const number = Number(params.number);
+    const updated = withReceiptRelations({
+      number,
+      ...input,
+      municipal_amount: input.municipal_amount ?? 0,
+      water_amount: input.water_amount ?? 0,
+      electricity_amount: input.electricity_amount ?? 0,
+      gas_amount: input.gas_amount ?? 0,
+      repairs_amount: input.repairs_amount ?? 0,
+      funeral_amount: input.funeral_amount ?? 0,
+      fees_amount: input.fees_amount ?? 0,
+      comments: input.comments ?? null,
+    });
+    receipts = receipts.map((r) => (r.number === number ? updated : r));
+    return HttpResponse.json({ data: updated });
+  }),
+
+  http.delete(`${API}/receipts/:number`, ({ params }) => {
+    receipts = receipts.filter((r) => r.number !== Number(params.number));
     return new HttpResponse(null, { status: 204 });
   }),
 ];

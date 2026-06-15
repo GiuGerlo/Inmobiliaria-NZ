@@ -4,6 +4,7 @@ import type { OwnerListParams } from '@/features/owners/types';
 import type { TenantListParams } from '@/features/tenants/types';
 import type { PropertyListParams } from '@/features/properties/types';
 import type { ContractListParams } from '@/features/contracts/types';
+import type { ReceiptListParams } from '@/features/receipts/types';
 
 /** Factories de query keys para React Query — una fuente de verdad por recurso. */
 export const queryKeys = {
@@ -32,5 +33,9 @@ export const queryKeys = {
   contracts: {
     all: ['contracts'] as const,
     list: (params: ContractListParams) => ['contracts', 'list', params] as const,
+  },
+  receipts: {
+    all: ['receipts'] as const,
+    list: (params: ReceiptListParams) => ['receipts', 'list', params] as const,
   },
 };

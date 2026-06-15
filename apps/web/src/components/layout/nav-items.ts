@@ -18,7 +18,7 @@ export type NavItem = {
 
 /** Secciones del dominio. Solo Ciudades está activa en sub-E; el resto llega en E2+. */
 export const navItems: NavItem[] = [
-  { label: 'Recibos', to: '/recibos', icon: Receipt, enabled: false },
+  { label: 'Recibos', to: '/recibos', icon: Receipt, enabled: true },
   { label: 'Contratos', to: '/contratos', icon: FileText, enabled: true },
   { label: 'Propiedades', to: '/propiedades', icon: Home, enabled: true },
   { label: 'Ciudades', to: '/ciudades', icon: MapPin, enabled: true },
