@@ -2,6 +2,29 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-16] sub-F — PDFs (recibo, rendición, listado mensual) — DONE
+
+**Resumen**: Generación de los 3 documentos del legacy de recibos en la stack nueva (Laravel + React), con réplica fiel + pulido visual y branding NZ. Motor: spatie/laravel-pdf v2 sobre Gotenberg (Chromium en container aparte). Los 3 PDFs verificados end-to-end con render real.
+
+**Cambios**:
+- **Infra**: nuevo servicio `gotenberg` (`gotenberg/gotenberg:8`) en `docker-compose.yml` (red `appnet`, sin puerto público). `.env`: `LARAVEL_PDF_DRIVER=gotenberg`, `GOTENBERG_URL=http://gotenberg:3000`. Config publicada en `config/laravel-pdf.php`. ADR-0004 (aceptada).
+- **Deps**: `spatie/laravel-pdf` 2.12 + `luecano/numero-a-letras` 4.1 (reemplaza el conversor número→letras buggy del legacy: "docientos"/"trecientos").
+- **3 endpoints GET** bajo `auth:sanctum` + `NoStoreHeaders`, devuelven PDF inline: `/receipts/{receipt}/pdf` (recibo), `/receipts/{receipt}/settlement` (rendición), `/reports/monthly-payments?month=&year=` (listado mensual, landscape).
+- **Blades** en `resources/views/pdf/` (layout + partials brand-header/signature + receipt/settlement/monthly-payments). Logo y firma embebidos como **data URI base64** (`App\Support\PdfAsset`), assets en `resources/pdf-assets/`. Datos fijos de la inmobiliaria + `commission_rate` (10%) en `config/inmobiliaria.php`.
+- **Cálculos** centralizados en `App\Support\ReceiptCalculator` (total recibo, comisión, entrega rendición, entrega mensual) y filtrado del reporte en `App\Support\MonthlyPaymentsReport` (query **parametrizada** — corrige la SQL injection del legacy `pagos.php`).
+- **Frontend**: botones-ícono **inline** en la fila de Recibos (Detalle / Recibo / Rendición con tooltip) + control mes/año/"Generar PDF" en el toolbar; los PDF abren en **pestaña nueva** (`window.open`, cookie Sanctum).
+- **Modal de detalle** (`ReceiptDetailDialog`): cabecera navy con total en dorado, datos de contrato/pago, desglose separando los cargos que suman al recibo de los conceptos que van a la rendición (arreglos/otros), comentarios y accesos a los PDF. Estética coherente con el admin NZ.
+- **Tablas — scroll horizontal solo cuando hace falta**: se quitó el `whitespace-nowrap` de las celdas del `Table` compartido (a ancho normal las tablas entran sin barra); se mantiene `overflow-x-auto` para que aparezca la barra al hacer zoom/pantalla angosta, sin recortar contenido.
+- **Montos en 0 no se muestran**: el modal y los PDF (recibo/rendición) omiten la fila; la tabla de recibos y la grilla del listado mensual muestran "—". Menos ruido visual.
+- **Modal de detalle**: además de los PDF, botones **Editar** y **Eliminar** (con doble confirmación vía `ConfirmDialog`).
+- **PDF**: pie de página fijo en recibo y rendición (datos de la inmobiliaria); fuente general más grande para mejor legibilidad; en el recibo el bloque de contrato/concepto/dueño va alineado a la derecha (espejo del legacy).
+- **Inputs numéricos**: los campos en 0 se muestran vacíos (placeholder) en vez de un "0" pegado — evita el "0500" al editar. Aplica a recibos (montos/año) y al saldo de contratos.
+- **Config**: datos de la inmobiliaria como `NZ_*` en `.env(.example)` (defaults en `config/inmobiliaria.php`). Nombre real: **Nadina Zaranich**.
+- **Legacy (para comparación)**: el contenedor `legacy` ahora conecta a la DB del compose (`LEGACY_DB_*` → servicio `mariadb`/`inmobiliaria`, env-driven en `conexion.php`); y se corrigió la URL de las imágenes en los PDF del legacy (`/proyectos-php/inmobiliaria-nz/assets/` → `/assets/`) para que cargue logo y firma.
+- Tests: Pest **83→97** (+14: unit de cálculos + número→letras; feature de los 3 endpoints con render real %PDF, 401/404/422). Vitest **30→34** (`window.open` en los 3 botones + modal de detalle). Verificación manual: los 3 PDFs generados con datos reales, layout/datos/cálculos correctos; legacy comparado lado a lado.
+
+**Breaking**: nada. **Migración**: `docker compose up -d --build` (levanta el nuevo servicio `gotenberg` y recrea `legacy` con su DB); `composer install` en php-fpm (deps nuevas).
+
 ## [2026-06-15] sub-E — Frontend React core (CRUD de los 7 recursos) — DONE
 
 **Resumen**: Sobre el patrón de Ciudades se completó el CRUD de los 6 recursos restantes en `fase/E-frontend`, cerrando el frontend core. Todo el dominio (Ciudades, Formas de pago, Dueños, Inquilinos, Propiedades, Contratos, Recibos) ya tiene su slice React. La generación de PDFs (recibo individual, rendición y listado mensual) queda explícitamente diferida a **sub-F**.

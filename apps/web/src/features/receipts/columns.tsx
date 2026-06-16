@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Eye, FileSpreadsheet, FileText, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,11 +7,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader';
 import { formatCurrency, formatDate } from '@/lib/format';
+import { openReceiptPdf, openSettlementPdf } from './pdf';
 import type { Receipt } from './types';
 
 type ReceiptActions = {
+  onDetail: (receipt: Receipt) => void;
   onEdit: (receipt: Receipt) => void;
   onDelete: (receipt: Receipt) => void;
 };
@@ -36,12 +39,19 @@ const AMOUNT_COLUMNS: Array<{ key: keyof Receipt; header: string }> = [
   { key: 'fees_amount', header: 'Honor.' },
 ];
 
-export function buildReceiptColumns({ onEdit, onDelete }: ReceiptActions): ColumnDef<Receipt>[] {
+export function buildReceiptColumns({ onDetail, onEdit, onDelete }: ReceiptActions): ColumnDef<Receipt>[] {
   const amountColumns: ColumnDef<Receipt>[] = AMOUNT_COLUMNS.map(({ key, header }) => ({
     id: key,
     enableSorting: false,
-    header,
-    cell: ({ row }) => formatCurrency(row.original[key] as number),
+    header: () => <div className="text-right">{header}</div>,
+    cell: ({ row }) => {
+      const value = row.original[key] as number;
+      return (
+        <div className="text-right tabular-nums whitespace-nowrap">
+          {value > 0 ? formatCurrency(value) : <span className="text-muted-foreground">—</span>}
+        </div>
+      );
+    },
   }));
 
   return [
@@ -87,10 +97,52 @@ export function buildReceiptColumns({ onEdit, onDelete }: ReceiptActions): Colum
       cell: ({ row }) => {
         const receipt = row.original;
         return (
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-0.5">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-[#13294b] hover:text-[#13294b]"
+                  aria-label={`Ver detalle del recibo #${receipt.number}`}
+                  onClick={() => onDetail(receipt)}
+                >
+                  <Eye className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Ver detalle</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-emerald-700 hover:text-emerald-800"
+                  aria-label={`Recibo PDF del recibo #${receipt.number}`}
+                  onClick={() => openReceiptPdf(receipt.number)}
+                >
+                  <FileText className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Recibo PDF</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 text-sky-700 hover:text-sky-800"
+                  aria-label={`Rendición PDF del recibo #${receipt.number}`}
+                  onClick={() => openSettlementPdf(receipt.number)}
+                >
+                  <FileSpreadsheet className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Rendición PDF</TooltipContent>
+            </Tooltip>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={`Acciones del recibo #${receipt.number}`}>
+                <Button variant="ghost" size="icon" className="size-8" aria-label={`Acciones del recibo #${receipt.number}`}>
                   <MoreHorizontal className="size-4" />
                 </Button>
               </DropdownMenuTrigger>

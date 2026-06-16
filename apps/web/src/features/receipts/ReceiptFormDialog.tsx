@@ -240,7 +240,7 @@ export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDi
                           name={field.name}
                           ref={field.ref}
                           onBlur={field.onBlur}
-                          value={Number.isFinite(field.value) ? (field.value as number) : ''}
+                          value={field.value ? (field.value as number) : ''}
                           onChange={(e) =>
                             field.onChange(
                               e.target.value === '' ? undefined : e.target.valueAsNumber,
@@ -295,7 +295,7 @@ export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDi
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
-                        value={Number.isFinite(field.value) ? (field.value as number) : ''}
+                        value={field.value ? (field.value as number) : ''}
                         onChange={(e) =>
                           field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)
                         }

@@ -4,7 +4,13 @@ if (session_status() == PHP_SESSION_NONE) {
 } // Iniciar la sesión al principio
 
 // Configuración de la conexión según el entorno
-if ($_SERVER['HTTP_HOST'] === 'localhost') { // Entorno local
+if (getenv('LEGACY_DB_HOST')) { // Entorno Docker Compose (servicio mariadb)
+    $server = getenv('LEGACY_DB_HOST');
+    $username = getenv('LEGACY_DB_USER');
+    $password = getenv('LEGACY_DB_PASS');
+    $database = getenv('LEGACY_DB_NAME');
+    $port = (int) getenv('LEGACY_DB_PORT');
+} elseif ($_SERVER['HTTP_HOST'] === 'localhost') { // Entorno local
     $server = 'localhost';
     $username = 'root';
     $password = '';

@@ -238,7 +238,7 @@ export function ContractFormDialog({ open, onOpenChange, contract }: ContractFor
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}
-                        value={Number.isFinite(field.value) ? field.value : ''}
+                        value={field.value ? field.value : ''}
                         onChange={(e) =>
                           field.onChange(e.target.value === '' ? undefined : e.target.valueAsNumber)
                         }

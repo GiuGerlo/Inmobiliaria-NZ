@@ -10,7 +10,7 @@ import type { Receipt, ReceiptInput } from '@/features/receipts/types';
 
 const API = '/api/v1';
 
-const USER = { id: 1, name: 'Nadina Zalazar', email: 'admin@nz.com' };
+const USER = { id: 1, name: 'Nadina Zaranich', email: 'admin@nz.com' };
 
 /** Envuelve filas en la forma paginada de Laravel (1 sola página, suficiente para tests). */
 function paginated<T>(rows: T[]) {

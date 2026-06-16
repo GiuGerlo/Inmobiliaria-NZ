@@ -12,6 +12,8 @@
         "laravel/framework": "^13.8",
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
+        "luecano/numero-a-letras": "^4.1",
+        "spatie/laravel-pdf": "^2.12",
         "spatie/laravel-query-builder": "^7.3"
     },
     "require-dev": {

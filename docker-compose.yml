@@ -40,6 +40,8 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+      gotenberg:
+        condition: service_started
     networks: [appnet]
 
   # ----------------------- Node + Vite (HMR) -----------------------
@@ -53,6 +55,15 @@ services:
       - web-node-modules:/var/www/web/node_modules
     environment:
       VITE_API_URL: /api/v1
+    networks: [appnet]
+
+  # ----------------------- Gotenberg (motor PDF Chromium) -----------------------
+  # Renderiza HTML→PDF con Chromium headless. Lo consume php-fpm vía HTTP interno
+  # (spatie/laravel-pdf, driver gotenberg). Sin puerto público — ver ADR-0004.
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    # Chromium necesita esto para correr dentro del container sin privilegios extra.
+    command: ["gotenberg", "--chromium-disable-javascript=false"]
     networks: [appnet]
 
   # ----------------------- MariaDB -----------------------
@@ -107,6 +118,13 @@ services:
       - "${LEGACY_PORT:-8082}:80"
     volumes:
       - ./legacy:/var/www/legacy
+    # El legacy conecta al servicio mariadb (misma DB que la app nueva) para comparar.
+    environment:
+      LEGACY_DB_HOST: mariadb
+      LEGACY_DB_PORT: 3306
+      LEGACY_DB_NAME: ${DB_DATABASE:-inmobiliaria}
+      LEGACY_DB_USER: ${DB_USERNAME:-inmo}
+      LEGACY_DB_PASS: ${DB_PASSWORD:-cambiar_en_local}
     depends_on:
       mariadb:
         condition: service_healthy

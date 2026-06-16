@@ -197,7 +197,7 @@ $totalEnLetras = convertirNumeroALetras($total);
 <body>
     <div class="header">
         <div class="header-left">
-            <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/logo-nadina.jpg" alt="Logo Nadina">
+            <img src="http://localhost/assets/logo-nadina.jpg" alt="Logo Nadina">
             <!-- <img src="https://nz-administracion.net/assets/logo-nadina.jpg" alt="Logo Nadina"> -->
             <div class="info">
                 <strong>Localidad:</strong> Guatimozín | <strong>Teléfono:</strong> 3468-495281<br>
@@ -262,7 +262,7 @@ $totalEnLetras = convertirNumeroALetras($total);
     </div>
 
     <div class="firma">
-        <img src="http://localhost/proyectos-php/inmobiliaria-nz/assets/FirmaDigital.jpg" width="150px" alt="Firma">
+        <img src="http://localhost/assets/FirmaDigital.jpg" width="150px" alt="Firma">
         <!-- <img src="https://nz-administracion.net/assets/FirmaDigital.jpg" width="150px" alt="Firma"> -->
         <p>Firma</p>
     </div>

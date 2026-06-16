@@ -9,7 +9,9 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { errorMessage } from '@/lib/api-error';
 import { buildReceiptColumns } from './columns';
 import { ReceiptFormDialog } from './ReceiptFormDialog';
+import { ReceiptDetailDialog } from './ReceiptDetailDialog';
 import { ReceiptFilters } from './ReceiptFilters';
+import { MonthlyReportButton } from './MonthlyReportButton';
 import { useReceipts, useDeleteReceipt } from './queries';
 import {
   emptyReceiptFilters,
@@ -33,6 +35,7 @@ export function ReceiptsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Receipt | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Receipt | null>(null);
+  const [detailTarget, setDetailTarget] = useState<Receipt | null>(null);
 
   function handleFiltersChange(next: Filters) {
     setFilters(next);
@@ -55,6 +58,7 @@ export function ReceiptsPage() {
   const columns = useMemo(
     () =>
       buildReceiptColumns({
+        onDetail: (receipt) => setDetailTarget(receipt),
         onEdit: (receipt) => {
           setEditing(receipt);
           setFormOpen(true);
@@ -107,16 +111,30 @@ export function ReceiptsPage() {
           <DataTableToolbar
             filters={<ReceiptFilters filters={filters} onChange={handleFiltersChange} />}
             actions={
-              <Button onClick={openCreate}>
-                <Plus className="size-4" />
-                Nuevo recibo
-              </Button>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <MonthlyReportButton />
+                <Button onClick={openCreate}>
+                  <Plus className="size-4" />
+                  Nuevo recibo
+                </Button>
+              </div>
             }
           />
         }
       />
 
       <ReceiptFormDialog open={formOpen} onOpenChange={setFormOpen} receipt={editing} />
+
+      <ReceiptDetailDialog
+        open={!!detailTarget}
+        onOpenChange={(open) => !open && setDetailTarget(null)}
+        receipt={detailTarget}
+        onEdit={(receipt) => {
+          setEditing(receipt);
+          setFormOpen(true);
+        }}
+        onDelete={(receipt) => setDeleteTarget(receipt)}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}
