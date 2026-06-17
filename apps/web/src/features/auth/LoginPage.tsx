@@ -28,7 +28,7 @@ export function LoginPage() {
   const location = useLocation();
   const login = useLogin();
 
-  const from = (location.state as LocationState | null)?.from?.pathname ?? '/ciudades';
+  const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),

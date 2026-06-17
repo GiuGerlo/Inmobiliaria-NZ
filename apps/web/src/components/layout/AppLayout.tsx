@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router';
-import { Menu } from 'lucide-react';
+import { Menu, PanelLeft } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
 import { MadeByGerlo } from '@/components/MadeByGerlo';
+
+const SIDEBAR_KEY = 'nz-sidebar-collapsed';
 
 function Brand() {
   return (
@@ -20,17 +23,30 @@ function Brand() {
 
 export function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === '1');
+
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+  }, [collapsed]);
 
   return (
     <div className="flex min-h-svh">
-      {/* Sidebar escritorio */}
-      <aside className="hidden w-64 shrink-0 flex-col bg-sidebar md:flex">
-        <Brand />
-        <div className="flex-1 overflow-y-auto pb-4">
-          <SidebarNav />
-        </div>
-        <div className="border-t border-sidebar-border px-5 py-4">
-          <MadeByGerlo variant="dark" orientation="horizontal" />
+      {/* Sidebar escritorio — colapsable con transición de ancho */}
+      <aside
+        className={cn(
+          'hidden shrink-0 overflow-hidden bg-sidebar transition-[width] duration-300 ease-in-out motion-reduce:transition-none md:flex',
+          collapsed ? 'md:w-0' : 'md:w-64',
+        )}
+      >
+        {/* Contenido de ancho fijo: se clippea al colapsar en vez de reflowear. */}
+        <div className="flex h-full w-64 flex-1 flex-col">
+          <Brand />
+          <div className="flex-1 overflow-y-auto pb-4">
+            <SidebarNav />
+          </div>
+          <div className="border-t border-sidebar-border px-5 py-4">
+            <MadeByGerlo variant="dark" orientation="horizontal" />
+          </div>
         </div>
       </aside>
 
@@ -63,6 +79,16 @@ export function AppLayout() {
               aria-label="Abrir menú"
             >
               <Menu className="size-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden md:inline-flex"
+              onClick={() => setCollapsed((v) => !v)}
+              aria-label={collapsed ? 'Mostrar menú' : 'Ocultar menú'}
+              aria-pressed={collapsed}
+            >
+              <PanelLeft className="size-5" />
             </Button>
           </div>
           <UserMenu />

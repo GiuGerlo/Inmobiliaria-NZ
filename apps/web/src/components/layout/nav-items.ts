@@ -2,6 +2,7 @@ import {
   Building2,
   FileText,
   Home,
+  LayoutDashboard,
   MapPin,
   Receipt,
   Users,
@@ -18,6 +19,7 @@ export type NavItem = {
 
 /** Secciones del dominio. Solo Ciudades está activa en sub-E; el resto llega en E2+. */
 export const navItems: NavItem[] = [
+  { label: 'Inicio', to: '/', icon: LayoutDashboard, enabled: true },
   { label: 'Recibos', to: '/recibos', icon: Receipt, enabled: true },
   { label: 'Contratos', to: '/contratos', icon: FileText, enabled: true },
   { label: 'Propiedades', to: '/propiedades', icon: Home, enabled: true },

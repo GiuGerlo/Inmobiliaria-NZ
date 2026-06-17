@@ -2,6 +2,28 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-16] sub-G — Dashboard / Inicio — DONE
+
+**Resumen**: Nueva pantalla de **Inicio** (`/`, landing post-login) con visión operativa de un vistazo — algo que el legacy nunca tuvo. Tres bloques accionables, **sin métricas de ingresos** (decisión del usuario): totales del sistema, recibos pendientes del mes y contratos por vencer (90 días). Un único endpoint agregado + una página linda (skill `frontend-design`) cohesiva con el tema navy/dorado NZ.
+
+**Cambios**:
+- **Backend — un endpoint agregado** `GET /api/v1/dashboard` bajo `auth:sanctum` + `NoStoreHeaders` (devuelve PII → `Cache-Control: no-store`). Sin parámetros: deriva mes/año de `now()`.
+- **`App\Support\DashboardData`** (testeable sin HTTP, estilo `MonthlyPaymentsReport`): `totals()`, `expiringContracts(90)`, `pendingReceipts()`. Reusa el patrón `whereDoesntHave` de `MonthlyPaymentsReport::unpaid()` agregando filtro de contrato activo. Mes actual vía `StoreReceiptRequest::MONTHS[now->month-1]`.
+- **`Contract::scopeActive`** — vigencia `F_Inicio <= hoy <= F_Fin` (tolera `F_Fin` null como activo). Reusado en totales y pendientes. Queries 100% parametrizadas (sin input de usuario).
+- **`DashboardResource`** → `{ totals, pending_receipts: ContractResource[], expiring_contracts: [{days_left, contract}] }`.
+- **Frontend `features/dashboard/`**: `DashboardPage` + `StatCards` + `PendingReceiptsCard` + `ExpiringContractsCard`. Stat cards con hairline dorado y stagger de entrada; tabla de pendientes con acción **"Crear recibo"** por fila; tabla de por-vencer con badge de urgencia (rojo <30d, ámbar <60d). Empty states con check verde. Listas cortas → tabla simple (no DataTable).
+- **"Crear recibo" desde un pendiente**: navega a `/recibos` con `location.state`; `ReceiptsPage` lo consume al montar y abre `ReceiptFormDialog` con el contrato preseleccionado (prop opcional `defaultContract`, reusa `EntityCombobox`).
+- **Routing/nav**: `/` ahora renderiza el Dashboard (antes redirigía a `/ciudades`); catch-all `*` → `/`; nuevo nav item "Inicio" (`LayoutDashboard`) al tope; el login post-sesión redirige al Dashboard.
+- **Sidebar colapsable** (pedido del usuario): botón en el header (desktop) que colapsa/expande el sidebar con **transición de ancho** (64→0, `motion-reduce` respetado), estado persistido en `localStorage`.
+- **Ampliación (2ª ronda)** — más densidad operativa, todo reusando lo existente:
+  - **Accesos rápidos** en el inicio: cards a Nuevo recibo / Nuevo contrato / Nueva propiedad (navegan abriendo el form de alta vía `location.state.openCreate`, hook `useOpenCreateFromState`) + Reporte mensual PDF (reusa `openMonthlyReport`).
+  - **Progreso del mes**: barra "X de Y contratos activos ya con recibo" (derivada del payload, sin backend).
+  - **Últimos recibos generados** + **Contratos con saldo pendiente** (deuda, `Saldo > 0`): `DashboardData::latestReceipts()` y `contractsWithBalance()` → 2 llaves nuevas en `DashboardResource`.
+  - **Página de Recibos** suma al pie: panel **"por hacer este mes"** (reusa `PendingReceiptsCard` + `useDashboard`, crea el recibo in-place) + panel **"hechos este mes"** (`MonthlyReceiptsCard`, reusa `GET /receipts` filtrado al mes). Total de recibo extraído a `receiptTotal` (`features/receipts/total.ts`), reusado por el detalle.
+- Tests: Pest **97→104** (`DashboardData` totales/ventana-90d/pendientes/últimos/saldo + endpoint 401/200/shape). Vitest **34→37** (`DashboardPage`: cards, accesos rápidos, progreso, últimos recibos, saldos, empty states; `ReceiptsPage`: paneles del mes; login redirige al inicio). `/security-review` del branch **sin hallazgos**. tsc/lint/build verdes.
+
+**Breaking**: nada. **Migración**: nada (solo código; sin migraciones ni deps nuevas).
+
 ## [2026-06-16] sub-F — PDFs (recibo, rendición, listado mensual) — DONE
 
 **Resumen**: Generación de los 3 documentos del legacy de recibos en la stack nueva (Laravel + React), con réplica fiel + pulido visual y branding NZ. Motor: spatie/laravel-pdf v2 sobre Gotenberg (Chromium en container aparte). Los 3 PDFs verificados end-to-end con render real.

@@ -7,6 +7,7 @@ import { DataTable } from '@/components/data-table/DataTable';
 import { DataTableToolbar } from '@/components/data-table/DataTableToolbar';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { errorMessage } from '@/lib/api-error';
+import { useOpenCreateFromState } from '@/lib/use-open-create-from-state';
 import { buildContractColumns } from './columns';
 import { ContractFormDialog } from './ContractFormDialog';
 import { ContractFilters } from './ContractFilters';
@@ -30,7 +31,7 @@ export function ContractsPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filters, setFilters] = useState<Filters>(emptyContractFilters);
 
-  const [formOpen, setFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(useOpenCreateFromState());
   const [editing, setEditing] = useState<Contract | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Contract | null>(null);
 

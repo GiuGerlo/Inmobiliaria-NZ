@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
+import { receiptTotal } from './total';
 import type { Receipt } from './types';
 
 type ReceiptDetailDialogProps = {
@@ -80,13 +81,7 @@ export function ReceiptDetailDialog({
   const address = receipt.contract?.property?.address ?? '—';
   const paymentMethod = receipt.payment_method?.description ?? '—';
 
-  const total =
-    receipt.property_amount +
-    receipt.municipal_amount +
-    receipt.water_amount +
-    receipt.electricity_amount +
-    receipt.gas_amount +
-    receipt.fees_amount;
+  const total = receiptTotal(receipt);
 
   // Solo mostramos los conceptos con monto > 0 (los que están en 0 no aparecen).
   const charges = CHARGES.filter(({ key }) => (receipt[key] as number) > 0);

@@ -168,6 +168,24 @@ export const handlers = [
 
   http.get(`${API}/me`, () => HttpResponse.json({ data: USER })),
 
+  http.get(`${API}/dashboard`, () =>
+    HttpResponse.json({
+      data: {
+        totals: {
+          properties: properties.length,
+          owners: owners.length,
+          tenants: tenants.length,
+          active_contracts: contracts.length,
+          receipts_this_month: 0,
+        },
+        pending_receipts: [],
+        expiring_contracts: [],
+        latest_receipts: [],
+        contracts_with_balance: [],
+      },
+    }),
+  ),
+
   http.post(`${API}/auth/login`, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string };
     if (body.password === 'wrong') {

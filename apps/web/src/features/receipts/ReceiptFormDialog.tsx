@@ -37,6 +37,12 @@ import { isValidationError, errorMessage } from '@/lib/api-error';
 import { useCreateReceipt, useUpdateReceipt } from './queries';
 import { MONTHS, receiptSchema, type ReceiptFormValues } from './schema';
 import type { Receipt } from './types';
+import type { Contract } from '@/features/contracts/types';
+
+/** "Dueño - Inquilino" para mostrar el contrato preseleccionado en el combobox. */
+function contractLabel(contract: Contract): string {
+  return `${contract.owner?.name ?? 'Dueño'} - ${contract.tenant?.name ?? 'Inquilino'}`;
+}
 
 /** Los 8 montos del recibo, en el orden en que se muestran. */
 const AMOUNT_FIELDS = [
@@ -64,9 +70,16 @@ type ReceiptFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   receipt: Receipt | null;
+  /** Contrato a preseleccionar al crear (ej. desde el dashboard). Ignorado en edición. */
+  defaultContract?: Contract | null;
 };
 
-export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDialogProps) {
+export function ReceiptFormDialog({
+  open,
+  onOpenChange,
+  receipt,
+  defaultContract,
+}: ReceiptFormDialogProps) {
   const isEdit = !!receipt;
   const createReceipt = useCreateReceipt();
   const updateReceipt = useUpdateReceipt();
@@ -95,7 +108,7 @@ export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDi
   useEffect(() => {
     if (!open) return;
     form.reset({
-      contract_id: receipt?.contract_id ?? undefined,
+      contract_id: receipt?.contract_id ?? defaultContract?.id ?? undefined,
       payment_method_id: receipt?.payment_method_id ?? undefined,
       paid_at: receipt?.paid_at ?? '',
       property_amount: receipt?.property_amount ?? undefined,
@@ -110,7 +123,7 @@ export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDi
       year: receipt?.year ?? undefined,
       comments: receipt?.comments ?? '',
     });
-  }, [open, receipt, form]);
+  }, [open, receipt, defaultContract, form]);
 
   function applyServerErrors(error: unknown): boolean {
     if (!isValidationError(error)) return false;
@@ -172,8 +185,10 @@ export function ReceiptFormDialog({ open, onOpenChange, receipt }: ReceiptFormDi
                     fetchOptions={fetchContractOptions}
                     initialLabel={
                       receipt?.contract
-                        ? `${receipt.contract.owner?.name ?? 'Dueño'} - ${receipt.contract.tenant?.name ?? 'Inquilino'}`
-                        : undefined
+                        ? contractLabel(receipt.contract)
+                        : defaultContract
+                          ? contractLabel(defaultContract)
+                          : undefined
                     }
                     placeholder="Elegí un contrato"
                     searchPlaceholder="Buscar contrato…"

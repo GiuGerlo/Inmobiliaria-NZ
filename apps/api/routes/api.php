@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\ContractController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\MonthlyPaymentsReportController;
 use App\Http\Controllers\Api\V1\OwnerController;
 use App\Http\Controllers\Api\V1\PaymentMethodController;
@@ -30,6 +31,8 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', NoStoreHeaders::class])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+        Route::get('/dashboard', DashboardController::class);
 
         Route::get('/me', [ProfileController::class, 'show']);
         Route::patch('/me', [ProfileController::class, 'update']);

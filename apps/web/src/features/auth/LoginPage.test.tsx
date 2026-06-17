@@ -11,7 +11,7 @@ function renderLogin() {
   return renderWithProviders(
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/ciudades" element={<div>Pantalla ciudades</div>} />
+      <Route path="/" element={<div>Pantalla inicio</div>} />
     </Routes>,
     { route: '/login' },
   );
@@ -23,7 +23,7 @@ describe('LoginPage', () => {
     server.use(http.get(`${API}/me`, () => new HttpResponse(null, { status: 401 })));
   });
 
-  it('inicia sesión y navega a ciudades', async () => {
+  it('inicia sesión y navega al inicio', async () => {
     const user = userEvent.setup();
     renderLogin();
 
@@ -31,7 +31,7 @@ describe('LoginPage', () => {
     await user.type(screen.getByLabelText('Contraseña'), 'secret123');
     await user.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
-    expect(await screen.findByText('Pantalla ciudades')).toBeInTheDocument();
+    expect(await screen.findByText('Pantalla inicio')).toBeInTheDocument();
   });
 
   it('muestra el error de campo ante un 422', async () => {

@@ -9,6 +9,9 @@ import type { ReceiptListParams } from '@/features/receipts/types';
 /** Factories de query keys para React Query — una fuente de verdad por recurso. */
 export const queryKeys = {
   me: ['me'] as const,
+  dashboard: {
+    all: ['dashboard'] as const,
+  },
   cities: {
     all: ['cities'] as const,
     list: (params: CityListParams) => ['cities', 'list', params] as const,

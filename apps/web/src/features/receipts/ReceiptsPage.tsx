@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
@@ -12,6 +13,7 @@ import { ReceiptFormDialog } from './ReceiptFormDialog';
 import { ReceiptDetailDialog } from './ReceiptDetailDialog';
 import { ReceiptFilters } from './ReceiptFilters';
 import { MonthlyReportButton } from './MonthlyReportButton';
+import { MonthlyReceiptsCard } from './MonthlyReceiptsCard';
 import { useReceipts, useDeleteReceipt } from './queries';
 import {
   emptyReceiptFilters,
@@ -19,6 +21,12 @@ import {
   type ReceiptFilters as Filters,
   type ReceiptListParams,
 } from './types';
+import type { Contract } from '@/features/contracts/types';
+import { useDashboard } from '@/features/dashboard/queries';
+import { PendingReceiptsCard } from '@/features/dashboard/PendingReceiptsCard';
+
+/** Estado de navegación: crear recibo de un contrato (dashboard) o abrir el form vacío (acceso rápido). */
+type ReceiptsLocationState = { createForContract?: Contract; openCreate?: boolean };
 
 function toSortParam(sorting: SortingState): string | undefined {
   const sort = sorting[0];
@@ -32,10 +40,32 @@ export function ReceiptsPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filters, setFilters] = useState<Filters>(emptyReceiptFilters);
 
-  const [formOpen, setFormOpen] = useState(false);
+  // Navegación entrante: crear recibo de un contrato (dashboard) o abrir el form vacío (acceso rápido).
+  const location = useLocation();
+  const navigate = useNavigate();
+  const incomingState = location.state as ReceiptsLocationState | null;
+  const incomingContract = incomingState?.createForContract ?? null;
+  const incomingOpenCreate = incomingState?.openCreate ?? false;
+
+  const [formOpen, setFormOpen] = useState(!!incomingContract || incomingOpenCreate);
   const [editing, setEditing] = useState<Receipt | null>(null);
+  const [defaultContract, setDefaultContract] = useState<Contract | null>(incomingContract);
   const [deleteTarget, setDeleteTarget] = useState<Receipt | null>(null);
   const [detailTarget, setDetailTarget] = useState<Receipt | null>(null);
+
+  // Consumir el state de navegación para que volver atrás no reabra el form.
+  useEffect(() => {
+    if (incomingContract || incomingOpenCreate) navigate('.', { replace: true, state: null });
+  }, [incomingContract, incomingOpenCreate, navigate]);
+
+  // Pendientes del mes (mismo dataset que el dashboard) para el panel inferior.
+  const { data: dashboard } = useDashboard();
+
+  function createReceiptInline(contract: Contract) {
+    setEditing(null);
+    setDefaultContract(contract);
+    setFormOpen(true);
+  }
 
   function handleFiltersChange(next: Filters) {
     setFilters(next);
@@ -70,6 +100,7 @@ export function ReceiptsPage() {
 
   function openCreate() {
     setEditing(null);
+    setDefaultContract(null);
     setFormOpen(true);
   }
 
@@ -123,7 +154,21 @@ export function ReceiptsPage() {
         }
       />
 
-      <ReceiptFormDialog open={formOpen} onOpenChange={setFormOpen} receipt={editing} />
+      {/* Estado del mes: qué falta emitir y qué ya se emitió. */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <PendingReceiptsCard
+          contracts={dashboard?.pending_receipts ?? []}
+          onCreate={createReceiptInline}
+        />
+        <MonthlyReceiptsCard onSelect={(receipt) => setDetailTarget(receipt)} />
+      </div>
+
+      <ReceiptFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        receipt={editing}
+        defaultContract={defaultContract}
+      />
 
       <ReceiptDetailDialog
         open={!!detailTarget}

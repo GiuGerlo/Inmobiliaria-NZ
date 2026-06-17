@@ -8,6 +8,7 @@ import { DataTableToolbar } from '@/components/data-table/DataTableToolbar';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { errorMessage } from '@/lib/api-error';
+import { useOpenCreateFromState } from '@/lib/use-open-create-from-state';
 import { buildPropertyColumns } from './columns';
 import { PropertyFormDialog } from './PropertyFormDialog';
 import { useProperties, useDeleteProperty } from './queries';
@@ -26,7 +27,7 @@ export function PropertiesPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, 300);
 
-  const [formOpen, setFormOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(useOpenCreateFromState());
   const [editing, setEditing] = useState<Property | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Property | null>(null);
 

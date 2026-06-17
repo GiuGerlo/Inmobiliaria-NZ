@@ -55,6 +55,14 @@ describe('ReceiptsPage', () => {
     expect(screen.queryByText('Ana Gómez - Pedro Díaz')).not.toBeInTheDocument();
   });
 
+  it('muestra los paneles del mes al pie (por hacer / hechos)', async () => {
+    renderWithProviders(<ReceiptsPage />);
+    await screen.findByText('Juan Pérez - María López');
+
+    expect(screen.getByText('Recibos pendientes del mes')).toBeInTheDocument();
+    expect(screen.getByText('Recibos hechos este mes')).toBeInTheDocument();
+  });
+
   it('elimina un recibo', async () => {
     const user = userEvent.setup();
     renderWithProviders(<ReceiptsPage />);
