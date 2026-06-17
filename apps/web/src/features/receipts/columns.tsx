@@ -1,22 +1,32 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { Eye, FileSpreadsheet, FileText, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import {
+  Eye,
+  FileSpreadsheet,
+  FileText,
+  MessageCircle,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
-import type { Receipt } from './types';
+import type { Receipt, WhatsAppType } from './types';
 
 type ReceiptActions = {
   onDetail: (receipt: Receipt) => void;
   onEdit: (receipt: Receipt) => void;
   onDelete: (receipt: Receipt) => void;
+  onSendWhatsApp: (receipt: Receipt, type: WhatsAppType) => void;
 };
 
 /** Etiqueta del contrato: "Dueño - Inquilino" (espejo del legacy). */
@@ -39,7 +49,12 @@ const AMOUNT_COLUMNS: Array<{ key: keyof Receipt; header: string }> = [
   { key: 'fees_amount', header: 'Honor.' },
 ];
 
-export function buildReceiptColumns({ onDetail, onEdit, onDelete }: ReceiptActions): ColumnDef<Receipt>[] {
+export function buildReceiptColumns({
+  onDetail,
+  onEdit,
+  onDelete,
+  onSendWhatsApp,
+}: ReceiptActions): ColumnDef<Receipt>[] {
   const amountColumns: ColumnDef<Receipt>[] = AMOUNT_COLUMNS.map(({ key, header }) => ({
     id: key,
     enableSorting: false,
@@ -96,8 +111,27 @@ export function buildReceiptColumns({ onDetail, onEdit, onDelete }: ReceiptActio
       enableSorting: false,
       cell: ({ row }) => {
         const receipt = row.original;
+        const reciboSent = receipt.whatsapp_recibo_sent_at;
+        const rendicionSent = receipt.whatsapp_rendicion_sent_at;
+        const anyWhatsAppSent = reciboSent || rendicionSent;
         return (
           <div className="flex items-center justify-end gap-0.5">
+            {anyWhatsAppSent && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    className="flex size-8 items-center justify-center text-emerald-600"
+                    aria-label={`Enviado por WhatsApp (recibo #${receipt.number})`}
+                  >
+                    <MessageCircle className="size-4" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {reciboSent && <div>Recibo enviado: {formatDate(reciboSent)}</div>}
+                  {rendicionSent && <div>Rendición enviada: {formatDate(rendicionSent)}</div>}
+                </TooltipContent>
+              </Tooltip>
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -147,6 +181,15 @@ export function buildReceiptColumns({ onDetail, onEdit, onDelete }: ReceiptActio
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'recibo')}>
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar recibo (inquilino)
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'rendicion')}>
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar rendición (dueño)
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => onEdit(receipt)}>
                   <Pencil className="size-4" />
                   Editar

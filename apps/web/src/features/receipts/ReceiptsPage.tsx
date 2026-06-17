@@ -11,6 +11,7 @@ import { errorMessage } from '@/lib/api-error';
 import { buildReceiptColumns } from './columns';
 import { ReceiptFormDialog } from './ReceiptFormDialog';
 import { ReceiptDetailDialog } from './ReceiptDetailDialog';
+import { SendWhatsAppDialog } from './SendWhatsAppDialog';
 import { ReceiptFilters } from './ReceiptFilters';
 import { MonthlyReportButton } from './MonthlyReportButton';
 import { MonthlyReceiptsCard } from './MonthlyReceiptsCard';
@@ -20,6 +21,7 @@ import {
   type Receipt,
   type ReceiptFilters as Filters,
   type ReceiptListParams,
+  type WhatsAppType,
 } from './types';
 import type { Contract } from '@/features/contracts/types';
 import { useDashboard } from '@/features/dashboard/queries';
@@ -52,6 +54,7 @@ export function ReceiptsPage() {
   const [defaultContract, setDefaultContract] = useState<Contract | null>(incomingContract);
   const [deleteTarget, setDeleteTarget] = useState<Receipt | null>(null);
   const [detailTarget, setDetailTarget] = useState<Receipt | null>(null);
+  const [whatsappTarget, setWhatsappTarget] = useState<{ receipt: Receipt; type: WhatsAppType } | null>(null);
 
   // Consumir el state de navegación para que volver atrás no reabra el form.
   useEffect(() => {
@@ -94,6 +97,7 @@ export function ReceiptsPage() {
           setFormOpen(true);
         },
         onDelete: (receipt) => setDeleteTarget(receipt),
+        onSendWhatsApp: (receipt, type) => setWhatsappTarget({ receipt, type }),
       }),
     [],
   );
@@ -179,6 +183,14 @@ export function ReceiptsPage() {
           setFormOpen(true);
         }}
         onDelete={(receipt) => setDeleteTarget(receipt)}
+      />
+
+      <SendWhatsAppDialog
+        key={whatsappTarget ? `${whatsappTarget.receipt.number}-${whatsappTarget.type}` : 'none'}
+        open={!!whatsappTarget}
+        onOpenChange={(open) => !open && setWhatsappTarget(null)}
+        receipt={whatsappTarget?.receipt ?? null}
+        type={whatsappTarget?.type ?? 'recibo'}
       />
 
       <ConfirmDialog

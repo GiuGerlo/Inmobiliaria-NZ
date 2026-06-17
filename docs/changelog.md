@@ -2,6 +2,23 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-17] sub-I — Envío por WhatsApp — DONE (código + tests)
+
+**Resumen**: Recibos (al inquilino) y rendiciones (al dueño) se envían por **WhatsApp Cloud API oficial** (Meta, ADR-0008) desde la tabla de Recibos, adjuntando el PDF de sub-F. Antes: descargar y reenviar a mano. Envío encolado, con normalización de teléfono a E.164, log de envíos y marca "enviado" en la fila. **Pendiente**: aprobar las 2 plantillas en Meta + verificación de envío real con número de prueba (lo hace el usuario; el canal ya se validó manualmente con `hello_world`).
+
+**Cambios**:
+- **`App\Services\WhatsAppClient`**: `uploadMedia()` (sube el PDF, devuelve `media_id`) + `sendTemplateDocument()` (mensaje de plantilla con documento en el header). Config en `config/services.php` (`whatsapp.*`), secretos en `.env` (claves vacías en `.env.example`). El token nunca se loguea.
+- **`App\Support\ReceiptPdf`** (refactor DRY): centraliza la construcción de los PDFs de recibo/rendición (antes inline en `ReceiptPdfController`); ahora la consumen el controller (`->inline`) y el job (`->save`). `filename()` evita duplicar el nombre.
+- **`App\Support\PhoneNumber::toE164()`**: normaliza tels legacy (`Tel_Dueno`/`Tel_Inquilino`) a E.164 con `propaganistas/laravel-phone`; null si inválido. Caveat AR del "9" de celular documentado (a confirmar contra Meta).
+- **Job `SendWhatsAppDocument`** (`ShouldQueue`, 3 reintentos): genera el PDF a tmp, sube media, manda plantilla, marca el mensaje `sent`/`failed`. Cola `sync` por ahora (sin worker); prod (sub-H) → `database` + `queue:work`.
+- **Tabla + modelo `whatsapp_messages`** (snake_case inglés): tipo, destinatario, recibo, `meta_message_id`, estado, error, `sent_at`, usuario. FK a `recibo`/`users`.
+- **Endpoint** `POST /api/v1/receipts/{receipt}/whatsapp` (`auth:sanctum` + `throttle:30,1`): `SendWhatsAppRequest` valida `type` (recibo/rendicion) y `phone` override; el controller resuelve el destinatario (inquilino/dueño), normaliza, **422** si el tel es inválido, encola y devuelve **202** + `WhatsAppMessageResource`.
+- **`ReceiptResource`** expone `whatsapp_recibo_sent_at` / `whatsapp_rendicion_sent_at` (último envío exitoso por tipo, vía `withMax` en el index, sin N+1).
+- **Frontend `features/receipts/`**: 2 acciones en el dropdown de la fila (enviar recibo / rendición) → `SendWhatsAppDialog` (destinatario + teléfono prellenado **editable** + preview del texto + nombre del PDF), mutation react-query que invalida la lista, toasts. Marca verde "enviado el DD/MM" en la fila (tooltip con fechas por tipo).
+- Tests: Pest **104→122** (`WhatsAppClient` con `Http::fake`, job sent/failed, endpoint 202/422/401, `PhoneNumber` AR ok/inválido). Vitest **37→39** (`SendWhatsAppDialog`: prellenado, preview, envío, dueño en rendición). tsc/lint verdes.
+
+**Breaking**: nada. **Migración**: `php artisan migrate` (tabla `whatsapp_messages`) + `composer require propaganistas/laravel-phone` + variables `WHATSAPP_*` en `.env`.
+
 ## [2026-06-16] sub-G — Dashboard / Inicio — DONE
 
 **Resumen**: Nueva pantalla de **Inicio** (`/`, landing post-login) con visión operativa de un vistazo — algo que el legacy nunca tuvo. Tres bloques accionables, **sin métricas de ingresos** (decisión del usuario): totales del sistema, recibos pendientes del mes y contratos por vencer (90 días). Un único endpoint agregado + una página linda (skill `frontend-design`) cohesiva con el tema navy/dorado NZ.

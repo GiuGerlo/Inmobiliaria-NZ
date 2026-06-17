@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "luecano/numero-a-letras": "^4.1",
+        "propaganistas/laravel-phone": "^6.0",
         "spatie/laravel-pdf": "^2.12",
         "spatie/laravel-query-builder": "^7.3"
     },

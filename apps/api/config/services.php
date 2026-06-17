@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    // WhatsApp Cloud API oficial (Meta) — envío de recibos/rendiciones (sub-I, ADR-0008).
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        'template_recibo' => env('WHATSAPP_TEMPLATE_RECIBO'),
+        'template_rendicion' => env('WHATSAPP_TEMPLATE_RENDICION'),
+        // Idioma de las plantillas aprobadas en Meta (ej. es_AR / es).
+        'template_lang' => env('WHATSAPP_TEMPLATE_LANG', 'es'),
+    ],
+
 ];

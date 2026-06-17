@@ -470,6 +470,14 @@ export const handlers = [
     receipts = receipts.filter((r) => r.number !== Number(params.number));
     return new HttpResponse(null, { status: 204 });
   }),
+
+  http.post(`${API}/receipts/:number/whatsapp`, async ({ request, params }) => {
+    const input = (await request.json()) as { type: string; phone?: string };
+    return HttpResponse.json(
+      { data: { id: 1, receipt_id: Number(params.number), type: input.type, status: 'queued' } },
+      { status: 202 },
+    );
+  }),
 ];
 
 export const server = setupServer(...handlers);

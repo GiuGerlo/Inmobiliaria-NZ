@@ -7,6 +7,7 @@ namespace App\Http\Resources;
 use App\Models\Receipt;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 /**
  * @property-read Receipt $resource
@@ -36,6 +37,17 @@ final class ReceiptResource extends JsonResource
             'comments' => $this->resource->Comentarios,
             'contract' => new ContractResource($this->whenLoaded('contract')),
             'payment_method' => new PaymentMethodResource($this->whenLoaded('paymentMethod')),
+            // Marcas de envío por WhatsApp (último envío exitoso por tipo). Las llena
+            // el index con withMax; en show/store quedan en null.
+            'whatsapp_recibo_sent_at' => $this->waSentAt('whatsapp_recibo_sent_at'),
+            'whatsapp_rendicion_sent_at' => $this->waSentAt('whatsapp_rendicion_sent_at'),
         ];
+    }
+
+    private function waSentAt(string $attribute): ?string
+    {
+        $value = $this->resource->getAttribute($attribute);
+
+        return $value ? Carbon::parse($value)->toIso8601String() : null;
     }
 }

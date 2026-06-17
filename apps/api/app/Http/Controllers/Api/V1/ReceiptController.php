@@ -55,6 +55,8 @@ final class ReceiptController extends Controller
             )
             ->defaultSort(AllowedSort::field('-number', 'Nro_Recibo'))
             ->allowedIncludes('contract', 'paymentMethod', 'contract.owner', 'contract.tenant', 'contract.property')
+            ->withMax(['whatsappMessages as whatsapp_recibo_sent_at' => fn ($q) => $q->where('type', 'recibo')->where('status', 'sent')], 'sent_at')
+            ->withMax(['whatsappMessages as whatsapp_rendicion_sent_at' => fn ($q) => $q->where('type', 'rendicion')->where('status', 'sent')], 'sent_at')
             ->paginate($this->perPage($request))
             ->appends($request->query());
 

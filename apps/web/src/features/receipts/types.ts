@@ -20,6 +20,17 @@ export type Receipt = {
   comments: string | null;
   contract?: Contract;
   payment_method?: PaymentMethod;
+  // Marcas de último envío exitoso por WhatsApp (ISO 8601) o null.
+  whatsapp_recibo_sent_at?: string | null;
+  whatsapp_rendicion_sent_at?: string | null;
+};
+
+/** Tipo de documento a enviar por WhatsApp: recibo→inquilino, rendición→dueño. */
+export type WhatsAppType = 'recibo' | 'rendicion';
+
+export type SendWhatsAppInput = {
+  type: WhatsAppType;
+  phone?: string;
 };
 
 export type ReceiptInput = {

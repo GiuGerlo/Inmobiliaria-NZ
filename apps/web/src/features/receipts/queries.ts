@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
-import { createReceipt, deleteReceipt, listReceipts, updateReceipt } from './api';
-import type { ReceiptInput, ReceiptListParams } from './types';
+import { createReceipt, deleteReceipt, listReceipts, sendReceiptWhatsApp, updateReceipt } from './api';
+import type { ReceiptInput, ReceiptListParams, SendWhatsAppInput } from './types';
 
 export function useReceipts(params: ReceiptListParams) {
   return useQuery({
@@ -32,6 +32,15 @@ export function useDeleteReceipt() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (number: number) => deleteReceipt(number),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.receipts.all }),
+  });
+}
+
+export function useSendWhatsApp() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ number, input }: { number: number; input: SendWhatsAppInput }) =>
+      sendReceiptWhatsApp(number, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.receipts.all }),
   });
 }

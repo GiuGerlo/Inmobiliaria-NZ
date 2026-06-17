@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import type { Paginated } from '@/lib/types';
-import type { Receipt, ReceiptInput, ReceiptListParams } from './types';
+import type { Receipt, ReceiptInput, ReceiptListParams, SendWhatsAppInput } from './types';
 
 const INCLUDE = 'contract.owner,contract.tenant,contract.property,paymentMethod';
 
@@ -35,4 +35,9 @@ export async function updateReceipt(number: number, input: ReceiptInput): Promis
 
 export async function deleteReceipt(number: number): Promise<void> {
   await api.delete(`/receipts/${number}`);
+}
+
+/** Encola el envío del recibo/rendición por WhatsApp. Devuelve 202. */
+export async function sendReceiptWhatsApp(number: number, input: SendWhatsAppInput): Promise<void> {
+  await api.post(`/receipts/${number}/whatsapp`, input);
 }
