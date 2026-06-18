@@ -22,26 +22,39 @@ describe('Acciones de PDF de recibos', () => {
     expect(within(dialog).getAllByText('$ 120.000').length).toBeGreaterThan(0);
   });
 
-  it('abre el recibo PDF en pestaña nueva desde la fila', async () => {
+  it('abre el recibo PDF en pestaña nueva desde el menú de la fila', async () => {
     const open = vi.spyOn(window, 'open').mockReturnValue(null);
     const user = userEvent.setup();
     renderWithProviders(<ReceiptsPage />);
     await screen.findByText('Juan Pérez - María López');
 
-    await user.click(screen.getByRole('button', { name: 'Recibo PDF del recibo #1' }));
+    await user.click(screen.getByRole('button', { name: 'Recibo del recibo #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Ver / descargar' }));
 
     expect(open).toHaveBeenCalledWith('/api/v1/receipts/1/pdf', '_blank', 'noopener');
   });
 
-  it('abre la rendición PDF en pestaña nueva desde la fila', async () => {
+  it('abre la rendición PDF en pestaña nueva desde el menú de la fila', async () => {
     const open = vi.spyOn(window, 'open').mockReturnValue(null);
     const user = userEvent.setup();
     renderWithProviders(<ReceiptsPage />);
     await screen.findByText('Juan Pérez - María López');
 
-    await user.click(screen.getByRole('button', { name: 'Rendición PDF del recibo #1' }));
+    await user.click(screen.getByRole('button', { name: 'Rendición del recibo #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Ver / descargar' }));
 
     expect(open).toHaveBeenCalledWith('/api/v1/receipts/1/settlement', '_blank', 'noopener');
+  });
+
+  it('ofrece enviar el recibo al inquilino desde el mismo menú', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ReceiptsPage />);
+    await screen.findByText('Juan Pérez - María López');
+
+    await user.click(screen.getByRole('button', { name: 'Recibo del recibo #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Enviar al inquilino' }));
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
   it('genera el listado mensual con el mes y año elegidos', async () => {

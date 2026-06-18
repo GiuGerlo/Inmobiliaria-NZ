@@ -8,6 +8,7 @@ use App\Models\Owner;
 use App\Models\Receipt;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Models\WhatsAppMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 
@@ -45,6 +46,11 @@ it('encola el envío del recibo y registra el mensaje', function () {
         'status' => 'queued',
         'recipient_phone' => '+543468495281',
     ]);
+
+    // El body guardado es el texto real del mensaje (no "Recibo #N (PDF)").
+    $body = WhatsAppMessage::query()->value('body');
+    expect($body)->toContain('te enviamos el recibo de alquiler de')
+        ->toContain("{$receipt->Mes_Rend}/{$receipt->Ano_Rend}");
 
     Queue::assertPushed(SendWhatsAppDocument::class);
 });

@@ -15,6 +15,10 @@ final class WhatsAppMessage extends Model
 
     public const TYPE_RENDICION = 'rendicion';
 
+    public const TYPE_RECORDATORIO_PAGO = 'recordatorio_pago';
+
+    public const TYPE_RECORDATORIO_FALTANTE = 'recordatorio_faltante';
+
     public const STATUS_QUEUED = 'queued';
 
     public const STATUS_SENT = 'sent';
@@ -22,9 +26,15 @@ final class WhatsAppMessage extends Model
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = [
+        'batch_id',
         'receipt_id',
+        'contract_id',
         'type',
+        'template',
+        'template_vars',
         'recipient_phone',
+        'recipient_name',
+        'body',
         'meta_message_id',
         'status',
         'error',
@@ -36,6 +46,7 @@ final class WhatsAppMessage extends Model
     {
         return [
             'sent_at' => 'datetime',
+            'template_vars' => 'array',
         ];
     }
 

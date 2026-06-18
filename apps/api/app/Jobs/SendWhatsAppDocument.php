@@ -56,7 +56,7 @@ final class SendWhatsAppDocument implements ShouldQueue
             $messageId = $client->sendTemplateDocument(
                 to: $this->message->recipient_phone,
                 template: $template,
-                language: (string) $config['template_lang'],
+                language: (string) ($config['template_langs'][$type] ?? $config['template_lang']),
                 mediaId: $mediaId,
                 filename: ReceiptPdf::filename($type, $receipt),
                 bodyVars: [(string) $name, (string) $receipt->Mes_Rend, (string) $receipt->Ano_Rend],

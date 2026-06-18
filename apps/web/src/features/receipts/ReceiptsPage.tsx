@@ -4,6 +4,13 @@ import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { DataTable } from '@/components/data-table/DataTable';
 import { DataTableToolbar } from '@/components/data-table/DataTableToolbar';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -16,6 +23,7 @@ import { ReceiptFilters } from './ReceiptFilters';
 import { MonthlyReportButton } from './MonthlyReportButton';
 import { MonthlyReceiptsCard } from './MonthlyReceiptsCard';
 import { useReceipts, useDeleteReceipt } from './queries';
+import { MONTHS, type Month } from './schema';
 import {
   emptyReceiptFilters,
   type Receipt,
@@ -61,8 +69,16 @@ export function ReceiptsPage() {
     if (incomingContract || incomingOpenCreate) navigate('.', { replace: true, state: null });
   }, [incomingContract, incomingOpenCreate, navigate]);
 
-  // Pendientes del mes (mismo dataset que el dashboard) para el panel inferior.
-  const { data: dashboard } = useDashboard();
+  // Período del panel inferior (pendientes + hechos). Default: mes/año actual.
+  const now = new Date();
+  const [period, setPeriod] = useState<{ month: Month; year: number }>({
+    month: MONTHS[now.getMonth()],
+    year: now.getFullYear(),
+  });
+  const years = Array.from({ length: 6 }, (_, i) => now.getFullYear() - i);
+
+  // Pendientes del período (mismo dataset que el dashboard) para el panel inferior.
+  const { data: dashboard } = useDashboard(period);
 
   function createReceiptInline(contract: Contract) {
     setEditing(null);
@@ -158,13 +174,52 @@ export function ReceiptsPage() {
         }
       />
 
-      {/* Estado del mes: qué falta emitir y qué ya se emitió. */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <PendingReceiptsCard
-          contracts={dashboard?.pending_receipts ?? []}
-          onCreate={createReceiptInline}
-        />
-        <MonthlyReceiptsCard onSelect={(receipt) => setDetailTarget(receipt)} />
+      {/* Estado del período: qué falta emitir y qué ya se emitió. */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-muted-foreground">Período:</span>
+          <Select
+            value={period.month}
+            onValueChange={(value) => setPeriod((p) => ({ ...p, month: value as Month }))}
+          >
+            <SelectTrigger className="w-40" aria-label="Mes del período">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={String(period.year)}
+            onValueChange={(value) => setPeriod((p) => ({ ...p, year: Number(value) }))}
+          >
+            <SelectTrigger className="w-28" aria-label="Año del período">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <PendingReceiptsCard
+            contracts={dashboard?.pending_receipts ?? []}
+            onCreate={createReceiptInline}
+          />
+          <MonthlyReceiptsCard
+            month={period.month}
+            year={period.year}
+            onSelect={(receipt) => setDetailTarget(receipt)}
+          />
+        </div>
       </div>
 
       <ReceiptFormDialog
@@ -183,6 +238,7 @@ export function ReceiptsPage() {
           setFormOpen(true);
         }}
         onDelete={(receipt) => setDeleteTarget(receipt)}
+        onSendWhatsApp={(receipt, type) => setWhatsappTarget({ receipt, type })}
       />
 
       <SendWhatsAppDialog

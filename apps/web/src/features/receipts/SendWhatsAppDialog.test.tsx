@@ -10,8 +10,8 @@ describe('Envío por WhatsApp', () => {
     renderWithProviders(<ReceiptsPage />);
     await screen.findByText('Juan Pérez - María López');
 
-    await user.click(screen.getByRole('button', { name: 'Acciones del recibo #1' }));
-    await user.click(await screen.findByText('Enviar recibo (inquilino)'));
+    await user.click(screen.getByRole('button', { name: 'Recibo del recibo #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Enviar al inquilino' }));
 
     const dialog = await screen.findByRole('dialog');
     // Destinatario = inquilino del contrato 1 (María López) con su teléfono de la ficha.
@@ -29,8 +29,8 @@ describe('Envío por WhatsApp', () => {
     renderWithProviders(<ReceiptsPage />);
     await screen.findByText('Juan Pérez - María López');
 
-    await user.click(screen.getByRole('button', { name: 'Acciones del recibo #1' }));
-    await user.click(await screen.findByText('Enviar rendición (dueño)'));
+    await user.click(screen.getByRole('button', { name: 'Rendición del recibo #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: 'Enviar al dueño' }));
 
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('Juan Pérez')).toBeInTheDocument();

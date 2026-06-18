@@ -42,8 +42,18 @@ return [
         'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
         'template_recibo' => env('WHATSAPP_TEMPLATE_RECIBO'),
         'template_rendicion' => env('WHATSAPP_TEMPLATE_RENDICION'),
-        // Idioma de las plantillas aprobadas en Meta (ej. es_AR / es).
+        // Recordatorios (sub-J): plantillas de solo texto.
+        'template_recordatorio_pago' => env('WHATSAPP_TEMPLATE_RECORDATORIO_PAGO'),
+        'template_recordatorio_faltante' => env('WHATSAPP_TEMPLATE_RECORDATORIO_FALTANTE'),
+        // Idioma por plantilla (Meta exige el código exacto, sin fallback es→es_AR).
+        // Defaults: recibo/rendición en es_AR; recordatorios en es. Override por env.
         'template_lang' => env('WHATSAPP_TEMPLATE_LANG', 'es'),
+        'template_langs' => [
+            'recibo' => env('WHATSAPP_TEMPLATE_RECIBO_LANG', 'es_AR'),
+            'rendicion' => env('WHATSAPP_TEMPLATE_RENDICION_LANG', 'es_AR'),
+            'recordatorio_pago' => env('WHATSAPP_TEMPLATE_RECORDATORIO_PAGO_LANG', 'es'),
+            'recordatorio_faltante' => env('WHATSAPP_TEMPLATE_RECORDATORIO_FALTANTE_LANG', 'es'),
+        ],
     ],
 
 ];

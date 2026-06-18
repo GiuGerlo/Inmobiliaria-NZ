@@ -5,18 +5,18 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { useReceipts } from './queries';
 import { receiptTotal } from './total';
-import { MONTHS } from './schema';
+import type { Month } from './schema';
 import type { Receipt } from './types';
 
-/** Recibos ya emitidos en el mes/año actual. Lista corta read-only; fila → detalle. */
-export function MonthlyReceiptsCard({ onSelect }: { onSelect: (receipt: Receipt) => void }) {
-  const now = new Date();
-  const { data } = useReceipts({
-    page: 1,
-    perPage: 100,
-    month: MONTHS[now.getMonth()],
-    year: now.getFullYear(),
-  });
+type MonthlyReceiptsCardProps = {
+  month: Month;
+  year: number;
+  onSelect: (receipt: Receipt) => void;
+};
+
+/** Recibos ya emitidos en el mes/año elegido. Lista corta read-only; fila → detalle. */
+export function MonthlyReceiptsCard({ month, year, onSelect }: MonthlyReceiptsCardProps) {
+  const { data } = useReceipts({ page: 1, perPage: 100, month, year });
   const receipts = data?.data ?? [];
 
   return (

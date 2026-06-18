@@ -11,6 +11,7 @@ export const queryKeys = {
   me: ['me'] as const,
   dashboard: {
     all: ['dashboard'] as const,
+    list: (params: { month?: string; year?: number }) => ['dashboard', params] as const,
   },
   cities: {
     all: ['cities'] as const,
@@ -40,5 +41,9 @@ export const queryKeys = {
   receipts: {
     all: ['receipts'] as const,
     list: (params: ReceiptListParams) => ['receipts', 'list', params] as const,
+  },
+  whatsapp: {
+    messages: (params: unknown) => ['whatsapp', 'messages', params] as const,
+    batch: (batchId: string) => ['whatsapp', 'batch', batchId] as const,
   },
 };

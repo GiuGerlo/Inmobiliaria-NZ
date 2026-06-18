@@ -39,10 +39,25 @@ final class ReceiptWhatsAppController extends Controller
             ]);
         }
 
+        $isRendicion = $type === WhatsAppMessage::TYPE_RENDICION;
+        $recipientName = $isRendicion
+            ? $receipt->contract?->owner?->NYA_Dueno
+            : $receipt->contract?->tenant?->NYA_Inquilino;
+
+        // Snapshot del texto real que recibe el destinatario (espejo de las plantillas Meta
+        // envio_recibo / envio_rendicion, con nombre/mes/año rellenados).
+        $period = "{$receipt->Mes_Rend}/{$receipt->Ano_Rend}";
+        $body = $isRendicion
+            ? "Hola {$recipientName}, adjuntamos la rendición de {$period} de tu propiedad. Saludos!"
+            : "Hola {$recipientName}, te enviamos el recibo de alquiler de {$period}. Ante cualquier consulta quedamos a disposición.";
+
         $message = WhatsAppMessage::create([
             'receipt_id' => $receipt->Nro_Recibo,
+            'contract_id' => $receipt->ID_Contrato,
             'type' => $type,
             'recipient_phone' => $phone,
+            'recipient_name' => $recipientName,
+            'body' => $body,
             'status' => WhatsAppMessage::STATUS_QUEUED,
             'user_id' => $request->user()?->getKey(),
         ]);

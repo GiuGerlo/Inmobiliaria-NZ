@@ -10,6 +10,7 @@ import { TenantsPage } from '@/features/tenants/TenantsPage';
 import { PropertiesPage } from '@/features/properties/PropertiesPage';
 import { ContractsPage } from '@/features/contracts/ContractsPage';
 import { ReceiptsPage } from '@/features/receipts/ReceiptsPage';
+import { RemindersPage } from '@/features/whatsapp/RemindersPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
           { path: 'propiedades', element: <PropertiesPage /> },
           { path: 'contratos', element: <ContractsPage /> },
           { path: 'recibos', element: <ReceiptsPage /> },
+          { path: 'recordatorios', element: <RemindersPage /> },
           { path: '*', element: <Navigate to="/" replace /> },
         ],
       },

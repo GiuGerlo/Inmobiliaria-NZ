@@ -6,12 +6,14 @@ namespace App\Services;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 /**
- * Cliente de WhatsApp Cloud API oficial (Meta). Sube el PDF como media y manda un
- * mensaje de plantilla con el documento en el header. El token vive en config/.env
- * y nunca se loguea (sub-I, ADR-0008).
+ * Cliente de WhatsApp Cloud API oficial (Meta). Sube el PDF como media y manda
+ * mensajes de plantilla (con documento o solo texto). Loguea cada intento + la
+ * respuesta/error completo de Meta en el canal `whatsapp` (storage/logs/whatsapp/).
+ * El token vive en config/.env y NUNCA se loguea (sub-I/J, ADR-0008).
  */
 final class WhatsAppClient
 {
@@ -40,13 +42,15 @@ final class WhatsAppClient
                 'type' => $mime,
             ]);
 
-        $this->ensureOk($response, 'uploadMedia');
+        $this->ensureOk($response, 'uploadMedia', ['file' => basename($path)]);
 
         $id = $response->json('id');
 
         if (! is_string($id) || $id === '') {
             throw new RuntimeException('WhatsApp uploadMedia: respuesta sin media id.');
         }
+
+        Log::channel('whatsapp')->info('uploadMedia OK', ['media_id' => $id]);
 
         return $id;
     }
@@ -95,15 +99,41 @@ final class WhatsAppClient
                 ],
             ]);
 
-        $this->ensureOk($response, 'sendTemplateDocument');
+        return $this->messageId($response, 'sendTemplateDocument', $to, $template);
+    }
 
-        $id = $response->json('messages.0.id');
-
-        if (! is_string($id) || $id === '') {
-            throw new RuntimeException('WhatsApp sendTemplateDocument: respuesta sin message id.');
+    /**
+     * Manda un mensaje de plantilla de SOLO texto (sin header de documento).
+     *
+     * @param  list<string>  $bodyVars  valores de las variables del cuerpo, en orden
+     * @return string meta_message_id
+     */
+    public function sendTemplate(string $to, string $template, string $language, array $bodyVars = []): string
+    {
+        $components = [];
+        if ($bodyVars !== []) {
+            $components[] = [
+                'type' => 'body',
+                'parameters' => array_map(
+                    static fn (string $v) => ['type' => 'text', 'text' => $v],
+                    $bodyVars,
+                ),
+            ];
         }
 
-        return $id;
+        $response = Http::withToken($this->token)
+            ->post($this->url('messages'), [
+                'messaging_product' => 'whatsapp',
+                'to' => ltrim($to, '+'),
+                'type' => 'template',
+                'template' => [
+                    'name' => $template,
+                    'language' => ['code' => $language],
+                    'components' => $components,
+                ],
+            ]);
+
+        return $this->messageId($response, 'sendTemplate', $to, $template);
     }
 
     /**
@@ -125,15 +155,7 @@ final class WhatsAppClient
                 'document' => $document,
             ]);
 
-        $this->ensureOk($response, 'sendDocument');
-
-        $id = $response->json('messages.0.id');
-
-        if (! is_string($id) || $id === '') {
-            throw new RuntimeException('WhatsApp sendDocument: respuesta sin message id.');
-        }
-
-        return $id;
+        return $this->messageId($response, 'sendDocument', $to, null);
     }
 
     private function url(string $endpoint): string
@@ -141,13 +163,49 @@ final class WhatsAppClient
         return "https://graph.facebook.com/{$this->apiVersion}/{$this->phoneNumberId}/{$endpoint}";
     }
 
-    private function ensureOk(Response $response, string $op): void
+    /** Valida la respuesta de un /messages, loguea y devuelve el message id. */
+    private function messageId(Response $response, string $op, string $to, ?string $template): string
     {
-        if ($response->failed()) {
-            // El mensaje de error de Meta (sin token: nunca se incluye en el body).
-            $error = $response->json('error.message') ?? 'error desconocido';
+        $this->ensureOk($response, $op, array_filter(['to' => $to, 'template' => $template]));
 
-            throw new RuntimeException("WhatsApp {$op} falló ({$response->status()}): {$error}");
+        $id = $response->json('messages.0.id');
+
+        if (! is_string($id) || $id === '') {
+            throw new RuntimeException("WhatsApp {$op}: respuesta sin message id.");
         }
+
+        Log::channel('whatsapp')->info("{$op} OK", ['to' => $to, 'message_id' => $id]);
+
+        return $id;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function ensureOk(Response $response, string $op, array $context = []): void
+    {
+        if (! $response->failed()) {
+            return;
+        }
+
+        // El cuerpo de error de Meta NUNCA incluye el token; se loguea completo.
+        $error = $response->json('error.message') ?? 'error desconocido';
+        $code = $response->json('error.code');
+        $details = $response->json('error.error_data.details');
+
+        Log::channel('whatsapp')->error("{$op} FALLÓ", array_merge($context, [
+            'status' => $response->status(),
+            'meta_error' => $response->json('error') ?? $response->body(),
+        ]));
+
+        $message = "WhatsApp {$op} falló ({$response->status()}): {$error}";
+        if ($code) {
+            $message .= " [code {$code}]";
+        }
+        if ($details) {
+            $message .= " — {$details}";
+        }
+
+        throw new RuntimeException($message);
     }
 }

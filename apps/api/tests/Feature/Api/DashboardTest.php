@@ -128,6 +128,28 @@ it('responde el dashboard con la estructura esperada', function () {
         ]);
 });
 
+it('respeta month/year para mirar los pendientes de otro período', function () {
+    // Recibo de mayo: pendiente en junio, ya cobrado al mirar mayo.
+    $contract = activeContract();
+    Receipt::factory()->create([
+        'ID_Contrato' => $contract->ID_Contrato,
+        'Mes_Rend' => 'Mayo',
+        'Ano_Rend' => 2026,
+    ]);
+
+    $junio = collect($this->getJson('/api/v1/dashboard')->json('data.pending_receipts'))
+        ->pluck('id');
+    $mayo = collect($this->getJson('/api/v1/dashboard?month=Mayo&year=2026')->json('data.pending_receipts'))
+        ->pluck('id');
+
+    expect($junio)->toContain($contract->ID_Contrato);
+    expect($mayo)->not->toContain($contract->ID_Contrato);
+});
+
+it('rechaza un mes inválido en el dashboard', function () {
+    $this->getJson('/api/v1/dashboard?month=Foo&year=2026')->assertStatus(422);
+});
+
 it('rechaza el dashboard sin sesión', function () {
     auth()->guard('web')->logout();
 

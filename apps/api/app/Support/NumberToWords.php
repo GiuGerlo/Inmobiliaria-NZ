@@ -19,7 +19,7 @@ final class NumberToWords
      */
     public static function spell(float|int $amount): string
     {
-        $words = (new NumeroALetras())->toWords((int) round($amount), 0);
+        $words = (new NumeroALetras)->toWords((int) round($amount), 0);
 
         return mb_strtolower(trim($words));
     }

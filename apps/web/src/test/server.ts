@@ -30,6 +30,22 @@ let properties: Property[] = [];
 let contracts: Contract[] = [];
 let receipts: Receipt[] = [];
 
+type WaMessage = {
+  id: number;
+  batch_id: string | null;
+  type: string;
+  recipient_phone: string;
+  recipient_name: string | null;
+  body: string | null;
+  status: 'queued' | 'sent' | 'failed';
+  error: string | null;
+  sent_at: string | null;
+  created_at: string | null;
+};
+let waMessages: WaMessage[] = [];
+let waBatches: Record<string, WaMessage[]> = {};
+let waSeq = 0;
+
 export function seedCities(rows: City[]): void {
   cities = [...rows];
 }
@@ -143,6 +159,9 @@ export function resetStore(): void {
       comments: null,
     },
   ];
+  waMessages = [];
+  waBatches = {};
+  waSeq = 0;
 }
 
 function withReceiptRelations(receipt: Receipt): Receipt {
@@ -478,6 +497,68 @@ export const handlers = [
       { status: 202 },
     );
   }),
+
+  http.post(`${API}/whatsapp/payment-reminders`, async ({ request }) => {
+    const input = (await request.json()) as { tenant_ids: number[]; deadline: string };
+    const batchId = `batch-${Date.now()}`;
+    const now = new Date().toISOString();
+    const msgs: WaMessage[] = input.tenant_ids.map((id) => {
+      const tenant = tenants.find((t) => t.id === id);
+      return {
+        id: ++waSeq,
+        batch_id: batchId,
+        type: 'recordatorio_pago',
+        recipient_phone: tenant?.phone ?? '',
+        recipient_name: tenant?.name ?? null,
+        body: `Buen día! ... hasta el día ${input.deadline}.`,
+        status: 'sent',
+        error: null,
+        sent_at: now,
+        created_at: now,
+      };
+    });
+    waBatches[batchId] = msgs;
+    waMessages.unshift(...msgs);
+    return HttpResponse.json({ batch_id: batchId, total: msgs.length, skipped: [] }, { status: 202 });
+  }),
+
+  http.get(`${API}/whatsapp/batches/:batch`, ({ params }) => {
+    const msgs = waBatches[String(params.batch)] ?? [];
+    return HttpResponse.json({
+      batch_id: String(params.batch),
+      total: msgs.length,
+      sent: msgs.filter((m) => m.status === 'sent').length,
+      failed: msgs.filter((m) => m.status === 'failed').length,
+      queued: msgs.filter((m) => m.status === 'queued').length,
+      messages: msgs,
+    });
+  }),
+
+  http.post(`${API}/whatsapp/batches/:batch/retry`, () =>
+    HttpResponse.json({ batch_id: `retry-${Date.now()}`, total: 0 }, { status: 202 }),
+  ),
+
+  http.post(`${API}/whatsapp/missing-items`, async ({ request }) => {
+    const input = (await request.json()) as { tenant_id: number; message: string };
+    const tenant = tenants.find((t) => t.id === input.tenant_id);
+    const now = new Date().toISOString();
+    const msg: WaMessage = {
+      id: ++waSeq,
+      batch_id: `batch-${Date.now()}`,
+      type: 'recordatorio_faltante',
+      recipient_phone: tenant?.phone ?? '',
+      recipient_name: tenant?.name ?? null,
+      body: `Hola ${tenant?.name}, ... ${input.message}.`,
+      status: 'sent',
+      error: null,
+      sent_at: now,
+      created_at: now,
+    };
+    waMessages.unshift(msg);
+    return HttpResponse.json({ data: msg }, { status: 202 });
+  }),
+
+  http.get(`${API}/whatsapp/messages`, () => HttpResponse.json(paginated(waMessages))),
 ];
 
 export const server = setupServer(...handlers);

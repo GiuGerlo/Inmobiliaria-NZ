@@ -4,6 +4,7 @@ import {
   Home,
   LayoutDashboard,
   MapPin,
+  MessageCircle,
   Receipt,
   Users,
   UserSquare,
@@ -21,6 +22,7 @@ export type NavItem = {
 export const navItems: NavItem[] = [
   { label: 'Inicio', to: '/', icon: LayoutDashboard, enabled: true },
   { label: 'Recibos', to: '/recibos', icon: Receipt, enabled: true },
+  { label: 'Recordatorios', to: '/recordatorios', icon: MessageCircle, enabled: true },
   { label: 'Contratos', to: '/contratos', icon: FileText, enabled: true },
   { label: 'Propiedades', to: '/propiedades', icon: Home, enabled: true },
   { label: 'Ciudades', to: '/ciudades', icon: MapPin, enabled: true },

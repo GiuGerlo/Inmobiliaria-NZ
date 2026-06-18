@@ -58,6 +58,30 @@ it('manda la plantilla con el documento en el header', function () {
     });
 });
 
+it('manda una plantilla de solo texto', function () {
+    Http::fake([
+        'graph.facebook.com/*/messages' => Http::response(['messages' => [['id' => 'wamid.TXT']]]),
+    ]);
+
+    $messageId = app(WhatsAppClient::class)->sendTemplate(
+        to: '+5493468495281',
+        template: 'recordatorio_pago',
+        language: 'es',
+        bodyVars: ['Juan', 'Junio 2026'],
+    );
+
+    expect($messageId)->toBe('wamid.TXT');
+
+    Http::assertSent(function ($request) {
+        $body = $request->data();
+
+        return $body['type'] === 'template'
+            && $body['template']['name'] === 'recordatorio_pago'
+            && $body['template']['components'][0]['type'] === 'body'
+            && $body['template']['components'][0]['parameters'][1]['text'] === 'Junio 2026';
+    });
+});
+
 it('lanza excepción cuando Meta responde error', function () {
     Http::fake([
         'graph.facebook.com/*/messages' => Http::response(['error' => ['message' => 'Invalid template']], 400),

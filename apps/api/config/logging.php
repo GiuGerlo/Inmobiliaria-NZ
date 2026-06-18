@@ -118,6 +118,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Log dedicado de envíos por WhatsApp (sub-I/J): cada intento + la respuesta
+        // o el error completo de Meta. Carpeta propia: storage/logs/whatsapp/.
+        'whatsapp' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/whatsapp/whatsapp.log'),
+            'level' => 'debug',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,

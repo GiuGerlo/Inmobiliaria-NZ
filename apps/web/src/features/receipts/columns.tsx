@@ -13,12 +13,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader';
-import { formatCurrency, formatDate } from '@/lib/format';
+import { formatCurrency, formatDate, formatDateTime } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
 import type { Receipt, WhatsAppType } from './types';
 
@@ -127,8 +126,8 @@ export function buildReceiptColumns({
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {reciboSent && <div>Recibo enviado: {formatDate(reciboSent)}</div>}
-                  {rendicionSent && <div>Rendición enviada: {formatDate(rendicionSent)}</div>}
+                  {reciboSent && <div>Recibo enviado: {formatDateTime(reciboSent)}</div>}
+                  {rendicionSent && <div>Rendición enviada: {formatDateTime(rendicionSent)}</div>}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -146,34 +145,60 @@ export function buildReceiptColumns({
               </TooltipTrigger>
               <TooltipContent>Ver detalle</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-emerald-700 hover:text-emerald-800"
-                  aria-label={`Recibo PDF del recibo #${receipt.number}`}
-                  onClick={() => openReceiptPdf(receipt.number)}
-                >
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-emerald-700 hover:text-emerald-800"
+                      aria-label={`Recibo del recibo #${receipt.number}`}
+                    >
+                      <FileText className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Recibo</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => openReceiptPdf(receipt.number)}>
                   <FileText className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Recibo PDF</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 text-sky-700 hover:text-sky-800"
-                  aria-label={`Rendición PDF del recibo #${receipt.number}`}
-                  onClick={() => openSettlementPdf(receipt.number)}
-                >
+                  Ver / descargar
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'recibo')}>
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar al inquilino
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8 text-sky-700 hover:text-sky-800"
+                      aria-label={`Rendición del recibo #${receipt.number}`}
+                    >
+                      <FileSpreadsheet className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Rendición</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => openSettlementPdf(receipt.number)}>
                   <FileSpreadsheet className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Rendición PDF</TooltipContent>
-            </Tooltip>
+                  Ver / descargar
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'rendicion')}>
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar al dueño
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-8" aria-label={`Acciones del recibo #${receipt.number}`}>
@@ -181,15 +206,6 @@ export function buildReceiptColumns({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'recibo')}>
-                  <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar recibo (inquilino)
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'rendicion')}>
-                  <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar rendición (dueño)
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => onEdit(receipt)}>
                   <Pencil className="size-4" />
                   Editar

@@ -1,4 +1,4 @@
-import { Building2, CalendarDays, CreditCard, FileText, FileSpreadsheet, MapPin, Pencil, Trash2, User, UserSquare } from 'lucide-react';
+import { Building2, CalendarDays, CreditCard, FileText, FileSpreadsheet, MapPin, MessageCircle, Pencil, Trash2, User, UserSquare } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -6,11 +6,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
 import { receiptTotal } from './total';
-import type { Receipt } from './types';
+import type { Receipt, WhatsAppType } from './types';
 
 type ReceiptDetailDialogProps = {
   open: boolean;
@@ -18,6 +24,7 @@ type ReceiptDetailDialogProps = {
   receipt: Receipt | null;
   onEdit: (receipt: Receipt) => void;
   onDelete: (receipt: Receipt) => void;
+  onSendWhatsApp: (receipt: Receipt, type: WhatsAppType) => void;
 };
 
 /** Cargos que suman al total del recibo (alquiler + servicios + honorarios). */
@@ -73,6 +80,7 @@ export function ReceiptDetailDialog({
   receipt,
   onEdit,
   onDelete,
+  onSendWhatsApp,
 }: ReceiptDetailDialogProps) {
   if (!receipt) return null;
 
@@ -196,14 +204,52 @@ export function ReceiptDetailDialog({
             </Button>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => openReceiptPdf(receipt.number)}>
-              <FileText className="size-4" />
-              Recibo PDF
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => openSettlementPdf(receipt.number)}>
-              <FileSpreadsheet className="size-4" />
-              Rendición PDF
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FileText className="size-4" />
+                  Recibo
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => openReceiptPdf(receipt.number)}>
+                  <FileText className="size-4" />
+                  Ver / descargar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    onSendWhatsApp(receipt, 'recibo');
+                    onOpenChange(false);
+                  }}
+                >
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar al inquilino
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <FileSpreadsheet className="size-4" />
+                  Rendición
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => openSettlementPdf(receipt.number)}>
+                  <FileSpreadsheet className="size-4" />
+                  Ver / descargar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    onSendWhatsApp(receipt, 'rendicion');
+                    onOpenChange(false);
+                  }}
+                >
+                  <MessageCircle className="size-4 text-emerald-600" />
+                  Enviar al dueño
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </DialogContent>

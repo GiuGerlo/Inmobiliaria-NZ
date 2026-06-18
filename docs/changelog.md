@@ -2,6 +2,34 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-18] sub-J — Ajustes UX recibos + historial — DONE
+
+**Resumen**: Tras feedback de la dueña sobre el branch de sub-J, cinco ajustes de UX/datos en Recibos, su detalle, los paneles del pie y el historial de WhatsApp. No tocan la lógica de envío ni el canal.
+
+**Cambios**:
+- **Tooltip "enviado"** en la fila de Recibos: usaba `formatDate` sobre un datetime ISO (salía `18T21:00:25+00:00/06/2026`) → ahora `formatDateTime` (`DD/MM/YYYY HH:mm`).
+- **Acciones consolidadas**: los íconos Recibo (FileText) y Rendición (FileSpreadsheet) ahora abren un menú con **Ver / descargar** + **Enviar** (al inquilino / al dueño). Se sacaron las dos entradas de envío del menú `⋯`, que queda solo con Editar/Eliminar. Mismo menú en el modal de detalle (`ReceiptDetailDialog` recibe `onSendWhatsApp`).
+- **Selector de mes/año** en los paneles del pie de Recibos (pendientes + hechos), default mes/año actual. `DashboardController` acepta `month`/`year` opcionales (valida `month` contra `MONTHS`, `year` entero 2000–2100) y construye `DashboardData($month,$year)`; `useDashboard`/`getDashboard` aceptan params y la query key los incluye.
+- **Historial**: el envío de recibo/rendición (sub-I) guardaba el `body` como `"Recibo #N (PDF)"`; ahora guarda el **texto real** del mensaje (espejo de las plantillas Meta `envio_recibo`/`envio_rendicion`, con nombre/mes/año rellenados).
+- Tests: Pest **134** (dashboard month/year + mes inválido 422, body real en `ReceiptWhatsAppTest`), Vitest **43** (menú Ver/Enviar en fila y detalle). lint + Pint limpios. `/security-review` sin hallazgos.
+
+**Breaking**: nada. **Migración**: nada (sin cambios de schema).
+
+## [2026-06-17] sub-J — Centro de mensajes WhatsApp (manual) — DONE (código + tests)
+
+**Resumen**: Mensajes **manuales** que la dueña dispara con botones, siempre con **selección + preview + confirmación** y **progreso en vivo + historial**. Dos tipos: **recordatorio de pago masivo** (elige inquilinos, escribe la fecha límite, mes automático) y **recordatorio de faltantes** (por inquilino, compone qué le falta). Reusa el canal de sub-I. (Se descartó el enfoque automático por cron que se había prototipado.) **Pendiente**: aprobar 2 plantillas de texto en Meta.
+
+**Cambios**:
+- **`whatsapp_messages` generalizada** (historial unificado): `receipt_id` nullable + `batch_id`, `contract_id`, `recipient_name`, `body`, `template`, `template_vars`, y `type` a 30 chars. sub-I ahora también guarda `recipient_name`/`body` ("Recibo #N (PDF)").
+- **`WhatsAppClient::sendTemplate()`**: plantilla de **solo texto** (sin header de documento).
+- **`App\Support\WhatsAppSender::send()`**: envía una fila por su plantilla+vars y la marca sent/failed. **Job `SendBulkReminder`** (`afterResponse`): procesa las filas `queued` de un lote una por una (un fallo no corta el lote).
+- **Endpoints** (`auth:sanctum` + throttle): `POST /whatsapp/payment-reminders` (crea lote → 202 `{batch_id,total,skipped}`), `POST /whatsapp/missing-items` (envío inmediato, 422 si tel inválido), `GET /whatsapp/messages` (historial), `GET /whatsapp/batches/{id}` (estado del lote para el progreso), `POST /whatsapp/batches/{id}/retry` (reenvía solo los fallidos en un lote nuevo).
+- **Frontend `/recordatorios`** (feature `whatsapp/`, nav nuevo): 3 pestañas. **Pago** (fecha límite + checklist de inquilinos + preview + confirmación + **`BatchProgress`** que poll-ea el lote y muestra ✓/✗ por destinatario, contadores y **reintentar fallidos**). **Faltantes** (`MissingItemsDialog`: acción + conceptos → texto editable + preview). **Historial** (tabla unificada). `ui/switch` se eliminó (sin uso).
+- Config/env: `WHATSAPP_TEMPLATE_RECORDATORIO_PAGO`, `WHATSAPP_TEMPLATE_RECORDATORIO_FALTANTE`.
+- Tests: Pest **136** (PaymentReminders 202/skip/validación/401, MissingItems 202/422, WhatsAppMessages historial+batch+retry, SendBulkReminder, sendTemplate). Vitest **42** (RemindersPage: progreso de pago, faltantes, historial). tsc/lint verdes.
+
+**Breaking**: nada. **Migración**: `php artisan migrate` (altera `whatsapp_messages`) + variables `WHATSAPP_TEMPLATE_*` en `.env`.
+
 ## [2026-06-17] sub-I — Envío por WhatsApp — DONE (código + tests)
 
 **Resumen**: Recibos (al inquilino) y rendiciones (al dueño) se envían por **WhatsApp Cloud API oficial** (Meta, ADR-0008) desde la tabla de Recibos, adjuntando el PDF de sub-F. Antes: descargar y reenviar a mano. Envío encolado, con normalización de teléfono a E.164, log de envíos y marca "enviado" en la fila. **Pendiente**: aprobar las 2 plantillas en Meta + verificación de envío real con número de prueba (lo hace el usuario; el canal ya se validó manualmente con `hello_world`).

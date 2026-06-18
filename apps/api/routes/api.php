@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\V1\PropertyPhotoController;
 use App\Http\Controllers\Api\V1\ReceiptController;
 use App\Http\Controllers\Api\V1\ReceiptPdfController;
 use App\Http\Controllers\Api\V1\ReceiptWhatsAppController;
+use App\Http\Controllers\Api\V1\WhatsAppMessageController;
+use App\Http\Controllers\Api\V1\WhatsAppReminderController;
 use App\Http\Controllers\Api\V1\TenantController;
 use App\Http\Middleware\NoStoreHeaders;
 use Illuminate\Support\Facades\Route;
@@ -55,6 +57,16 @@ Route::prefix('v1')->group(function () {
         // Envío por WhatsApp (sub-I): recibo→inquilino / rendición→dueño. Throttle anti-spam.
         Route::post('/receipts/{receipt}/whatsapp', ReceiptWhatsAppController::class)
             ->middleware('throttle:30,1');
+
+        // Recordatorios manuales (sub-J) + historial unificado.
+        Route::post('/whatsapp/payment-reminders', [WhatsAppReminderController::class, 'paymentReminders'])
+            ->middleware('throttle:10,1');
+        Route::post('/whatsapp/missing-items', [WhatsAppReminderController::class, 'missingItems'])
+            ->middleware('throttle:60,1');
+        Route::get('/whatsapp/messages', [WhatsAppMessageController::class, 'index']);
+        Route::get('/whatsapp/batches/{batch}', [WhatsAppMessageController::class, 'batch']);
+        Route::post('/whatsapp/batches/{batch}/retry', [WhatsAppMessageController::class, 'retry'])
+            ->middleware('throttle:10,1');
 
         // Reporte mensual de pagos (pagados / no pagados) por mes+año.
         Route::get('/reports/monthly-payments', MonthlyPaymentsReportController::class);
