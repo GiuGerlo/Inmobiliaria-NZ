@@ -2,6 +2,21 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-19] Fusión NZ Fase 2 — Dominio ventas en Laravel — DONE
+
+**Resumen**: El dominio "ventas" (propiedades en venta, categorías, imágenes) del sitio `nz-estudio` vive ahora en el backend Laravel único: 3 tablas + API REST + comando de migración. Sin frontend (admin React = Fase 4; sitio público Next = Fase 5).
+
+**Cambios**:
+- **Tablas/modelos** (inglés/snake_case, ADR-0002): `property_types`, `sale_properties`, `property_images` con migraciones, modelos Eloquent (relaciones + casts) y factories.
+- **API REST** (`/api/v1`): lectura **pública** (`GET sale-properties` con filtros `type`/`sold`/`q` + sort + paginación vía spatie/query-builder, `GET sale-properties/{id}`, `GET property-types`) para el SSG; **CRUD admin** (`auth:sanctum`) de propiedades y categorías (409 en categoría con propiedades).
+- **Imágenes**: multi-upload validado por **mime real** → WebP (reusa el pipeline de `PropertyPhotoController`, Intervention GD q82) a `storage/app/public/sale-properties/{id}/`; borrar + reorder de fotos y de propiedades.
+- **Migración**: comando idempotente `php artisan ventas:import` (conexión secundaria `nzestudio`) — copia categorías/propiedades/imágenes del dump, convierte WebP, avisa faltantes sin abortar.
+- **Doc**: Scramble autogenera los 8 endpoints en `/docs/api`.
+- Tests: **Pest 151** (17 nuevos: modelos, property-types, sale-properties, imágenes/reorder, comando). Pint limpio. `/security-review` sin hallazgos.
+- **Verificación real**: import del dump (7 tipos, 51 propiedades, 68 imágenes, 0 faltantes); API pública e imágenes sirviendo por HTTP 200.
+
+**Breaking**: nada. **Migración**: 3 migraciones nuevas (`php artisan migrate`). El dump `nzestudio.sql` y los uploads se cargan localmente fuera de git.
+
 ## [2026-06-19] Fusión NZ Fase 1 — Consolidación repo + docs — DONE
 
 **Resumen**: Arranca el track **Fusión NZ** (7 fases) que integra el sitio público de venta `nz-estudio` (PHP vanilla) al monorepo. Esta fase es solo de consolidación documental + traer el código de referencia; **no migra código de negocio**.

@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\PaymentMethodController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\PropertyPhotoController;
+use App\Http\Controllers\Api\V1\PropertyTypeController;
+use App\Http\Controllers\Api\V1\SalePropertyController;
+use App\Http\Controllers\Api\V1\SalePropertyImageController;
 use App\Http\Controllers\Api\V1\ReceiptController;
 use App\Http\Controllers\Api\V1\ReceiptPdfController;
 use App\Http\Controllers\Api\V1\ReceiptWhatsAppController;
@@ -31,6 +34,11 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::post('/auth/login', [AuthController::class, 'login']);
+
+    // ── Ventas: lectura pública (consumida por el sitio público SSG, sin auth) ──
+    Route::get('/property-types', [PropertyTypeController::class, 'index']);
+    Route::get('/sale-properties', [SalePropertyController::class, 'index']);
+    Route::get('/sale-properties/{saleProperty}', [SalePropertyController::class, 'show']);
 
     Route::middleware(['auth:sanctum', NoStoreHeaders::class])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -71,5 +79,22 @@ Route::prefix('v1')->group(function () {
         // Reporte mensual de pagos (pagados / no pagados) por mes+año.
         Route::get('/reports/monthly-payments', MonthlyPaymentsReportController::class);
         Route::apiResource('payment-methods', PaymentMethodController::class);
+
+        // ── Ventas (Fusión NZ): CRUD admin de categorías ──
+        Route::post('/property-types', [PropertyTypeController::class, 'store']);
+        Route::patch('/property-types/{propertyType}', [PropertyTypeController::class, 'update']);
+        Route::delete('/property-types/{propertyType}', [PropertyTypeController::class, 'destroy']);
+
+        // ── Ventas (Fusión NZ): CRUD admin de propiedades ──
+        // reorder ANTES del binding {saleProperty} para que no lo capture el modelo.
+        Route::patch('/sale-properties/reorder', [SalePropertyController::class, 'reorder']);
+        Route::post('/sale-properties', [SalePropertyController::class, 'store']);
+        Route::patch('/sale-properties/{saleProperty}', [SalePropertyController::class, 'update']);
+        Route::delete('/sale-properties/{saleProperty}', [SalePropertyController::class, 'destroy']);
+
+        // Imágenes de propiedades en venta (multi-upload WebP + borrar + reordenar).
+        Route::patch('/sale-property-images/reorder', [SalePropertyImageController::class, 'reorder']);
+        Route::post('/sale-properties/{saleProperty}/images', [SalePropertyImageController::class, 'store']);
+        Route::delete('/sale-property-images/{propertyImage}', [SalePropertyImageController::class, 'destroy']);
     });
 });

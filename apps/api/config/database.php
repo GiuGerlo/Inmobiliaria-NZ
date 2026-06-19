@@ -84,6 +84,21 @@ return [
             ]) : [],
         ],
 
+        // Conexión legacy de solo lectura para la migración one-shot de ventas
+        // (Fusión NZ Fase 2). Apunta a la base `nzestudio` importada localmente.
+        'nzestudio' => [
+            'driver' => 'mariadb',
+            'host' => env('NZ_LEGACY_DB_HOST', 'mariadb'),
+            'port' => env('NZ_LEGACY_DB_PORT', '3306'),
+            'database' => env('NZ_LEGACY_DB_DATABASE', 'nzestudio'),
+            'username' => env('NZ_LEGACY_DB_USERNAME', env('DB_USERNAME')),
+            'password' => env('NZ_LEGACY_DB_PASSWORD', env('DB_PASSWORD')),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+            'prefix' => '',
+            'strict' => false,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
