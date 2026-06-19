@@ -1,0 +1,58 @@
+# Excluir del build context PHP/Apache (no necesarios en la imagen)
+# El build context es ./docker/php, así que esto aplica a esa carpeta.
+# Igual lo dejo amplio por si en el futuro el context cambia a raíz.
+
+# VCS
+.git/
+.github/
+.gitignore
+.gitattributes
+
+# IDEs / editores
+.vscode/
+.idea/
+.windsurf/
+.claude/
+.agents/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Dependencias y build de otros stacks (por si entran a futuro)
+node_modules/
+vendor/
+
+# Documentación
+docs/
+*.md
+LICENSE
+
+# Dumps de DB (no van a la imagen web; el dump lo monta el servicio db)
+*.sql
+db/
+
+# Logs
+*.log
+
+# Entorno
+.env
+.env.*
+
+# Backups y sourcemaps
+backups/
+*.map
+
+# Docker mismo (no entra al build context de la imagen)
+docker-compose.yml
+docker/
+.dockerignore
+
+# Uploads dinámicos
+uploads/
+
+# CodeGraph índice local
+.codegraph/
+
+# Skills lock
+skills-lock.json

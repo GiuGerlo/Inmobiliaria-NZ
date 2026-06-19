@@ -1,0 +1,345 @@
+/* card.css — Cards genéricas + stats + quick actions */
+
+/* ─── Card base ───────────────────────────────────────────────────── */
+.nz-card {
+    background: var(--nz-surface);
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    box-shadow: var(--nz-shadow-sm);
+    overflow: hidden;
+}
+
+.nz-card-header {
+    padding: var(--nz-sp-4) var(--nz-sp-5);
+    border-bottom: 1px solid var(--nz-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nz-sp-3);
+}
+
+.nz-card-header h5 {
+    margin: 0;
+    font-size: var(--nz-fs-md);
+    font-weight: 600;
+    color: var(--nz-text);
+}
+
+.nz-card-body {
+    padding: var(--nz-sp-5);
+}
+
+.nz-card-foot {
+    padding: var(--nz-sp-3) var(--nz-sp-5);
+    border-top: 1px solid var(--nz-border);
+    background: var(--nz-surface-2);
+}
+
+/* ─── Stat cards (dashboard) ──────────────────────────────────────── */
+.nz-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--nz-sp-5);
+    margin-bottom: var(--nz-sp-6);
+}
+
+.nz-stat {
+    position: relative;
+    background: var(--nz-surface);
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    padding: var(--nz-sp-5) var(--nz-sp-5) var(--nz-sp-5);
+    box-shadow: var(--nz-shadow-sm);
+    transition: box-shadow var(--nz-transition), transform var(--nz-transition);
+    overflow: hidden;
+}
+
+.nz-stat:hover {
+    box-shadow: var(--nz-shadow-md);
+    transform: translateY(-2px);
+}
+
+.nz-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--_stat-color, var(--nz-primary));
+}
+
+.nz-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--nz-radius-sm);
+    display: grid;
+    place-items: center;
+    background: var(--_stat-soft, var(--nz-primary-soft));
+    color: var(--_stat-color, var(--nz-primary));
+    font-size: 1.15rem;
+    margin-bottom: var(--nz-sp-4);
+}
+
+.nz-stat-value {
+    font-size: var(--nz-fs-2xl);
+    font-weight: 700;
+    color: var(--nz-text);
+    line-height: 1.1;
+    letter-spacing: -.02em;
+}
+
+.nz-stat-label {
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-sm);
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.nz-stat-foot {
+    margin-top: var(--nz-sp-3);
+    font-size: var(--nz-fs-xs);
+    color: var(--nz-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Color variants */
+.nz-stat--primary { --_stat-color: var(--nz-primary);  --_stat-soft: var(--nz-primary-soft); }
+.nz-stat--accent  { --_stat-color: var(--nz-accent);   --_stat-soft: var(--nz-accent-soft); }
+.nz-stat--success { --_stat-color: var(--nz-success);  --_stat-soft: var(--nz-success-soft); }
+.nz-stat--warning { --_stat-color: var(--nz-warning);  --_stat-soft: var(--nz-warning-soft); }
+.nz-stat--danger  { --_stat-color: var(--nz-danger);   --_stat-soft: var(--nz-danger-soft); }
+.nz-stat--info    { --_stat-color: var(--nz-info);     --_stat-soft: var(--nz-info-soft); }
+
+/* ─── Quick actions ───────────────────────────────────────────────── */
+.nz-section-title {
+    font-size: var(--nz-fs-md);
+    font-weight: 600;
+    color: var(--nz-text);
+    margin: 0 0 var(--nz-sp-4);
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+}
+
+.nz-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--nz-sp-4);
+    margin-bottom: var(--nz-sp-6);
+}
+
+.nz-quick {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-4);
+    padding: var(--nz-sp-4) var(--nz-sp-5);
+    background: var(--nz-surface);
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    color: var(--nz-text);
+    text-decoration: none;
+    transition: border-color var(--nz-transition), box-shadow var(--nz-transition), transform var(--nz-transition);
+    cursor: pointer;
+}
+
+.nz-quick:hover {
+    border-color: var(--nz-primary);
+    box-shadow: var(--nz-shadow-md);
+    transform: translateY(-2px);
+    color: var(--nz-text);
+}
+
+.nz-quick-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--nz-radius-sm);
+    background: var(--nz-primary-soft);
+    color: var(--nz-primary);
+    display: grid;
+    place-items: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    transition: background var(--nz-transition), color var(--nz-transition);
+}
+
+.nz-quick:hover .nz-quick-icon {
+    background: var(--nz-primary);
+    color: white;
+}
+
+.nz-quick-body {
+    min-width: 0;
+}
+
+.nz-quick-title {
+    font-weight: 600;
+    font-size: .95rem;
+    margin: 0 0 2px;
+    color: var(--nz-text);
+}
+
+.nz-quick-sub {
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-xs);
+    margin: 0;
+}
+
+/* ─── Tabla simple (no DataTables) ──────────────────────────────── */
+/* Wrap para que la tabla pueda hacer scroll horizontal sin romper la card */
+.nz-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nz-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--nz-fs-base);
+    min-width: 540px; /* abajo de esto la tabla scrollea horizontalmente */
+}
+
+.nz-table th {
+    text-align: left;
+    padding: var(--nz-sp-3) var(--nz-sp-5);
+    font-size: var(--nz-fs-xs);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--nz-text-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--nz-border);
+    background: var(--nz-surface-2);
+}
+
+.nz-table td {
+    padding: var(--nz-sp-3) var(--nz-sp-5);
+    border-bottom: 1px solid var(--nz-border);
+    color: var(--nz-text);
+    vertical-align: middle;
+}
+
+.nz-table tr:last-child td { border-bottom: 0; }
+
+.nz-table tbody tr {
+    transition: background var(--nz-transition-fast);
+}
+
+.nz-table tbody tr:hover {
+    background: var(--nz-surface-2);
+}
+
+.nz-table .nz-id {
+    color: var(--nz-text-muted);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--nz-fs-sm);
+    font-weight: 500;
+}
+
+.nz-table-empty {
+    text-align: center;
+    color: var(--nz-text-muted);
+    padding: var(--nz-sp-10) var(--nz-sp-5);
+}
+
+/* Botón icon-only */
+.nz-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--nz-radius-sm);
+    border: 1px solid var(--nz-border);
+    background: var(--nz-surface);
+    color: var(--nz-text-muted);
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--nz-transition-fast);
+    font-size: .85rem;
+}
+
+.nz-icon-btn:hover {
+    background: var(--nz-primary);
+    color: white;
+    border-color: var(--nz-primary);
+}
+
+.nz-icon-btn--danger:hover {
+    background: var(--nz-danger);
+    border-color: var(--nz-danger);
+}
+
+.nz-icon-btn--success:hover {
+    background: var(--nz-success);
+    border-color: var(--nz-success);
+}
+
+/* ─── Botones ─────────────────────────────────────────────────────── */
+.nz-btn-sm {
+    padding: 7px 14px;
+    font-size: var(--nz-fs-sm);
+    border-radius: var(--nz-radius-sm);
+    font-weight: 600;
+    border: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    transition: all var(--nz-transition-fast);
+}
+
+.nz-btn-sm.nz-btn-primary {
+    background: var(--nz-primary);
+    color: white;
+}
+
+.nz-btn-sm.nz-btn-primary:hover {
+    background: var(--nz-primary-hover);
+    color: white;
+}
+
+.nz-btn-sm.nz-btn-ghost {
+    background: transparent;
+    color: var(--nz-primary);
+    border: 1px solid var(--nz-border);
+}
+
+.nz-btn-sm.nz-btn-ghost:hover {
+    background: var(--nz-primary-soft);
+    border-color: var(--nz-primary);
+}
+
+@media (max-width: 768px) {
+    .nz-stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--nz-sp-3);
+    }
+    .nz-quick-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Stats compactas: layout horizontal (icono | valor + label) */
+    .nz-stat {
+        padding: var(--nz-sp-3) var(--nz-sp-4);
+        display: flex;
+        align-items: center;
+        gap: var(--nz-sp-3);
+    }
+    .nz-stat-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .nz-stat-body { min-width: 0; }
+    .nz-stat-value { font-size: 1.3rem; }
+    .nz-stat-label { font-size: var(--nz-fs-xs); margin-top: 0; }
+}
+
+/* Aún más compactas en pantallas chicas */
+@media (max-width: 420px) {
+    .nz-stat { padding: var(--nz-sp-3); }
+    .nz-stat-icon { width: 34px; height: 34px; }
+    .nz-stat-value { font-size: 1.2rem; }
+}

@@ -1,0 +1,278 @@
+/* form.css — Form controls, labels, secciones, fieldsets, file upload. */
+
+.nz-form-section {
+    background: var(--nz-surface);
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    margin-bottom: var(--nz-sp-5);
+    overflow: hidden;
+}
+
+.nz-form-section-head {
+    padding: var(--nz-sp-3) var(--nz-sp-5);
+    background: var(--nz-surface-2);
+    border-bottom: 1px solid var(--nz-border);
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+}
+
+.nz-form-section-head h6 {
+    margin: 0;
+    font-size: var(--nz-fs-sm);
+    font-weight: 600;
+    color: var(--nz-text);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+
+.nz-form-section-head i {
+    color: var(--nz-primary);
+    font-size: .9rem;
+}
+
+.nz-form-section-body {
+    padding: var(--nz-sp-5);
+}
+
+/* Grid simple para campos */
+.nz-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--nz-sp-4);
+}
+
+.nz-form-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.nz-form-grid .full { grid-column: 1 / -1; }
+
+.nz-field-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.nz-field-group label {
+    display: block;
+    font-size: var(--nz-fs-xs);
+    font-weight: 600;
+    color: var(--nz-text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.nz-field-group label .req {
+    color: var(--nz-danger);
+    margin-left: 2px;
+}
+
+.nz-input,
+.nz-select,
+.nz-textarea {
+    width: 100%;
+    border: 1.5px solid var(--nz-border);
+    border-radius: var(--nz-radius-sm);
+    background: var(--nz-surface);
+    color: var(--nz-text);
+    font-family: inherit;
+    font-size: var(--nz-fs-base);
+    padding: 10px 12px;
+    transition: border-color var(--nz-transition), box-shadow var(--nz-transition);
+}
+
+.nz-input:focus,
+.nz-select:focus,
+.nz-textarea:focus {
+    outline: 0;
+    border-color: var(--nz-primary);
+    box-shadow: 0 0 0 3px rgba(44, 95, 135, .12);
+}
+
+.nz-input::placeholder,
+.nz-textarea::placeholder {
+    color: #94a3b8;
+}
+
+.nz-textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.nz-input[readonly], .nz-input:disabled {
+    background: var(--nz-surface-3);
+    color: var(--nz-text-muted);
+    cursor: not-allowed;
+}
+
+/* Hint debajo del input */
+.nz-field-hint {
+    font-size: var(--nz-fs-xs);
+    color: var(--nz-text-muted);
+    margin-top: 4px;
+}
+
+/* Input con icono prefijo (search box, etc.) */
+.nz-input-wrap-icon {
+    position: relative;
+}
+
+.nz-input-wrap-icon .nz-input { padding-left: 38px; }
+
+.nz-input-wrap-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--nz-text-muted);
+    font-size: .92rem;
+    pointer-events: none;
+}
+
+/* ─── File upload ─────────────────────────────────────────────── */
+.nz-file-drop {
+    display: block;        /* label es inline por default → forzar block para ocupar 100% */
+    width: 100%;
+    box-sizing: border-box;
+    border: 2px dashed var(--nz-border-strong);
+    border-radius: var(--nz-radius);
+    padding: var(--nz-sp-8);
+    text-align: center;
+    background: var(--nz-surface-2);
+    transition: border-color var(--nz-transition), background var(--nz-transition);
+    cursor: pointer;
+    position: relative;
+}
+
+.nz-file-drop:hover,
+.nz-file-drop.is-dragover {
+    border-color: var(--nz-primary);
+    background: var(--nz-primary-soft);
+}
+
+.nz-file-drop i {
+    font-size: 1.7rem;
+    color: var(--nz-primary);
+    margin-bottom: var(--nz-sp-3);
+    display: block;
+}
+
+.nz-file-drop p {
+    margin: 0;
+    color: var(--nz-text);
+    font-weight: 500;
+}
+
+.nz-file-drop small {
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-xs);
+    display: block;
+    margin-top: 4px;
+}
+
+.nz-file-drop input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Grid de previews */
+.nz-img-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--nz-sp-3);
+    margin-top: var(--nz-sp-4);
+}
+
+.nz-img-preview {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--nz-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--nz-border);
+    background: var(--nz-surface-3);
+}
+
+.nz-img-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.nz-img-preview-del {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(0, 0, 0, .65);
+    color: white;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: .75rem;
+    transition: background var(--nz-transition-fast);
+}
+
+.nz-img-preview-del:hover { background: var(--nz-danger); }
+
+/* Badge "Principal" sobre la primera imagen */
+.nz-img-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: var(--nz-primary);
+    color: white;
+    font-size: .65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--nz-radius-pill);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    z-index: 1;
+}
+
+.nz-img-preview.is-main {
+    box-shadow: 0 0 0 2px var(--nz-primary);
+}
+
+/* Handle de arrastre (visible al hover) */
+.nz-img-handle {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .65);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: .7rem;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity var(--nz-transition-fast);
+}
+
+.nz-img-preview:hover .nz-img-handle {
+    opacity: 1;
+}
+
+.nz-img-handle:active {
+    cursor: grabbing;
+}
+
+/* Estado mientras se arrastra (Sortable) */
+.nz-img-ghost {
+    opacity: .4;
+    background: var(--nz-primary-soft);
+}
+
+@media (max-width: 768px) {
+    .nz-form-grid, .nz-form-grid--3 { grid-template-columns: 1fr; }
+    .nz-form-section-body { padding: var(--nz-sp-4); }
+}

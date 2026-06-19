@@ -1,0 +1,370 @@
+/* admin/assets/css/main.css — punto único de entrada del admin.
+   Importa tokens compartidos + componentes nuevos + aliases temporales para
+   las páginas que aún no fueron rediseñadas (3b/c/d las eliminarán).
+*/
+
+@import url('../../../assets/css/tokens.css');
+@import url('./components/layout.css');
+@import url('./components/sidebar.css');
+@import url('./components/navbar.css');
+@import url('./components/card.css');
+@import url('./components/form.css');
+@import url('./components/modal.css');
+
+/* ─── Reset suave para no chocar con Bootstrap ───────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+a { color: var(--nz-primary); }
+a:hover { color: var(--nz-primary-hover); }
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--nz-text);
+    letter-spacing: -.01em;
+}
+
+hr { border-color: var(--nz-border); }
+
+/* ─── Aliases / overrides Bootstrap mientras 3b/c/d migran ──────── */
+/* IMPORTANTE: estas reglas son TRANSITORIAS. Eliminarlas cuando cada
+   página tenga su propio estilo con los componentes nuevos.            */
+
+.card {
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    box-shadow: var(--nz-shadow-sm);
+    background: var(--nz-surface);
+    transition: box-shadow var(--nz-transition);
+}
+
+.card:hover {
+    box-shadow: var(--nz-shadow-md);
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--nz-border);
+    padding: var(--nz-sp-4) var(--nz-sp-5);
+    font-weight: 600;
+}
+
+.card-body {
+    padding: var(--nz-sp-5);
+}
+
+.btn-primary,
+.btn-custom-blue {
+    background: var(--nz-primary);
+    border-color: var(--nz-primary);
+    color: white;
+}
+
+.btn-primary:hover,
+.btn-custom-blue:hover {
+    background: var(--nz-primary-hover);
+    border-color: var(--nz-primary-hover);
+    color: white;
+}
+
+.btn-outline-primary {
+    color: var(--nz-primary);
+    border-color: var(--nz-primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--nz-primary);
+    color: white;
+}
+
+.btn-custom-red,
+.btn-danger {
+    background: var(--nz-danger);
+    border-color: var(--nz-danger);
+    color: white;
+}
+
+.btn {
+    border-radius: var(--nz-radius-sm);
+    font-weight: 500;
+}
+
+.text-primary { color: var(--nz-primary) !important; }
+.text-muted { color: var(--nz-text-muted) !important; }
+.bg-light { background: var(--nz-surface-3) !important; }
+
+.badge { font-weight: 500; }
+.badge.bg-info { background-color: var(--nz-info) !important; color: white; }
+.badge.bg-success { background-color: var(--nz-success) !important; }
+.badge.bg-warning { background-color: var(--nz-warning) !important; color: white; }
+.badge.bg-danger { background-color: var(--nz-danger) !important; }
+
+/* Accentos de cards (compat: usado por modal_propiedad.php hasta 3c) */
+.card-accent-blue   { border-top: 3px solid var(--nz-primary); }
+.card-accent-green  { border-top: 3px solid var(--nz-success); }
+.card-accent-orange { border-top: 3px solid var(--nz-warning); }
+.card-accent-purple { border-top: 3px solid #7c3aed; }
+
+/* Tabla */
+.table { color: var(--nz-text); }
+.table > :not(caption) > * > * { padding: var(--nz-sp-3) var(--nz-sp-4); }
+.table th { font-weight: 600; color: var(--nz-text-muted); font-size: var(--nz-fs-sm); text-transform: uppercase; letter-spacing: .04em; }
+.table tbody tr:hover { background: var(--nz-surface-3); }
+
+/* Form controls Bootstrap */
+.form-control, .form-select {
+    border-color: var(--nz-border);
+    border-radius: var(--nz-radius-sm);
+    transition: border-color var(--nz-transition), box-shadow var(--nz-transition);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--nz-primary);
+    box-shadow: 0 0 0 3px rgba(44, 95, 135, .12);
+}
+
+.form-floating > label { color: var(--nz-text-muted); }
+
+/* ─── DataTables restyling ──────────────────────────────────────── */
+.dataTables_wrapper {
+    color: var(--nz-text);
+    font-size: var(--nz-fs-base);
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1.5px solid var(--nz-border);
+    border-radius: var(--nz-radius-sm);
+    padding: 7px 12px;
+    background: var(--nz-surface);
+    color: var(--nz-text);
+    font-size: var(--nz-fs-sm);
+    transition: border-color var(--nz-transition), box-shadow var(--nz-transition);
+}
+
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus {
+    outline: 0;
+    border-color: var(--nz-primary);
+    box-shadow: 0 0 0 3px rgba(44, 95, 135, .12);
+}
+
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label {
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-sm);
+    font-weight: 500;
+}
+
+.dataTables_wrapper table.dataTable {
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+
+.dataTables_wrapper table.dataTable thead th {
+    background: var(--nz-surface-2);
+    border-top: 1px solid var(--nz-border);
+    border-bottom: 1px solid var(--nz-border);
+    color: var(--nz-text-muted);
+    font-weight: 600;
+    font-size: var(--nz-fs-xs);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: var(--nz-sp-3) var(--nz-sp-4);
+}
+
+.dataTables_wrapper table.dataTable tbody td {
+    padding: var(--nz-sp-3) var(--nz-sp-4);
+    border-bottom: 1px solid var(--nz-border);
+    vertical-align: middle;
+}
+
+.dataTables_wrapper table.dataTable tbody tr:hover {
+    background: var(--nz-surface-2);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: var(--nz-radius-sm) !important;
+    margin: 0 2px !important;
+    padding: 0 !important;
+    min-width: 36px;
+    height: 36px;
+    border: 1px solid var(--nz-border) !important;
+    background: var(--nz-surface) !important;
+    color: var(--nz-text-muted) !important;
+    font-weight: 500;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: var(--nz-fs-sm);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button i {
+    font-size: .82rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--nz-primary-soft) !important;
+    color: var(--nz-primary) !important;
+    border-color: var(--nz-primary) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--nz-primary) !important;
+    border-color: var(--nz-primary) !important;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: .4;
+    cursor: not-allowed !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-sm);
+    padding-top: var(--nz-sp-3) !important;
+}
+
+/* Pill de categoría — wrap si es largo, no overflow */
+.nz-cat-pill {
+    display: inline-block;
+    font-size: var(--nz-fs-xs);
+    font-weight: 600;
+    color: var(--nz-primary);
+    background: var(--nz-primary-soft);
+    padding: 4px 10px;
+    border-radius: var(--nz-radius-pill);
+    line-height: 1.4;
+    max-width: 100%;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* Botones de acción inline en la tabla */
+.nz-table-actions {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+
+/* ─── DataTables layout custom (toolbar arriba/abajo) ─────────────── */
+.nz-dt-top, .nz-dt-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nz-sp-3);
+    flex-wrap: wrap;
+}
+
+.nz-dt-top { margin-bottom: var(--nz-sp-4); }
+.nz-dt-bottom { margin-top: var(--nz-sp-4); }
+
+.nz-dt-top-left, .nz-dt-top-right,
+.nz-dt-bottom-left, .nz-dt-bottom-right {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+}
+
+/* Search input: ocupar más ancho disponible */
+.dataTables_wrapper .dataTables_filter input {
+    min-width: 240px;
+}
+
+@media (max-width: 540px) {
+    .dataTables_wrapper .dataTables_filter input { min-width: 0; width: 100%; }
+    .nz-dt-top-left, .nz-dt-top-right { width: 100%; }
+}
+
+/* ─── Toolbar de filtros (encima de la tabla) ──────────────────────── */
+.nz-toolbar {
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto;
+    align-items: center;
+    gap: var(--nz-sp-3);
+    padding: var(--nz-sp-3) var(--nz-sp-1) var(--nz-sp-4);
+    margin-bottom: var(--nz-sp-3);
+    border-bottom: 1px solid var(--nz-border);
+}
+.nz-toolbar-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.nz-toolbar-search i {
+    position: absolute;
+    left: 12px;
+    color: var(--nz-text-muted);
+    font-size: .9rem;
+    pointer-events: none;
+}
+.nz-toolbar-search .nz-input {
+    padding-left: 36px;
+    width: 100%;
+}
+.nz-toolbar-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.nz-toolbar-select {
+    min-width: 180px;
+    padding: 7px 12px;
+    font-size: var(--nz-fs-sm);
+}
+.nz-filter-info {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+    padding: 8px 12px;
+    margin-bottom: var(--nz-sp-3);
+    background: var(--nz-primary-soft);
+    border: 1px solid var(--nz-primary);
+    border-radius: var(--nz-radius-sm);
+    color: var(--nz-primary);
+    font-size: var(--nz-fs-sm);
+    font-weight: 500;
+}
+.nz-filter-info i { font-size: .85rem; }
+.nz-filter-count {
+    margin-left: auto;
+    background: var(--nz-primary);
+    color: white;
+    padding: 2px 10px;
+    border-radius: var(--nz-radius-pill);
+    font-size: var(--nz-fs-xs);
+    font-weight: 600;
+}
+@media (max-width: 768px) {
+    .nz-toolbar { grid-template-columns: 1fr; }
+    .nz-toolbar-filters { justify-content: stretch; }
+    .nz-toolbar-select { flex: 1; min-width: 0; }
+}
+
+/* ─── Page header actions (botones agrupados en el header) ────────── */
+.nz-page-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ─── Thumb de fila (tabla) ────────────────────────────────────────── */
+.nz-row-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--nz-border);
+    display: block;
+}
+.nz-row-thumb--empty {
+    background: var(--nz-surface-3);
+    display: grid;
+    place-items: center;
+    color: var(--nz-text-muted);
+}
+.nz-row-title { font-weight: 600; }

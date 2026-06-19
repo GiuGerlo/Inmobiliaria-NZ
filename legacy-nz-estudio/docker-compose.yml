@@ -1,0 +1,87 @@
+# nz-estudio — entorno de desarrollo local con Docker
+# Reemplaza a Laragon. Levantar con: docker compose up -d --build
+# Web:        http://localhost:8080
+# phpMyAdmin: http://localhost:8081  (user: nz / pass: nzdev)
+
+name: nz-estudio
+
+services:
+  web:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: nz_web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      NZ_ENV: docker
+      TZ: UTC
+      APACHE_RUN_USER: www-data
+      APACHE_RUN_GROUP: www-data
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nz_net
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  db:
+    image: mariadb:11.8.6
+    container_name: nz_db
+    restart: unless-stopped
+    # Política nz-estudio: la DB SIEMPRE en UTC. UI formatea a AR aparte.
+    command: ["--default-time-zone=+00:00"]
+    environment:
+      TZ: UTC
+      MARIADB_DATABASE: ${DB_DOCKER_NAME:-nz-estudio}
+      MARIADB_USER: ${DB_DOCKER_USER:-nz}
+      MARIADB_PASSWORD: ${DB_DOCKER_PASS:-nzdev}
+      MARIADB_ROOT_PASSWORD: ${DB_DOCKER_ROOT_PASS:-rootdev}
+    volumes:
+      - nz_db_data:/var/lib/mysql
+      - ./db/nzestudio.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "3307:3306"
+    networks:
+      - nz_net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: nz_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_DOCKER_USER:-nz}
+      PMA_PASSWORD: ${DB_DOCKER_PASS:-nzdev}
+      UPLOAD_LIMIT: 256M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nz_net
+
+networks:
+  nz_net:
+    driver: bridge
+
+volumes:
+  nz_db_data:

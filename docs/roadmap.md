@@ -1,6 +1,6 @@
 # Roadmap — Reformulación Inmobiliaria NZ
 
-> Estado del plan maestro. Actualizar al cierre de cada fase. Última revisión: 2026-06-15.
+> Estado del plan maestro. Actualizar al cierre de cada fase. Última revisión: 2026-06-19.
 
 ## Visión
 
@@ -25,10 +25,28 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 | **F** | PDFs (recibos + rendiciones) | 🟢 DONE 2026-06-16 | D, E | Recibo individual, rendición a dueños y listado mensual de pagos en PDF desde Laravel (spatie/laravel-pdf + Gotenberg). Botones inline en la tabla de recibos + reporte mensual en el toolbar. |
 | **G** | Dashboard / Inicio | 🟢 DONE 2026-06-16 | E, F | Pantalla de inicio (`/`) con totales, recibos pendientes del mes y contratos por vencer (90d). Endpoint agregado `GET /dashboard`. Sidebar colapsable + login redirige al inicio. |
 | **I** | Envío por WhatsApp | 🟢 DONE 2026-06-17 (código) | F | Recibos→inquilino y rendiciones→dueño por **WhatsApp Cloud API oficial** desde la tabla de Recibos. Job encolado + log + marca "enviado". Pendiente: aprobar 2 plantillas en Meta + verificación de envío real. |
-| **J** | Centro de mensajes WhatsApp (manual) | 🟢 DONE 2026-06-17 (código) | I | Mensajes manuales con selección + preview + confirmación + progreso en vivo + historial: recordatorio de pago masivo y faltantes por inquilino (`/recordatorios`). Pendiente: aprobar 2 plantillas de texto en Meta. |
-| **H** | Deploy + CI/CD | 🔴 diferida | E, F, I, J + unión de dominios | Es la **última** fase. Pipeline a **VPS** (probable) con `docker-compose` fusionado con el otro proyecto. Builds reproducibles. |
+| **J** | Centro de mensajes WhatsApp (manual) | 🟢 DONE 2026-06-18 (mergeada `427c52a`) | I | Mensajes manuales con selección + preview + confirmación + progreso en vivo + historial: recordatorio de pago masivo y faltantes por inquilino (`/recordatorios`). Plantillas aprobadas en Meta y envío real verificado. |
+| **H** | Deploy + CI/CD | ➡️ absorbida | — | **Reemplazada** por la Fase 7 del track Fusión NZ (deploy se hace junto con la unión de dominios). |
 
-Leyenda: 🟢 DONE — 🟡 en progreso — ⚪ pendiente — 🔴 bloqueado.
+Leyenda: 🟢 DONE — 🟡 en progreso — ⚪ pendiente — 🔴 bloqueado — ➡️ movida/absorbida.
+
+## Track Fusión NZ
+
+Unificación del sitio público de venta `nz-estudio` (PHP vanilla) dentro de este monorepo. Diseño
+aprobado 2026-06-19. Spec: `docs/superpowers/specs/2026-06-19-fusion-nz-design.md`. ADR-0009. El sitio
+público sigue vivo en su hosting actual hasta el corte (Fase 7).
+
+| # | Fase | Estado | Depende de | Entregable corto |
+|---|------|--------|------------|------------------|
+| **1** | Consolidación repo + docs | 🟢 DONE 2026-06-19 | A–J | Spec/ADR/roadmap unificados, `.env` confirmado, nz-estudio traído a `legacy-nz-estudio/` como referencia (sin secretos). Sin migrar código de negocio. |
+| **2** | Dominio ventas en Laravel | ⚪ pendiente | 1 | Migraciones + modelos + API REST `sale_properties`/`property_types`/`property_images`; migración de datos del dump; imágenes WebP a `storage/app/public`. Pest. |
+| **3** | Auth + roles | ⚪ pendiente | 2 | `spatie/laravel-permission`: `superadmin`/`inmobiliaria`; gate de ventas; unificar user de nz-estudio. Tests. |
+| **4** | Admin de ventas (React) | ⚪ pendiente | 3 | Sección "Propiedades en venta" en `apps/web`: CRUD, categorías, orden drag-drop, vendidas, multi-upload. Solo superadmin. Vitest. |
+| **5** | Sitio público (Next SSG) | ⚪ pendiente | 2, 4 | `apps/public`: home, catálogo+filtros, detalle, vendidas; OG por propiedad; rebuild-on-publish; servicio `public` en compose + reglas Next/SEO. |
+| **6** | Motor PDF | ⚪ pendiente | — | Gotenberg → mPDF/dompdf (ADR-0004 revisado); reescribir y re-verificar los 3 PDFs de sub-F. |
+| **7** | Deploy Hostinger + corte | ⚪ pendiente | 1–6 | CI/CD: admin → `admin.nz-...`, público Next SSG → `nz-...`; hook de rebuild; env/TLS/DB; baja del legacy de alquileres y del nz-estudio viejo. (Absorbe sub-H.) |
+
+Roles destino: `superadmin` (Giuliano, ve todo) / `inmobiliaria` (staff y dueña Nadina, solo alquileres).
 
 ## Decisiones pendientes con impacto cruzado
 
@@ -57,3 +75,4 @@ Estas se resuelven cuando empieza la fase que las necesita, no antes.
 - **2026-06-17** — Re-secuenciación. Antes de deploy se suman features: **sub-I (envío de recibos/rendiciones por WhatsApp Cloud API oficial)** y **sub-J (recordatorios)**. **sub-H (deploy) diferida** a última fase — depende de I, J + unión de dominios con el otro proyecto (`C:\laragon\www\nz-estudio`, PHP+Docker+Actions) como subdominio en VPS. Nuevos ADRs: 0008 (canal WhatsApp = Cloud API) y nota en 0003 (VPS). Sub-I arranca con brainstorming; Fase 0 = probar canal gratis con número de prueba de Meta antes de codear.
 - **2026-06-18** — Sub-J ajustes UX (sobre el mismo branch, pre-merge). Feedback de la dueña: hora del tooltip "enviado" formateada (`formatDateTime`), íconos recibo/rendición → menú Ver/descargar + Enviar (se sacan los 2 botones de envío del `⋯`) en tabla y detalle, selector de mes/año en los paneles del pie (`DashboardController` acepta `month`/`year`), e historial guarda el texto real del mensaje de recibo/rendición (antes "Recibo #N (PDF)"). Pest 134 + Vitest 43 verdes; `/security-review` sin hallazgos. Sigue pendiente para mergear: aprobación de las 2 plantillas de recordatorios en Meta.
 - **2026-06-16** — Sub-G DONE. Dashboard de inicio (`/`, landing post-login) — sin ingresos. 1ª ronda: totales, recibos pendientes del mes, contratos por vencer (90d). 2ª ronda (ampliación): accesos rápidos (abren forms vía `location.state.openCreate`), progreso del mes (barra), últimos recibos generados y contratos con saldo pendiente; la página de Recibos suma al pie "por hacer" + "hechos este mes". Endpoint agregado `GET /dashboard` (`DashboardData` + `Contract::scopeActive` + `DashboardResource`, queries parametrizadas sin input; suma `latestReceipts`/`contractsWithBalance`). Sidebar colapsable con transición (persistido) + login redirige al inicio. Pest **104** + Vitest **37** verdes; `/security-review` sin hallazgos. Próximo: sub-H (deploy/CI).
+- **2026-06-19** — **Track Fusión NZ abierto** (fases 1–7). Se fusiona el sitio público de venta `nz-estudio` (PHP vanilla) dentro del monorepo. Diseño aprobado; spec `2026-06-19-fusion-nz-design.md` + ADR-0009. **sub-H absorbida** por la Fase 7 (deploy junto con la unión de dominios). Decisiones confirmadas: merge = copia como referencia, `.env` = patrón existente, dump local fuera de git, 2 roles (`superadmin`/`inmobiliaria`, sin rol especial dueña), `nz-administracion.net` hoy = legacy PHP. **Fase 1 (consolidación repo + docs) DONE**: nz-estudio traído a `legacy-nz-estudio/` (3.7 MB, sin secretos/uploads/dumps), spec + ADR-0009 + changelog; `/security-review` sin hallazgos. Próximo: Fase 2 (dominio ventas en Laravel).

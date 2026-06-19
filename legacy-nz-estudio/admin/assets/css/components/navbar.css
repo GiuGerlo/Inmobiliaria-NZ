@@ -1,0 +1,122 @@
+/* navbar.css — Barra superior del admin */
+
+.nz-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nz-navbar-h);
+    background: var(--nz-surface);
+    border-bottom: 1px solid var(--nz-border);
+    box-shadow: var(--nz-shadow-sm);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--nz-sp-5);
+    gap: var(--nz-sp-4);
+}
+
+.nz-navbar-toggle {
+    background: transparent;
+    border: 0;
+    color: var(--nz-text-muted);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--nz-radius-sm);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 1.05rem;
+    transition: background var(--nz-transition-fast), color var(--nz-transition-fast);
+    flex-shrink: 0;
+}
+
+.nz-navbar-toggle:hover {
+    background: var(--nz-surface-3);
+    color: var(--nz-primary);
+}
+
+.nz-navbar-title {
+    font-weight: 600;
+    color: var(--nz-text);
+    font-size: .98rem;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Cluster del usuario a la derecha */
+.nz-navbar-user {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+    margin-left: auto;
+}
+
+.nz-user-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+    padding: 4px var(--nz-sp-3) 4px 4px;
+    background: var(--nz-surface-3);
+    border-radius: var(--nz-radius-pill);
+    border: 1px solid var(--nz-border);
+    text-decoration: none;
+    color: var(--nz-text);
+    font-size: var(--nz-fs-sm);
+    transition: background var(--nz-transition-fast);
+    max-width: 220px;
+}
+
+.nz-user-chip:hover {
+    background: var(--nz-primary-soft);
+    color: var(--nz-primary);
+}
+
+.nz-user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--nz-primary);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: .82rem;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.nz-user-chip-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nz-navbar-logout {
+    background: transparent;
+    border: 1px solid var(--nz-border);
+    color: var(--nz-text-muted);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--nz-radius-sm);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all var(--nz-transition-fast);
+}
+
+.nz-navbar-logout:hover {
+    background: var(--nz-danger-soft);
+    color: var(--nz-danger);
+    border-color: transparent;
+}
+
+@media (max-width: 768px) {
+    .nz-navbar { padding: 0 var(--nz-sp-4); }
+    .nz-user-chip-name { display: none; }
+    .nz-user-chip { padding: 4px; }
+}

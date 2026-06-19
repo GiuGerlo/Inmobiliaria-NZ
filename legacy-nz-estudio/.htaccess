@@ -1,0 +1,74 @@
+RewriteEngine On
+
+# Bloquear acceso a archivos sensibles
+<FilesMatch "^\.env|\.env\..*|composer\.(json|lock)|\.gitignore|\.git">
+    Require all denied
+</FilesMatch>
+
+# Si la petición es un archivo real o directorio, no hacer nada
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Regla para vendidas amigable
+RewriteRule ^vendidas/?$ vendidas.php [QSA,L]
+
+# Regla para propiedades (sin barra y números)
+RewriteRule ^propiedad([0-9]+)$ propiedad.php?id=$1 [QSA,L]
+
+# Redirigir rutas amigables a index.php?seccion=nombre (solo si NO termina en /)
+RewriteRule ^([a-zA-Z0-9_-]+)$ index.php?seccion=$1 [QSA,L]
+
+# Redirigir la raíz a /inicio
+RewriteRule ^$ index.php?seccion=inicio [QSA,L]
+
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "ALLOW-FROM https://www.google.com"
+    Header set Content-Security-Policy "frame-src 'self' https://www.google.com https://*.google.com"
+</IfModule>
+
+# ─── Cache estático (assets + uploads) ─────────────────────────────────
+# Imágenes, fuentes, JS/CSS versionados rara vez cambian. Cache largo en
+# el navegador reduce drásticamente requests al server y tiempo de carga
+# en visitas recurrentes. HTML/PHP NUNCA se cachea acá.
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Imágenes (subidas + assets del sitio)
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png  "access plus 1 year"
+    ExpiresByType image/gif  "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+
+    # Fuentes
+    ExpiresByType font/woff   "access plus 1 year"
+    ExpiresByType font/woff2  "access plus 1 year"
+    ExpiresByType application/font-woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # CSS / JS del sitio (incluye DataTables locales si hubiera)
+    ExpiresByType text/css                "access plus 1 month"
+    ExpiresByType application/javascript  "access plus 1 month"
+    ExpiresByType text/javascript         "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Inmutable: uploads sirven WebPs con hash en el nombre, nunca mutan.
+    <FilesMatch "\.(webp|jpe?g|png|gif|woff2?|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    # CSS/JS pueden cambiar con deploys → no marcarlos como immutable.
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
+# ─── Compresión Gzip ───────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+ErrorDocument 404 /404.php

@@ -19,8 +19,8 @@ docs(roadmap): cerrar sub-A, abrir sub-B
 ## Branches
 
 - `main` = rama estable. Producción se construye desde acá.
-- Trabajo por fase en branches `fase/<letra>-<slug>` (ej. `fase/A-infra-bootstrap`).
-- Merge a `main` cuando el usuario aprueba la fase + tests pasan.
+- **Sub-proyectos sueltos (A–J)**: una rama por fase `fase/<letra>-<slug>` (ej. `fase/A-infra-bootstrap`), merge a `main` al aprobar.
+- **Track Fusión NZ (Fases 1–7)**: **una sola rama** `fusion-nz` para toda la migración (rama por fase es muy tedioso). Se sigue commiteando **una fase = un commit** dentro de esa rama. Merge a `main` cuando se cierra el track (o por hitos, si se decide).
 
 ## Antes de mergear una fase
 

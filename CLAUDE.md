@@ -16,7 +16,8 @@ Resumen — detalle completo en `.claude/rules/stack.md`.
 - **Frontend**: React + Vite + TypeScript, React Query, React Router, shadcn/ui sobre Tailwind, Vitest.
 - **DB**: MariaDB 11.8.6.
 - **Infra**: Docker Compose (web/php-fpm + nginx + mariadb + phpmyadmin), `.env` por servicio.
-- **Legacy**: PHP procedural + dompdf (carpeta actual). Sigue corriendo hasta que el nuevo lo reemplace por sub-fase.
+- **Legacy**: PHP procedural + dompdf (carpeta `legacy/`). Sigue corriendo hasta que el nuevo lo reemplace por sub-fase.
+- **Fusión NZ**: se integra el sitio público de venta `nz-estudio` (PHP vanilla) al monorepo. Target: sumar `apps/public` (Next.js SSG) → `nz-estudiojuridicoinmobiliario.com`; el admin React queda en `admin.nz-...`. Track de 7 fases en `docs/roadmap.md`. Spec `docs/superpowers/specs/2026-06-19-fusion-nz-design.md` + ADR-0009.
 
 ## 3. Cómo navegar el repo
 
@@ -28,6 +29,7 @@ Resumen — detalle completo en `.claude/rules/stack.md`.
 - **Decisiones arquitectónicas** → `docs/adr/`.
 - **Historial por fase** → `docs/changelog.md`.
 - **Foto del legacy** → `docs/legacy/snapshot-php.md`.
+- **Referencia del sitio público** → `legacy-nz-estudio/` (copia de nz-estudio PHP, sin secretos/uploads/dumps; insumo de la Fusión NZ). Su `.github/` + `docker/` sirven de base para el deploy de Fase 7.
 
 ## 4. Flujo de trabajo (resumen)
 

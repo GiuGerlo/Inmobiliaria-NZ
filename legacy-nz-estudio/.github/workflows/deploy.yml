@@ -1,0 +1,53 @@
+name: Deploy a producción
+
+on:
+  push:
+    branches: [production]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy commits a Hostinger
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      SSH_HOST:    ${{ secrets.SSH_HOST }}
+      SSH_PORT:    ${{ secrets.SSH_PORT }}
+      SSH_USER:    ${{ secrets.SSH_USER }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+
+    steps:
+      - name: Checkout (con historial completo)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cargar SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Verificar archivos requeridos
+        run: |
+          test -f .deployignore || { echo "Falta .deployignore"; exit 1; }
+          chmod +x .github/scripts/deploy.sh
+
+      - name: 📋 ETAPA 1/5 — Configuración
+        run: .github/scripts/deploy.sh --phase=config --mode=sequential
+
+      - name: 📋 ETAPA 2/5 — Leer estado del servidor
+        run: .github/scripts/deploy.sh --phase=read-sha
+
+      - name: 📋 ETAPA 3/5 — Plan de deploy
+        run: .github/scripts/deploy.sh --phase=plan
+
+      - name: 📋 ETAPA 4/5 — Deploy de commits
+        run: .github/scripts/deploy.sh --phase=execute
+
+      - name: 📋 ETAPA 5/5 — Finalizar
+        if: always()
+        run: .github/scripts/deploy.sh --phase=finalize

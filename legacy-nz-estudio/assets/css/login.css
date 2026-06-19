@@ -1,0 +1,264 @@
+/* login.css — Estilos del login.
+   Tokens compartidos en tokens.css (Fase 3 admin reusa los mismos).
+*/
+
+@import url('./tokens.css');
+
+/* ─── Layout ──────────────────────────────────────────────────────── */
+html, body { height: 100%; }
+
+body.nz-auth {
+    margin: 0;
+    color: var(--nz-text);
+    font-family: 'Inter', 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background:
+        radial-gradient(1200px 600px at -10% -20%, rgba(54, 144, 231, .12), transparent 60%),
+        radial-gradient(1000px 500px at 110% 120%, rgba(44, 95, 135, .14), transparent 60%),
+        var(--nz-surface-2);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 24px;
+}
+
+/* ─── Card login ──────────────────────────────────────────────────── */
+.nz-auth-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--nz-surface);
+    border: 1px solid var(--nz-border);
+    border-radius: var(--nz-radius);
+    box-shadow: var(--nz-shadow-lg);
+    padding: 40px 36px 32px;
+    animation: nz-fade-in .4s ease both;
+}
+
+@keyframes nz-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.nz-auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.nz-auth-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 72px;
+    border-radius: 18px;
+    background: #05172D;
+    margin-bottom: 18px;
+}
+
+.nz-auth-logo img {
+    max-height: 44px;
+    width: auto;
+}
+
+.nz-auth-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--nz-text);
+    letter-spacing: -.01em;
+}
+
+.nz-auth-subtitle {
+    color: var(--nz-text-muted);
+    font-size: .95rem;
+    margin: 0;
+}
+
+/* ─── Form fields ─────────────────────────────────────────────────── */
+.nz-field {
+    margin-bottom: 18px;
+}
+
+.nz-field label {
+    display: block;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--nz-text);
+    margin-bottom: 6px;
+    letter-spacing: .01em;
+}
+
+.nz-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    background: var(--nz-surface);
+    border: 1.5px solid var(--nz-border);
+    border-radius: var(--nz-radius-sm);
+    transition: border-color var(--nz-transition), box-shadow var(--nz-transition);
+}
+
+.nz-input-wrap:focus-within {
+    border-color: var(--nz-primary);
+    box-shadow: 0 0 0 3px rgba(44, 95, 135, .15);
+}
+
+.nz-input-wrap .nz-input-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    color: var(--nz-text-muted);
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.nz-input-wrap input {
+    flex: 1;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 12px 12px 12px 0;
+    font-size: .95rem;
+    color: var(--nz-text);
+    min-width: 0;
+}
+
+.nz-input-wrap input::placeholder {
+    color: #a0aec0;
+}
+
+.nz-input-wrap .nz-toggle {
+    background: transparent;
+    border: 0;
+    padding: 0 14px;
+    color: var(--nz-text-muted);
+    cursor: pointer;
+    border-radius: 0 var(--nz-radius-sm) var(--nz-radius-sm) 0;
+    transition: color var(--nz-transition);
+}
+
+.nz-input-wrap .nz-toggle:hover {
+    color: var(--nz-primary);
+}
+
+/* ─── Botón ───────────────────────────────────────────────────────── */
+.nz-btn {
+    width: 100%;
+    border: 0;
+    border-radius: var(--nz-radius-sm);
+    padding: 12px 16px;
+    font-size: .97rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background var(--nz-transition), transform var(--nz-transition), box-shadow var(--nz-transition);
+}
+
+.nz-btn-primary {
+    background: var(--nz-primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(44, 95, 135, .25);
+}
+
+.nz-btn-primary:hover:not(:disabled) {
+    background: var(--nz-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(44, 95, 135, .35);
+}
+
+.nz-btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.nz-btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
+
+.nz-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: nz-spin .7s linear infinite;
+}
+
+@keyframes nz-spin { to { transform: rotate(360deg); } }
+
+/* ─── Foot ────────────────────────────────────────────────────────── */
+.nz-auth-foot {
+    margin-top: 22px;
+    text-align: center;
+    font-size: .82rem;
+    color: var(--nz-text-muted);
+}
+
+.nz-auth-foot a {
+    color: var(--nz-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.nz-auth-foot a:hover { text-decoration: underline; }
+
+/* ─── Alert inline (mensajes) ──────────────────────────────────────── */
+.nz-alert {
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    border-radius: var(--nz-radius-sm);
+    font-size: .88rem;
+    border: 1px solid transparent;
+}
+
+.nz-alert-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.nz-alert-success {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+/* ─── Crédito desarrollador ───────────────────────────────────────── */
+.nz-auth-credit {
+    margin-top: 22px;
+    text-align: center;
+    font-size: .78rem;
+    color: var(--nz-text-muted);
+    opacity: .9;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+.nz-auth-credit a {
+    display: inline-flex;
+    align-items: center;
+    transition: opacity var(--nz-transition), transform var(--nz-transition);
+}
+
+.nz-auth-credit a:hover {
+    opacity: .75;
+    transform: translateY(-1px);
+}
+
+.nz-auth-credit-logo {
+    height: 22px;
+    width: auto;
+    display: block;
+}
+
+@media (max-width: 480px) {
+    .nz-auth-card { padding: 32px 22px 24px; }
+    .nz-auth-title { font-size: 1.3rem; }
+}

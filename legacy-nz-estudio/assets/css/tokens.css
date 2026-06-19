@@ -1,0 +1,85 @@
+/* tokens.css — Paleta y design tokens de nz-estudio (Fase 3).
+   Compartido entre login y admin. Cambios acá impactan TODA la UI nueva.
+*/
+
+:root {
+    /* ─── Paleta ──────────────────────────────────────────────────────── */
+    --nz-primary:        #2c5f87;
+    --nz-primary-hover:  #1f4a6b;
+    --nz-primary-soft:   #e7f0f7;
+    --nz-accent:         #3690e7;
+    --nz-accent-soft:    #dbeafe;
+
+    --nz-surface:        #ffffff;
+    --nz-surface-2:      #f8fafc;
+    --nz-surface-3:      #eef2f7;
+
+    --nz-border:         #e2e8f0;
+    --nz-border-strong:  #cbd5e1;
+
+    --nz-text:           #1e293b;
+    --nz-text-muted:     #64748b;
+    --nz-text-inverse:   #ffffff;
+
+    --nz-danger:         #dc3545;
+    --nz-danger-soft:    #fee2e2;
+    --nz-warning:        #f59e0b;
+    --nz-warning-soft:   #fef3c7;
+    --nz-success:        #16a34a;
+    --nz-success-soft:   #dcfce7;
+    --nz-info:           #0284c7;
+    --nz-info-soft:      #e0f2fe;
+
+    /* ─── Sidebar dark theme (admin) ──────────────────────────────────── */
+    --nz-side-bg:        #0f1b2d;
+    --nz-side-bg-2:      #142235;
+    --nz-side-text:      #cbd5e1;
+    --nz-side-text-mute: #64748b;
+    --nz-side-text-on:   #ffffff;
+    --nz-side-border:    rgba(255, 255, 255, .08);
+    --nz-side-active-bg: rgba(54, 144, 231, .18);
+    --nz-side-active-bd: var(--nz-accent);
+
+    /* ─── Spacing ─────────────────────────────────────────────────────── */
+    --nz-sp-1:           4px;
+    --nz-sp-2:           8px;
+    --nz-sp-3:           12px;
+    --nz-sp-4:           16px;
+    --nz-sp-5:           20px;
+    --nz-sp-6:           24px;
+    --nz-sp-8:           32px;
+    --nz-sp-10:          40px;
+    --nz-sp-12:          48px;
+
+    /* ─── Radii ───────────────────────────────────────────────────────── */
+    --nz-radius:         14px;
+    --nz-radius-sm:      8px;
+    --nz-radius-md:      10px;
+    --nz-radius-lg:      18px;
+    --nz-radius-pill:    999px;
+
+    /* ─── Shadows ─────────────────────────────────────────────────────── */
+    --nz-shadow-sm:      0 1px 2px rgba(15, 23, 42, .06);
+    --nz-shadow-md:      0 8px 24px rgba(15, 23, 42, .08);
+    --nz-shadow-lg:      0 20px 50px rgba(15, 23, 42, .12);
+    --nz-shadow-inset:   inset 0 1px 0 rgba(255, 255, 255, .06);
+
+    /* ─── Layout ──────────────────────────────────────────────────────── */
+    --nz-sidebar-w:      252px;
+    --nz-sidebar-w-mini: 68px;
+    --nz-navbar-h:       60px;
+
+    /* ─── Type ────────────────────────────────────────────────────────── */
+    --nz-font:           'Inter', 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --nz-fs-xs:          .75rem;
+    --nz-fs-sm:          .85rem;
+    --nz-fs-base:        .95rem;
+    --nz-fs-md:          1rem;
+    --nz-fs-lg:          1.15rem;
+    --nz-fs-xl:          1.35rem;
+    --nz-fs-2xl:         1.7rem;
+
+    /* ─── Motion ──────────────────────────────────────────────────────── */
+    --nz-transition:     .2s ease;
+    --nz-transition-fast:.12s ease;
+}

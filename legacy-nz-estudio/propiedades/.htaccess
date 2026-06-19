@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /nz-estudio/propiedades/
+
+# Redireccionar propiedades individuales
+RewriteRule ^([0-9]+)$ index.php?id=$1 [QSA,L]
+
+# Redireccionar categorías
+RewriteRule ^categoria/([a-zA-Z0-9_-]+)$ index.php?categoria=$1 [QSA,L]
+
+# Redirigir la raíz a todas las propiedades
+RewriteRule ^$ index.php [QSA,L]

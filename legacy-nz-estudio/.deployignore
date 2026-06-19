@@ -1,0 +1,67 @@
+# Patrones que NO se suben al server en cada deploy.
+# Usado por .github/scripts/deploy.sh para filtrar la lista de cambios
+# entregada por git diff --name-status.
+#
+# Sintaxis: gitignore-like. Una línea, un patrón.
+# Líneas que empiezan con # son comentarios.
+
+# VCS y CI
+.git/
+.github/
+.gitignore
+.deployignore
+
+# Entorno y secretos
+.env
+.env.example
+
+# Documentación y notas (no se sirven en runtime)
+*.md
+*.txt
+CLAUDE.md
+README.md
+LICENSE
+
+# Dumps de base de datos
+*.sql
+
+# Configuración local de editores y herramientas
+.vscode/
+.windsurf/
+.claude/
+.agents/
+.mcp.json
+skills-lock.json
+
+# Docker (solo para desarrollo local, jamás llegan a Hostinger)
+docker/
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+.docker-data/
+
+# Dump de DB de desarrollo (nunca pisar la prod)
+db/
+
+# Basura de sistema operativo
+Thumbs.db
+.DS_Store
+
+# Fuentes SCSS (el CSS ya está compilado en assets/css/)
+assets/scss/
+
+# Sourcemaps (innecesarios en producción)
+*.map
+
+# Defensivos: archivos de test/debug que jamás deben llegar a prod
+test_*.php
+*_test.php
+debug.php
+phpinfo.php
+info.php
+
+# Contenido subido por usuarios (vive sólo en el server, NUNCA pisar)
+uploads/
+
+# Backups del propio deploy (no del repo, pero por las dudas)
+backups/

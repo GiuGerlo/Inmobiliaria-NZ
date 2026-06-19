@@ -1,0 +1,11 @@
+nz-estudio.sql
+*.sql
+!db/nzestudio.sql
+uploads/
+.env
+.env.local
+.env.*.local
+.codegraph/
+
+# Docker
+.docker-data/

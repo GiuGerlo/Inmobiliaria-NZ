@@ -1,0 +1,245 @@
+/* sidebar.css — Sidebar lateral colapsable (full ↔ mini) con persistencia */
+
+.nz-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--nz-sidebar-w);
+    background: linear-gradient(180deg, var(--nz-side-bg) 0%, var(--nz-side-bg-2) 100%);
+    color: var(--nz-side-text);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transition: width var(--nz-transition), transform var(--nz-transition);
+    box-shadow: 1px 0 0 var(--nz-side-border), 0 4px 18px rgba(0, 0, 0, .15);
+}
+
+body.nz-sidebar-mini .nz-sidebar {
+    width: var(--nz-sidebar-w-mini);
+}
+
+/* ─── Brand ──────────────────────────────────────────────────────── */
+.nz-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-3);
+    padding: var(--nz-sp-5) var(--nz-sp-5);
+    border-bottom: 1px solid var(--nz-side-border);
+    color: var(--nz-side-text-on);
+    text-decoration: none;
+    flex-shrink: 0;
+    min-height: var(--nz-navbar-h);
+}
+
+.nz-sidebar-brand img {
+    width: 80px;
+    height: 36px;
+    border-radius: var(--nz-radius-sm);
+    object-fit: cover;
+    background: #05172D;
+    padding: 4px;
+    flex-shrink: 0;
+}
+
+.nz-sidebar-brand-text {
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity var(--nz-transition);
+}
+
+.nz-sidebar-brand-text .nz-brand-name {
+    font-weight: 700;
+    font-size: .98rem;
+    display: block;
+    color: var(--nz-side-text-on);
+    letter-spacing: -.01em;
+}
+
+.nz-sidebar-brand-text .nz-brand-sub {
+    font-size: .72rem;
+    color: var(--nz-side-text-mute);
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+body.nz-sidebar-mini .nz-sidebar-brand {
+    padding: var(--nz-sp-3) var(--nz-sp-2);
+    justify-content: center;
+    gap: 0;
+}
+
+body.nz-sidebar-mini .nz-sidebar-brand img {
+    width: 50px;
+    height: 32px;
+}
+
+body.nz-sidebar-mini .nz-sidebar-brand-text {
+    display: none;
+}
+
+/* ─── Nav ────────────────────────────────────────────────────────── */
+.nz-sidebar-nav {
+    list-style: none;
+    padding: var(--nz-sp-4) var(--nz-sp-3);
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .12) transparent;
+}
+
+.nz-sidebar-nav::-webkit-scrollbar { width: 6px; }
+.nz-sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .12);
+    border-radius: 3px;
+}
+
+.nz-sidebar-section {
+    font-size: var(--nz-fs-xs);
+    color: var(--nz-side-text-mute);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    padding: var(--nz-sp-3) var(--nz-sp-3) var(--nz-sp-2);
+    font-weight: 600;
+    transition: opacity var(--nz-transition);
+}
+
+body.nz-sidebar-mini .nz-sidebar-section {
+    opacity: 0;
+    height: 8px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.nz-sidebar-item {
+    margin-bottom: 2px;
+    position: relative;
+}
+
+.nz-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-3);
+    padding: 10px var(--nz-sp-3);
+    border-radius: var(--nz-radius-sm);
+    color: var(--nz-side-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: .92rem;
+    transition: background var(--nz-transition-fast), color var(--nz-transition-fast);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.nz-sidebar-link:hover {
+    background: rgba(255, 255, 255, .05);
+    color: var(--nz-side-text-on);
+}
+
+.nz-sidebar-link.is-active {
+    background: var(--nz-side-active-bg);
+    color: var(--nz-side-text-on);
+}
+
+.nz-sidebar-link.is-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: var(--nz-side-active-bd);
+    border-radius: 0 3px 3px 0;
+}
+
+.nz-sidebar-link i {
+    font-size: 1.05rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nz-sidebar-link span {
+    transition: opacity var(--nz-transition);
+}
+
+/* Modo mini: nav sin padding lateral; el indicador active queda pegado al borde */
+body.nz-sidebar-mini .nz-sidebar-nav {
+    padding: var(--nz-sp-4) var(--nz-sp-2);
+}
+
+body.nz-sidebar-mini .nz-sidebar-link {
+    justify-content: center;
+    gap: 0;
+    padding: 10px 0;
+}
+
+body.nz-sidebar-mini .nz-sidebar-link span {
+    display: none;
+}
+
+body.nz-sidebar-mini .nz-sidebar-link.is-active::before {
+    left: -8px;
+}
+
+body.nz-sidebar-mini .nz-sidebar-item:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: calc(var(--nz-sidebar-w-mini) + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--nz-side-bg-2);
+    color: var(--nz-side-text-on);
+    padding: 6px 12px;
+    border-radius: var(--nz-radius-sm);
+    font-size: var(--nz-fs-sm);
+    white-space: nowrap;
+    z-index: 1050;
+    box-shadow: var(--nz-shadow-md);
+    border: 1px solid var(--nz-side-border);
+    pointer-events: none;
+}
+
+/* ─── Foot del sidebar ──────────────────────────────────────────── */
+.nz-sidebar-foot {
+    padding: var(--nz-sp-3) var(--nz-sp-3) var(--nz-sp-5);
+    border-top: 1px solid var(--nz-side-border);
+    margin-top: auto;
+}
+
+/* ─── Mobile / backdrop ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .nz-sidebar {
+        transform: translateX(-100%);
+        width: var(--nz-sidebar-w);
+    }
+    body.nz-sidebar-open .nz-sidebar {
+        transform: translateX(0);
+    }
+    body.nz-sidebar-mini .nz-sidebar {
+        width: var(--nz-sidebar-w);  /* ignora mini en mobile */
+    }
+    body.nz-sidebar-mini .nz-sidebar-brand-text,
+    body.nz-sidebar-mini .nz-sidebar-link span,
+    body.nz-sidebar-mini .nz-sidebar-section { opacity: 1; width: auto; height: auto; padding: var(--nz-sp-3) var(--nz-sp-3) var(--nz-sp-2); }
+    body.nz-sidebar-mini .nz-sidebar-link { justify-content: flex-start; }
+}
+
+.nz-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 27, 45, .55);
+    z-index: 1030;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--nz-transition);
+}
+
+body.nz-sidebar-open .nz-sidebar-backdrop {
+    opacity: 1;
+    visibility: visible;
+}

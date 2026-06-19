@@ -1,0 +1,176 @@
+// main: ../main.scss
+/*--------------------------------------------------------------
+# About Section
+--------------------------------------------------------------*/
+.about {
+  .image-wrapper {
+    position: relative;
+
+    .image-box {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+
+      img {
+        transition: 0.5s transform;
+      }
+
+      &:hover {
+        img {
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    .experience-box {
+      position: absolute;
+      bottom: -30px;
+      right: 30px;
+      background-color: var(--accent-color);
+      color: var(--contrast-color);
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px color-mix(in srgb, var(--accent-color), transparent 70%);
+
+      .years {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        font-family: var(--heading-font);
+      }
+
+      .text {
+        font-size: 0.9rem;
+        margin-top: 5px;
+        line-height: 1.2;
+      }
+    }
+  }
+
+  .content {
+    padding-left: 2rem;
+
+    @media (max-width: 991.98px) {
+      padding-left: 0;
+      margin-top: 10px;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+
+      .subtitle {
+        display: inline-block;
+        background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+        color: var(--accent-color);
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0;
+        font-weight: 700;
+
+        @media (max-width: 767.98px) {
+          font-size: 2rem;
+        }
+      }
+    }
+
+    .highlight-text {
+      font-size: 1.1rem;
+      color: color-mix(in srgb, var(--heading-color), transparent 20%);
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+
+    .features-list {
+      margin-bottom: 2.5rem;
+
+      .feature-item {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .icon-box {
+          flex-shrink: 0;
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          background-color: color-mix(in srgb, var(--accent-color), transparent 92%);
+          color: var(--accent-color);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          transition: 0.3s;
+
+          &:hover {
+            background-color: var(--accent-color);
+            color: var(--contrast-color);
+            transform: translateY(-5px);
+          }
+        }
+
+        .text {
+          h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+          }
+
+          p {
+            margin-bottom: 0;
+            color: color-mix(in srgb, var(--default-color), transparent 20%);
+          }
+        }
+      }
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .btn-get-started {
+        background-color: var(--accent-color);
+        color: var(--contrast-color);
+        padding: 12px 32px;
+        border-radius: 50px;
+        font-weight: 500;
+        transition: 0.3s;
+        display: grid;
+        place-items: center;
+
+        &:hover {
+          background-color: color-mix(in srgb, var(--accent-color), transparent 20%);
+          transform: translateY(-3px);
+        }
+      }
+
+      .btn-learn-more {
+        background-color: transparent;
+        color: var(--accent-color);
+        padding: 12px 32px;
+        border-radius: 50px;
+        font-weight: 500;
+        border: 2px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+        transition: 0.3s;
+
+        &:hover {
+          border-color: var(--accent-color);
+          background-color: color-mix(in srgb, var(--accent-color), transparent 95%);
+          transform: translateY(-3px);
+        }
+      }
+    }
+  }
+}

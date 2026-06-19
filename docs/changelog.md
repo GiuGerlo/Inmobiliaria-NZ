@@ -2,6 +2,21 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-19] Fusión NZ Fase 1 — Consolidación repo + docs — DONE
+
+**Resumen**: Arranca el track **Fusión NZ** (7 fases) que integra el sitio público de venta `nz-estudio` (PHP vanilla) al monorepo. Esta fase es solo de consolidación documental + traer el código de referencia; **no migra código de negocio**.
+
+**Cambios**:
+- **Spec paraguas** `docs/superpowers/specs/2026-06-19-fusion-nz-design.md` (arquitectura destino `apps/api`+`apps/web`+`apps/public`, 7 fases, convenciones, decisiones confirmadas).
+- **ADR-0009** `docs/adr/0009-fusion-nz-monorepo.md`: estructura monorepo, `.env` único = patrón existente, merge = copia como referencia, dump local fuera de git, 2 roles (`superadmin`/`inmobiliaria`).
+- **Roadmap**: nuevo bloque "Track Fusión NZ" (fases 1–7); **sub-H absorbida** por la Fase 7; bitácora 2026-06-19.
+- **Referencia traída**: `legacy-nz-estudio/` (copia de nz-estudio, 3.7 MB) **sin** `.env`, `uploads/`, `*.sql`, `db/`, ni tooling de agente. Se conservan `.github/`+`docker/` como insumo de deploy (Fase 7).
+- **`.gitignore`** endurecido (defensa en profundidad sobre `legacy-nz-estudio/`). **CLAUDE.md** con punteros al track y a la carpeta de referencia.
+
+**Decisiones confirmadas (2026-06-19)**: merge por copia · `nz-administracion.net` hoy = legacy PHP · 2 roles sin rol especial dueña · dump local.
+
+**Breaking**: nada. **Migración**: nada (sin cambios de código ni schema).
+
 ## [2026-06-18] sub-J — Ajustes UX recibos + historial — DONE
 
 **Resumen**: Tras feedback de la dueña sobre el branch de sub-J, cinco ajustes de UX/datos en Recibos, su detalle, los paneles del pie y el historial de WhatsApp. No tocan la lógica de envío ni el canal.

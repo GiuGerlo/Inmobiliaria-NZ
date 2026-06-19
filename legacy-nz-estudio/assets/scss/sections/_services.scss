@@ -1,0 +1,267 @@
+// main: ../main.scss
+/*--------------------------------------------------------------
+# Services Section
+--------------------------------------------------------------*/
+.services {
+  .services-badge {
+    display: inline-block;
+    background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+    color: var(--accent-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .services-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    color: var(--heading-color);
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .services-subtitle {
+    font-size: 1.1rem;
+    color: color-mix(in srgb, var(--default-color), transparent 20%);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .service-item {
+    background-color: var(--surface-color);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+
+      .service-icon {
+        background-color: var(--accent-color);
+        color: var(--contrast-color);
+      }
+
+      .service-link {
+        color: var(--accent-color);
+
+        i {
+          transform: translateX(5px);
+        }
+      }
+    }
+
+    .service-icon {
+      width: 70px;
+      height: 70px;
+      background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+      color: var(--accent-color);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--heading-color);
+    }
+
+    p {
+      color: color-mix(in srgb, var(--default-color), transparent 20%);
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .service-link {
+      color: var(--heading-color);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+
+      i {
+        margin-left: 0.5rem;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover {
+        color: var(--accent-color);
+
+        i {
+          transform: translateX(5px);
+        }
+      }
+    }
+  }
+
+  .services-image-container {
+    position: relative;
+    padding: 1rem;
+
+    img {
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .experience-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: var(--accent-color);
+      color: var(--contrast-color);
+      padding: 1.5rem;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      transform: translate(20%, 20%);
+
+      .years {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+
+      .text {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+    }
+  }
+
+  .services-content {
+    padding: 1rem 0 1rem 2rem;
+
+    @media (max-width: 992px) {
+      padding: 2rem 0 0 0;
+    }
+
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--heading-color);
+    }
+
+    p {
+      color: color-mix(in srgb, var(--default-color), transparent 20%);
+      margin-bottom: 2rem;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .features-list {
+      margin-bottom: 2rem;
+
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+
+        i {
+          color: var(--accent-color);
+          font-size: 1.25rem;
+          margin-right: 1rem;
+          margin-top: 0.25rem;
+        }
+
+        h4 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: var(--heading-color);
+        }
+
+        p {
+          margin-bottom: 0;
+          font-size: 0.95rem;
+        }
+      }
+    }
+
+    .cta-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background-color: var(--accent-color);
+        color: var(--contrast-color);
+        border: none;
+
+        &:hover {
+          background-color: color-mix(in srgb, var(--accent-color), #000 10%);
+          transform: translateY(-3px);
+        }
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        color: var(--heading-color);
+        border: 1px solid color-mix(in srgb, var(--heading-color), transparent 70%);
+
+        &:hover {
+          background-color: color-mix(in srgb, var(--heading-color), transparent 90%);
+          border-color: var(--heading-color);
+          transform: translateY(-3px);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    .service-item {
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .services-image-container {
+      margin-bottom: 2rem;
+
+      .experience-badge {
+        padding: 1rem;
+        transform: translate(10%, 10%);
+
+        .years {
+          font-size: 2rem;
+        }
+
+        .text {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+/* layout.css — Shell del admin: body, contenedor principal, página */
+
+body.nz-admin {
+    margin: 0;
+    background: var(--nz-surface-2);
+    color: var(--nz-text);
+    font-family: var(--nz-font);
+    font-size: var(--nz-fs-base);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Área principal que arranca después del sidebar */
+.nz-main {
+    flex: 1;
+    margin-left: var(--nz-sidebar-w);
+    transition: margin-left var(--nz-transition);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 0; /* clave para que el contenido sea flexible */
+}
+
+body.nz-sidebar-mini .nz-main {
+    margin-left: var(--nz-sidebar-w-mini);
+}
+
+/* Contenido por página */
+.nz-page {
+    padding: var(--nz-sp-6) var(--nz-sp-8);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.nz-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nz-sp-4);
+    margin-bottom: var(--nz-sp-6);
+    flex-wrap: wrap;
+}
+
+.nz-page-title {
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-4);
+}
+
+.nz-page-title-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--nz-radius-sm);
+    background: var(--nz-primary-soft);
+    color: var(--nz-primary);
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.nz-page-title h1 {
+    margin: 0;
+    font-size: var(--nz-fs-xl);
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.nz-page-title p {
+    margin: 0;
+    color: var(--nz-text-muted);
+    font-size: var(--nz-fs-sm);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .nz-main { margin-left: 0 !important; }
+    .nz-page { padding: var(--nz-sp-5) var(--nz-sp-4); }
+}
+
+/* Override del backdrop body lock en mobile sidebar abierto */
+body.nz-sidebar-open { overflow: hidden; }

@@ -23,6 +23,14 @@ node_modules/
 
 # NOTA: legacy/dompdf/vendor/ se commitea (es vendor manual del legacy, lo necesita)
 
+# Referencia nz-estudio (sitio público PHP) — defensa en profundidad: nunca
+# entran secretos/uploads/dumps aunque se re-copie la carpeta.
+legacy-nz-estudio/.env
+legacy-nz-estudio/uploads/
+legacy-nz-estudio/**/*.sql
+legacy-nz-estudio/vendor/
+legacy-nz-estudio/node_modules/
+
 # Build
 apps/web/dist/
 apps/api/public/build/

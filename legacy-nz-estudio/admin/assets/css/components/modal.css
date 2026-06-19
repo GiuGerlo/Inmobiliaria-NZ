@@ -1,0 +1,74 @@
+/* modal.css — Restyling del modal de Bootstrap con tokens nz */
+
+.modal-content {
+    border: 0;
+    border-radius: var(--nz-radius);
+    box-shadow: var(--nz-shadow-lg);
+    overflow: hidden;
+    background: var(--nz-surface);
+}
+
+.modal-header {
+    background: linear-gradient(180deg, var(--nz-side-bg) 0%, var(--nz-side-bg-2) 100%);
+    color: var(--nz-text-inverse);
+    padding: var(--nz-sp-4) var(--nz-sp-5);
+    border-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.modal-title {
+    font-size: var(--nz-fs-md);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--nz-sp-2);
+    color: var(--nz-text-inverse);
+    margin: 0;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) brightness(2);
+    opacity: .8;
+}
+
+.modal-header .btn-close:hover { opacity: 1; }
+
+.modal-body {
+    padding: var(--nz-sp-5);
+    background: var(--nz-surface-2);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: var(--nz-sp-3) var(--nz-sp-5);
+    background: var(--nz-surface);
+    border-top: 1px solid var(--nz-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--nz-sp-2);
+}
+
+.modal-footer .btn {
+    border-radius: var(--nz-radius-sm);
+    font-weight: 500;
+    padding: 8px 18px;
+}
+
+.modal-footer .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--nz-border);
+    color: var(--nz-text-muted);
+}
+
+.modal-footer .btn-secondary:hover {
+    background: var(--nz-surface-3);
+    color: var(--nz-text);
+}
+
+.modal-backdrop.show { opacity: .5; }
+
+@media (max-width: 768px) {
+    .modal-body { padding: var(--nz-sp-4); }
+}
