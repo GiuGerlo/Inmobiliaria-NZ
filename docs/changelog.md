@@ -2,6 +2,24 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-22] Fusión NZ Fase 4 — Admin de ventas (React) — DONE
+
+**Resumen**: Sección "Propiedades en venta" en el admin React, visible solo para el superadmin, que gestiona propiedades en venta + categorías + fotos (multi-upload + reorder drag-drop) + estado vendida. Consume la API de Fase 2. Sin tocar el backend.
+
+**Cambios**:
+- **Gating**: `User` (front) suma `role`/`is_superadmin`; `nav-items` marca el item `superadminOnly` y `SidebarNav` lo filtra; ruta `/propiedades-venta` envuelta en `RequireSuperadmin` (redirige a `/` si no).
+- **Feature `sales-properties/`** (espejo de `features/properties`): `types`/`schema`/`api`/`queries` + `queryKeys`; `SalesPropertiesPage` (DataTable orden por defecto `-id` + filtros categoría/vendida/`q` + búsqueda); `SalePropertyFormDialog` (campos + multi-upload de fotos con preview/borrar); `SalePropertyGalleryDialog` (visor/lightbox: clic en la miniatura → todas las fotos con anterior/siguiente + tira de miniaturas + contador); `PropertyTypesDialog` (ABM de categorías, toast 409 si en uso); `columns` con badge Vendida y contador de fotos en la portada.
+- **Drag-drop**: `@atlaskit/pragmatic-drag-and-drop` para **reordenar fotos** (`DraggableImageGrid` + util puro `reorder`, persiste vía `PATCH /sale-property-images/reorder`).
+- Tests: **Vitest 52** (SidebarNav gating, SalesPropertiesPage lista/crea/filtra/borra/categorías, `reorder` util). Lint + typecheck + build OK. `/security-review` sin hallazgos.
+
+- **Notificaciones (cross-cutting)**: se reemplazó **sonner por Sileo** (`sileo`) en toda la app. Adapter `@/lib/toast.ts` con la misma firma (`toast.success('texto')`) → no se reescribieron call sites; `@/components/ui/toaster.tsx` monta el `<Toaster>` de Sileo (top-right). `sonner` desinstalado.
+
+**Diferido**: reorder drag-drop de las **filas de la tabla** (requiere modificar el `DataTable` compartido y arrastrar entre páginas paginadas es mala UX).
+
+**Nota para Fase 5**: `map_embed` (iframe de Maps) se guarda como texto; al renderizarlo en el sitio público **sanitizar/whitelistear** para evitar stored-XSS.
+
+**Breaking**: nada. **Migración**: nada (solo frontend; suma la dep `@atlaskit/pragmatic-drag-and-drop`).
+
 ## [2026-06-19] Fusión NZ Fase 3 — Auth + roles — DONE
 
 **Resumen**: Roles de usuario para que solo el superadmin (Giuliano) gestione ventas; el staff inmobiliaria (incl. la dueña) sigue solo en alquileres. Backend-only (la UI oculta la sección ventas en Fase 4).

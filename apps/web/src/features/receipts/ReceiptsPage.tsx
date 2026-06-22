@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {

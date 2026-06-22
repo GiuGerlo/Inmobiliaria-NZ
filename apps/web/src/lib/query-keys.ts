@@ -5,6 +5,7 @@ import type { TenantListParams } from '@/features/tenants/types';
 import type { PropertyListParams } from '@/features/properties/types';
 import type { ContractListParams } from '@/features/contracts/types';
 import type { ReceiptListParams } from '@/features/receipts/types';
+import type { SalePropertyListParams } from '@/features/sales-properties/types';
 
 /** Factories de query keys para React Query — una fuente de verdad por recurso. */
 export const queryKeys = {
@@ -45,5 +46,13 @@ export const queryKeys = {
   whatsapp: {
     messages: (params: unknown) => ['whatsapp', 'messages', params] as const,
     batch: (batchId: string) => ['whatsapp', 'batch', batchId] as const,
+  },
+  salesProperties: {
+    all: ['sale-properties'] as const,
+    list: (params: SalePropertyListParams) => ['sale-properties', 'list', params] as const,
+    detail: (id: number) => ['sale-properties', 'detail', id] as const,
+  },
+  propertyTypes: {
+    all: ['property-types'] as const,
   },
 };

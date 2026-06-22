@@ -1,13 +1,17 @@
 import { NavLink } from 'react-router';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAuth } from '@/features/auth/useAuth';
 import { cn } from '@/lib/utils';
 import { navItems } from './nav-items';
 
 /** Lista de navegación compartida por el sidebar de escritorio y el drawer mobile. */
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+  const { user } = useAuth();
+  const items = navItems.filter((item) => !item.superadminOnly || user?.is_superadmin);
+
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {navItems.map((item) => {
+      {items.map((item) => {
         const Icon = item.icon;
 
         if (!item.enabled) {

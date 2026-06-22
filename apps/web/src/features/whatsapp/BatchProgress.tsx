@@ -1,5 +1,5 @@
 import { CheckCircle2, Clock, RotateCw, XCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { errorMessage } from '@/lib/api-error';
 import { useBatch, useRetryBatch } from './queries';

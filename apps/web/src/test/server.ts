@@ -7,10 +7,17 @@ import type { Tenant } from '@/features/tenants/types';
 import type { Property } from '@/features/properties/types';
 import type { Contract } from '@/features/contracts/types';
 import type { Receipt, ReceiptInput } from '@/features/receipts/types';
+import type { PropertyType, SaleProperty } from '@/features/sales-properties/types';
 
 const API = '/api/v1';
 
-const USER = { id: 1, name: 'Nadina Zaranich', email: 'admin@nz.com' };
+const USER = {
+  id: 1,
+  name: 'Nadina Zaranich',
+  email: 'admin@nz.com',
+  role: 'superadmin',
+  is_superadmin: true,
+};
 
 /** Envuelve filas en la forma paginada de Laravel (1 sola página, suficiente para tests). */
 function paginated<T>(rows: T[]) {
@@ -45,6 +52,15 @@ type WaMessage = {
 let waMessages: WaMessage[] = [];
 let waBatches: Record<string, WaMessage[]> = {};
 let waSeq = 0;
+
+let propertyTypes: PropertyType[] = [];
+let saleProperties: SaleProperty[] = [];
+let saleSeq = 0;
+let imageSeq = 0;
+
+function withTypeRelation(p: SaleProperty): SaleProperty {
+  return { ...p, type: propertyTypes.find((t) => t.id === p.property_type_id) ?? null };
+}
 
 export function seedCities(rows: City[]): void {
   cities = [...rows];
@@ -162,6 +178,50 @@ export function resetStore(): void {
   waMessages = [];
   waBatches = {};
   waSeq = 0;
+
+  propertyTypes = [
+    { id: 1, name: 'Casas' },
+    { id: 2, name: 'Terrenos' },
+  ];
+  saleProperties = [
+    {
+      id: 1,
+      property_type_id: 1,
+      title: 'Casa céntrica',
+      locality: 'Guatimozín',
+      location: 'Centro',
+      size: '200 m2',
+      services: 'Luz, agua',
+      features: '3 dormitorios',
+      map_embed: null,
+      sort_order: 0,
+      is_sold: false,
+      latitude: null,
+      longitude: null,
+      images: [
+        { id: 1, url: '/storage/sale-properties/1/a.webp', sort_order: 0 },
+        { id: 2, url: '/storage/sale-properties/1/b.webp', sort_order: 1 },
+      ],
+    },
+    {
+      id: 2,
+      property_type_id: 2,
+      title: 'Terreno esquina',
+      locality: 'Arias',
+      location: 'Ruta 8',
+      size: '500 m2',
+      services: null,
+      features: null,
+      map_embed: null,
+      sort_order: 1,
+      is_sold: true,
+      latitude: null,
+      longitude: null,
+      images: [],
+    },
+  ];
+  saleSeq = 2;
+  imageSeq = 2;
 }
 
 function withReceiptRelations(receipt: Receipt): Receipt {
@@ -559,6 +619,126 @@ export const handlers = [
   }),
 
   http.get(`${API}/whatsapp/messages`, () => HttpResponse.json(paginated(waMessages))),
+
+  // ── Ventas (Fusión NZ) ──
+  http.get(`${API}/property-types`, () => HttpResponse.json({ data: propertyTypes })),
+
+  http.post(`${API}/property-types`, async ({ request }) => {
+    const input = (await request.json()) as { name: string };
+    if (propertyTypes.some((t) => t.name === input.name)) {
+      return HttpResponse.json(
+        { message: 'Duplicada.', errors: { name: ['Ya existe.'] } },
+        { status: 422 },
+      );
+    }
+    const created = { id: propertyTypes.length + 10, name: input.name };
+    propertyTypes.push(created);
+    return HttpResponse.json({ data: created }, { status: 201 });
+  }),
+
+  http.patch(`${API}/property-types/:id`, async ({ request, params }) => {
+    const input = (await request.json()) as { name: string };
+    const id = Number(params.id);
+    const updated = { id, name: input.name };
+    propertyTypes = propertyTypes.map((t) => (t.id === id ? updated : t));
+    return HttpResponse.json({ data: updated });
+  }),
+
+  http.delete(`${API}/property-types/:id`, ({ params }) => {
+    const id = Number(params.id);
+    if (saleProperties.some((p) => p.property_type_id === id)) {
+      return HttpResponse.json({ message: 'Tiene propiedades asociadas.' }, { status: 409 });
+    }
+    propertyTypes = propertyTypes.filter((t) => t.id !== id);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get(`${API}/sale-properties`, ({ request }) => {
+    const sp = new URL(request.url).searchParams;
+    const q = sp.get('q')?.toLowerCase();
+    const type = sp.get('filter[type]');
+    const sold = sp.get('filter[sold]');
+    let filtered = saleProperties;
+    if (q)
+      filtered = filtered.filter(
+        (p) =>
+          p.title?.toLowerCase().includes(q) || p.locality?.toLowerCase().includes(q),
+      );
+    if (type) filtered = filtered.filter((p) => p.property_type_id === Number(type));
+    if (sold != null) filtered = filtered.filter((p) => p.is_sold === (sold === '1'));
+    return HttpResponse.json(paginated(filtered.map(withTypeRelation)));
+  }),
+
+  http.get(`${API}/sale-properties/:id`, ({ params }) => {
+    const p = saleProperties.find((x) => x.id === Number(params.id));
+    if (!p) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json({ data: withTypeRelation(p) });
+  }),
+
+  http.post(`${API}/sale-properties`, async ({ request }) => {
+    const input = (await request.json()) as Partial<SaleProperty>;
+    const created: SaleProperty = {
+      id: ++saleSeq,
+      property_type_id: input.property_type_id ?? null,
+      title: input.title ?? null,
+      locality: input.locality ?? null,
+      location: input.location ?? null,
+      size: input.size ?? null,
+      services: input.services ?? null,
+      features: input.features ?? null,
+      map_embed: input.map_embed ?? null,
+      sort_order: saleProperties.length,
+      is_sold: input.is_sold ?? false,
+      latitude: null,
+      longitude: null,
+      images: [],
+    };
+    saleProperties.push(created);
+    return HttpResponse.json({ data: withTypeRelation(created) }, { status: 201 });
+  }),
+
+  http.patch(`${API}/sale-properties/reorder`, async ({ request }) => {
+    const { ids } = (await request.json()) as { ids: number[] };
+    ids.forEach((id, i) => {
+      saleProperties = saleProperties.map((p) => (p.id === id ? { ...p, sort_order: i } : p));
+    });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.patch(`${API}/sale-properties/:id`, async ({ request, params }) => {
+    const input = (await request.json()) as Partial<SaleProperty>;
+    const id = Number(params.id);
+    const existing = saleProperties.find((p) => p.id === id);
+    if (!existing) return new HttpResponse(null, { status: 404 });
+    const updated = { ...existing, ...input, id };
+    saleProperties = saleProperties.map((p) => (p.id === id ? updated : p));
+    return HttpResponse.json({ data: withTypeRelation(updated) });
+  }),
+
+  http.delete(`${API}/sale-properties/:id`, ({ params }) => {
+    saleProperties = saleProperties.filter((p) => p.id !== Number(params.id));
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post(`${API}/sale-properties/:id/images`, ({ params }) => {
+    const id = Number(params.id);
+    const img = { id: ++imageSeq, url: `/storage/sale-properties/${id}/${imageSeq}.webp`, sort_order: 0 };
+    saleProperties = saleProperties.map((p) =>
+      p.id === id ? { ...p, images: [...(p.images ?? []), img] } : p,
+    );
+    return HttpResponse.json({ data: [img] });
+  }),
+
+  http.delete(`${API}/sale-property-images/:imageId`, ({ params }) => {
+    const imageId = Number(params.imageId);
+    saleProperties = saleProperties.map((p) => ({
+      ...p,
+      images: (p.images ?? []).filter((img) => img.id !== imageId),
+    }));
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.patch(`${API}/sale-property-images/reorder`, () => new HttpResponse(null, { status: 204 })),
 ];
 
 export const server = setupServer(...handlers);
