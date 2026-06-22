@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     Storage::fake('public');
     $this->withHeader('Accept', 'application/json');
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->superadmin()->create());
 });
 
 it('sube varias imágenes y las convierte a webp', function () {

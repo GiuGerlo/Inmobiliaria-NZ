@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -36,6 +37,26 @@ final class UserFactory extends Factory
             'Pass_User' => md5($plainPassword),
             'password' => null,
             'remember_token' => null,
+        ]);
+    }
+
+    public function superadmin(): static
+    {
+        return $this->state(fn () => [
+            'role_id' => Role::firstOrCreate(
+                ['name' => Role::SUPERADMIN],
+                ['label' => 'Superadministrador'],
+            )->id,
+        ]);
+    }
+
+    public function inmobiliaria(): static
+    {
+        return $this->state(fn () => [
+            'role_id' => Role::firstOrCreate(
+                ['name' => Role::INMOBILIARIA],
+                ['label' => 'Inmobiliaria'],
+            )->id,
         ]);
     }
 }

@@ -23,7 +23,7 @@ it('rechaza crear categoría sin auth', function () {
 });
 
 it('crea categoría autenticado', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->superadmin()->create());
 
     $this->postJson('/api/v1/property-types', ['name' => 'Galpones'])
         ->assertCreated()
@@ -31,7 +31,7 @@ it('crea categoría autenticado', function () {
 });
 
 it('rechaza nombre duplicado', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->superadmin()->create());
     $type = PropertyType::factory()->create();
 
     $this->postJson('/api/v1/property-types', ['name' => $type->name])
@@ -40,7 +40,7 @@ it('rechaza nombre duplicado', function () {
 });
 
 it('devuelve 409 al borrar categoría con propiedades', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->superadmin()->create());
     $type = PropertyType::factory()->create();
     SaleProperty::factory()->for($type, 'type')->create();
 

@@ -47,7 +47,7 @@ it('rechaza crear sin auth', function () {
 });
 
 it('crea, edita y borra autenticado', function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->superadmin()->create());
     $type = PropertyType::factory()->create();
 
     $id = $this->postJson('/api/v1/sale-properties', [

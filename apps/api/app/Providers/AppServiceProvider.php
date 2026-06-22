@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Solo el superadmin gestiona el dominio ventas (Fusión NZ Fase 3).
+        Gate::define('manage-sales', fn (User $user): bool => $user->isSuperadmin());
     }
 }

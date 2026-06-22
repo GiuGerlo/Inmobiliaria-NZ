@@ -2,6 +2,21 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-19] Fusión NZ Fase 3 — Auth + roles — DONE
+
+**Resumen**: Roles de usuario para que solo el superadmin (Giuliano) gestione ventas; el staff inmobiliaria (incl. la dueña) sigue solo en alquileres. Backend-only (la UI oculta la sección ventas en Fase 4).
+
+**Cambios**:
+- **Schema**: tabla `roles` (`name` unique, `label`) + `users.role_id` (FK nullable, `nullOnDelete`). Un rol por usuario. Se **descartó** `spatie/laravel-permission` (overkill para 2 roles) y la columna string suelta.
+- **Modelos**: `Role` (consts `SUPERADMIN`/`INMOBILIARIA`, `hasMany users`); `User` suma relación `role()`, helper `isSuperadmin()` (null-safe → least privilege) y `role_id` a `$fillable`.
+- **Autorización**: Gate `manage-sales` (= `isSuperadmin()`) en `AppServiceProvider`; las rutas de **escritura** de ventas (property-types + sale-properties + imágenes + reorder) van en un grupo `can:manage-sales` → `inmobiliaria` recibe **403**. Lecturas públicas y endpoints de alquileres **sin cambios**.
+- **API**: `UserResource` expone `role` + `is_superadmin` (para gatear la UI en Fase 4).
+- **Seeder**: `RoleSeeder` (llamado siempre, también prod) crea los 2 roles, asigna `ggiuliano526@gmail.com`→superadmin (hardcodeado) y el resto→inmobiliaria.
+- Tests: **Pest 158** (modelo/relación, seeder, autorización 403/200, `/me` con rol; tests de ventas de Fase 2 actualizados a actuar como superadmin). Pint limpio. `/security-review` sin hallazgos.
+- **Verificación real**: seed sobre la DB → Giuliano superadmin, Demo inmobiliaria; lectura pública de ventas sigue 200.
+
+**Breaking**: las escrituras de ventas ahora requieren rol superadmin (antes cualquier autenticado). **Migración**: 2 migraciones (`roles`, `users.role_id`) + `php artisan db:seed --class=RoleSeeder`.
+
 ## [2026-06-19] Fusión NZ Fase 2 — Dominio ventas en Laravel — DONE
 
 **Resumen**: El dominio "ventas" (propiedades en venta, categorías, imágenes) del sitio `nz-estudio` vive ahora en el backend Laravel único: 3 tablas + API REST + comando de migración. Sin frontend (admin React = Fase 4; sitio público Next = Fase 5).

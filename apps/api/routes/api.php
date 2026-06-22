@@ -80,21 +80,21 @@ Route::prefix('v1')->group(function () {
         Route::get('/reports/monthly-payments', MonthlyPaymentsReportController::class);
         Route::apiResource('payment-methods', PaymentMethodController::class);
 
-        // ── Ventas (Fusión NZ): CRUD admin de categorías ──
-        Route::post('/property-types', [PropertyTypeController::class, 'store']);
-        Route::patch('/property-types/{propertyType}', [PropertyTypeController::class, 'update']);
-        Route::delete('/property-types/{propertyType}', [PropertyTypeController::class, 'destroy']);
-
-        // ── Ventas (Fusión NZ): CRUD admin de propiedades ──
+        // ── Ventas (Fusión NZ): escritura solo superadmin (gate manage-sales) ──
         // reorder ANTES del binding {saleProperty} para que no lo capture el modelo.
-        Route::patch('/sale-properties/reorder', [SalePropertyController::class, 'reorder']);
-        Route::post('/sale-properties', [SalePropertyController::class, 'store']);
-        Route::patch('/sale-properties/{saleProperty}', [SalePropertyController::class, 'update']);
-        Route::delete('/sale-properties/{saleProperty}', [SalePropertyController::class, 'destroy']);
+        Route::middleware('can:manage-sales')->group(function () {
+            Route::post('/property-types', [PropertyTypeController::class, 'store']);
+            Route::patch('/property-types/{propertyType}', [PropertyTypeController::class, 'update']);
+            Route::delete('/property-types/{propertyType}', [PropertyTypeController::class, 'destroy']);
 
-        // Imágenes de propiedades en venta (multi-upload WebP + borrar + reordenar).
-        Route::patch('/sale-property-images/reorder', [SalePropertyImageController::class, 'reorder']);
-        Route::post('/sale-properties/{saleProperty}/images', [SalePropertyImageController::class, 'store']);
-        Route::delete('/sale-property-images/{propertyImage}', [SalePropertyImageController::class, 'destroy']);
+            Route::patch('/sale-properties/reorder', [SalePropertyController::class, 'reorder']);
+            Route::post('/sale-properties', [SalePropertyController::class, 'store']);
+            Route::patch('/sale-properties/{saleProperty}', [SalePropertyController::class, 'update']);
+            Route::delete('/sale-properties/{saleProperty}', [SalePropertyController::class, 'destroy']);
+
+            Route::patch('/sale-property-images/reorder', [SalePropertyImageController::class, 'reorder']);
+            Route::post('/sale-properties/{saleProperty}/images', [SalePropertyImageController::class, 'store']);
+            Route::delete('/sale-property-images/{propertyImage}', [SalePropertyImageController::class, 'destroy']);
+        });
     });
 });

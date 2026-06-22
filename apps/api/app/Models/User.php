@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -26,7 +27,7 @@ final class User extends Authenticatable
 
     public $timestamps = false;
 
-    protected $fillable = ['Nombre_User', 'Email_User', 'password'];
+    protected $fillable = ['Nombre_User', 'Email_User', 'password', 'role_id'];
 
     protected $hidden = ['Pass_User', 'password', 'remember_token'];
 
@@ -35,5 +36,16 @@ final class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+    /** @return BelongsTo<Role, $this> */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function isSuperadmin(): bool
+    {
+        return $this->role?->name === Role::SUPERADMIN;
     }
 }

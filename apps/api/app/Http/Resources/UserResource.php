@@ -22,6 +22,8 @@ final class UserResource extends JsonResource
             'id' => $this->resource->ID_User,
             'name' => $this->resource->Nombre_User,
             'email' => $this->resource->Email_User,
+            'role' => $this->resource->role?->name,
+            'is_superadmin' => $this->resource->isSuperadmin(),
         ];
     }
 }
