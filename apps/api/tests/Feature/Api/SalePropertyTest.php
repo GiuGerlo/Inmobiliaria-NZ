@@ -16,7 +16,7 @@ it('lista propiedades sin auth con meta de paginación', function () {
         ->assertOk()
         ->assertJsonCount(3, 'data')
         ->assertJsonStructure([
-            'data' => [['id', 'title', 'is_sold', 'images', 'type']],
+            'data' => [['id', 'slug', 'title', 'is_sold', 'images', 'type']],
             'meta' => ['current_page', 'per_page', 'total'],
         ]);
 });

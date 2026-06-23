@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/*
+ * Identidad NZ — sitio público de venta.
+ * Misma paleta de marca que el admin (apps/web): navy #13294b / #05172D,
+ * dorado #c5a572, Poppins. Acá sumamos una serif display (Fraunces) para
+ * darle aire editorial/inmobiliario premium a los títulos.
+ */
+@theme {
+  --color-navy: #05172d;
+  --color-navy-700: #0b2545;
+  --color-primary: #13294b;
+  --color-gold: #c5a572;
+  --color-gold-soft: #d9c39a;
+  --color-cream: #f7f4ee;
+  --color-ink: #1a2231;
+  --color-muted: #5b6675;
+
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+
+  --radius-card: 1rem;
+
+  --shadow-soft: 0 1px 2px rgb(5 23 45 / 0.04), 0 8px 24px -12px rgb(5 23 45 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(5 23 45 / 0.06), 0 24px 48px -20px rgb(5 23 45 / 0.30);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* Respeta usuarios que reducen movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Utilidad: degradado fino dorado para hairlines y subrayados de marca. */
+@utility hairline-gold {
+  background-image: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}

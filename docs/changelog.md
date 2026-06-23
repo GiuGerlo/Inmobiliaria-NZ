@@ -2,6 +2,36 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-23] Fusión NZ Fase 5+ — Pulido visual del sitio público — DONE
+
+**Resumen**: Pasada de diseño/motion sobre `apps/public` para subir el nivel visual (es la cara de la inmobiliaria y página SEO-crítica). **Cero dependencias nuevas** (todo con framer-motion/embla ya instalados), SSG intacto y `prefers-reduced-motion` respetado en cada animación.
+
+**Cambios**:
+- **Hero**: el lado derecho (antes vacío) suma una **casa line-art SVG** (`HeroHouse.tsx`) — trazos dorados que se "dibujan" con `pathLength` escalonado, float infinito, **parallax** al scroll y halo; layout 2-columnas en desktop, oculta en mobile. Subrayado de "perfecta" animado y botones con `whileHover`/`whileTap`.
+- **Credibilidad**: franja `Stats.tsx` con **contadores animados** (`Counter.tsx`, 0→N al entrar en viewport) — años, propiedades, operaciones cerradas, localidades (derivados del catálogo en build).
+- **Cards de propiedad** (`PropertyCard.tsx`): overlay de gradiente que intensifica en hover, badge de categoría que vira a dorado, zoom de imagen. Sigue siendo server component.
+- **Galería de detalle** (`ImageCarousel.tsx`): prop opt-in `thumbnails` → **tira de miniaturas sincronizada** (embla thumbs) con hover zoom, activada en `/propiedades/[slug]`. Capua queda con dots intacto.
+- **Navegación/UX**: botón **scroll-to-top** (en `FloatingActions`), **barra de progreso** de scroll dorada (`ScrollProgress.tsx`), **preloader** breve de marca N|Z (`Preloader.tsx`), y **transición de página** sutil (`app/template.tsx`).
+- **Verificación**: `lint` + `tsc --noEmit` limpios; Vitest 12 verdes; dev compila `GET / 200` sin errores. (Build export queda para correr con el dev apagado.)
+
+**Diferido (próxima ronda)**: #3 Capua (crossfade transition-* + galería masonry), #7 grid/lista + skeletons, #8 testimonios, #9 migración a shadcn, #10 pasada fina responsive/a11y. También descartado el blend `layoutId` cross-página (finicky con `output: export`, bajo payoff).
+
+**Breaking**: nada. **Migración**: nada.
+
+## [2026-06-23] Fusión NZ Fase 5 — Sitio público (Next.js SSG) — DONE
+
+**Resumen**: Nace `apps/public`, el sitio público de venta reconstruido como **Next.js 15 (App Router) con `output: 'export'`** (estático, para Hostinger sin Node). Consume la API pública de ventas de Fase 2; todo el catálogo se trae **en build** y se generan estáticamente home + catálogo + detalle por propiedad + vendidas. Estética editorial premium con la marca NZ (navy/dorado, Poppins + Fraunces) y animaciones framer-motion.
+
+**Cambios**:
+- **Backend (mínimo)**: columna `slug` en `sale_properties` (migración nullable+unique con **backfill** `slug(title)-{id}`); el modelo `SaleProperty` la genera internamente en create/update (no fillable → el admin no la manda); `SalePropertyResource` la expone. Rutas admin siguen por `id`. Pest **+5** (159→164).
+- **`apps/public`** (Next 15 + Tailwind 4 + framer-motion): páginas SSG `/`, `/propiedades` (filtros por categoría + búsqueda sin tildes, client-side sobre datos embebidos), `/propiedades/[slug]` (`generateStaticParams` + `generateMetadata` OG por propiedad; galería embla + lightbox; servicios/características; mapa sanitizado; WhatsApp prellenado; similares), `/vendidas`, `not-found`. Secciones home: Hero, **Capua completa** (carruseles + amenities + galería interior), About, Categorías (de `property-types`), **mapa interactivo Google Maps con clustering** (`@vis.gl/react-google-maps` + `@googlemaps/markerclusterer`, fallback sin API key), Contacto (mapa estático + WhatsApp/IG). Navbar sticky, Footer, FABs.
+- **SEO**: `generateMetadata` por página/propiedad (title/description/canonical/OG/Twitter), JSON-LD `RealEstateAgent` global + `Product` por propiedad, `sitemap.ts` (todas las propiedades) + `robots.ts`. `images.unoptimized` + `trailingSlash`.
+- **Seguridad — `map_embed` (stored-XSS)**: `lib/sanitizeMapEmbed` **no** inyecta el HTML del admin; extrae solo el `src`, valida `https` + host `www.google.com` + path `/maps/embed`, y arma **nuestro propio `<iframe>`**. Además se endureció la inyección de **JSON-LD** (`jsonLdString` escapa `<` → `<`) para que un campo con `</script>` no rompa el bloque. Ambos con test. Vitest **12** (sanitizer 10 + jsonLd/whatsapp 2).
+- **Infra**: servicio `next-public` en `docker-compose.yml` (puerto directo `${PUBLIC_PORT:-3000}`, **no** por nginx — es otro dominio en prod), `docker/next/Dockerfile`, env nuevas en `.env.example` (`PUBLIC_PORT`, `API_INTERNAL_URL`, `NEXT_PUBLIC_*`), regla `.claude/rules/nextjs-ssg.md`, `.gitignore` (`.next`/`out`), scripts root (`sh:public`/`lint:public`/`build:public`/`test:public`).
+- **Verificación**: Pest 164 + Vitest 12 verdes; `tsc`+`lint`+`build` (export con 52 páginas de propiedad + sitemap + robots) verdes; manual en `localhost:3000` (todas las páginas 200, datos reales, imágenes desde `storage`, mapas sanitizados, head SEO correcto). `/security-review`: 1 hallazgo (JSON-LD) **corregido**.
+
+**Breaking**: nada. **Migración**: `php artisan migrate` (agrega `slug` + backfill); `docker compose up -d --build` (levanta `next-public`). El mapa interactivo del home requiere `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (sin ella, fallback). **Diferido a Fase 7**: deploy a Hostinger (rsync de `out/`), dominio/TLS, rebuild-on-publish, redirects `/propiedadN`→slug.
+
 ## [2026-06-22] Fusión NZ Fase 4 — Admin de ventas (React) — DONE
 
 **Resumen**: Sección "Propiedades en venta" en el admin React, visible solo para el superadmin, que gestiona propiedades en venta + categorías + fotos (multi-upload + reorder drag-drop) + estado vendida. Consume la API de Fase 2. Sin tocar el backend.

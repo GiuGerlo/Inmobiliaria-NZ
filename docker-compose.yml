@@ -4,6 +4,7 @@
 #   8080 -> app nueva (React + Laravel via nginx)
 #   8081 -> phpMyAdmin
 #   8082 -> legacy PHP
+#   3000 -> sitio público Next.js (apps/public)
 #   3307 -> MariaDB (cliente externo)
 
 name: inmobiliaria-nz
@@ -55,6 +56,30 @@ services:
       - web-node-modules:/var/www/web/node_modules
     environment:
       VITE_API_URL: /api/v1
+    networks: [appnet]
+
+  # ----------------------- Next.js (sitio público de venta, SSG) -----------------------
+  # apps/public — Fusión NZ Fase 5. En prod es un dominio aparte (build estático),
+  # por eso NO se proxya por nginx: se expone su puerto directo en local.
+  next-public:
+    build:
+      context: .
+      dockerfile: docker/next/Dockerfile
+    ports:
+      - "${PUBLIC_PORT:-3000}:3000"
+    volumes:
+      - ./apps/public:/var/www/public
+      # Volumen nombrado para node_modules — protege del bind mount.
+      - public-node-modules:/var/www/public/node_modules
+    environment:
+      # Fetch server-side en build/dev: llega a Laravel por la red interna (nginx).
+      API_INTERNAL_URL: http://nginx/api/v1
+      # URLs públicas (browser): sitio + API/storage (otro origen en local).
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/api/v1}
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
+      # File watching sobre bind mount (Windows/Docker) — igual criterio que Vite.
+      WATCHPACK_POLLING: "true"
     networks: [appnet]
 
   # ----------------------- Gotenberg (motor PDF Chromium) -----------------------
@@ -134,6 +159,7 @@ volumes:
   mariadb-data:
   api-vendor:
   web-node-modules:
+  public-node-modules:
 
 networks:
   appnet:

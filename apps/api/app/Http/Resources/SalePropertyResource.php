@@ -16,6 +16,7 @@ final class SalePropertyResource extends JsonResource
     {
         return [
             'id' => $this->resource->id,
+            'slug' => $this->resource->slug,
             'property_type_id' => $this->resource->property_type_id,
             'title' => $this->resource->title,
             'locality' => $this->resource->locality,

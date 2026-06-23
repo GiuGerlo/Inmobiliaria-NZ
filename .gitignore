@@ -19,6 +19,7 @@ db/*.sql
 apps/api/vendor/
 apps/api/node_modules/
 apps/web/node_modules/
+apps/public/node_modules/
 node_modules/
 
 # NOTA: legacy/dompdf/vendor/ se commitea (es vendor manual del legacy, lo necesita)
@@ -33,6 +34,8 @@ legacy-nz-estudio/node_modules/
 
 # Build
 apps/web/dist/
+apps/public/.next/
+apps/public/out/
 apps/api/public/build/
 apps/api/storage/logs/*.log
 apps/api/storage/framework/cache/
