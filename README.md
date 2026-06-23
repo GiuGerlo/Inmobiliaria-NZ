@@ -22,7 +22,7 @@ cp .env.example .env            # opcional — solo si querés cambiar passwords
 docker compose up -d --build    # tarda ~3-5 min la primera vez. Eso es todo.
 ```
 
-El container de Laravel se auto-bootstrapea al arrancar: crea su `.env` desde `.env.example` y genera `APP_KEY` si falta. **Ningún comando manual extra.**
+El container de Laravel se auto-bootstrapea al arrancar (`docker/php/entrypoint.sh`): crea su `.env` desde `.env.example`, genera `APP_KEY`, **corre las migraciones y seedea la base si está vacía**. **Cero comandos manuales** — al terminar el `up` ya podés loguearte.
 
 Cuando termine, abrí en el browser:
 
@@ -33,25 +33,22 @@ Cuando termine, abrí en el browser:
 | http://localhost:8082     | Legacy PHP intacto.                                 |
 | `localhost:3307`          | MariaDB para clientes externos (TablePlus, DBeaver).|
 
-### Primer arranque: migrá y seedeá la base
+### Usuarios de prueba (ya creados por el seed automático)
 
-La DB arranca **vacía** (los dumps reales tienen PII y están fuera de git). Para tener una base usable con usuarios de prueba, una sola vez:
+El primer `docker compose up` migra y seedea solo. Quedan **dos perfiles** listos para entrar a http://localhost:8080, ambos con password **`password`**:
 
-```bash
-docker compose exec php-fpm php artisan migrate
-docker compose exec php-fpm php artisan db:seed
-```
+| Email             | Password   | Rol            | Ve                       |
+|-------------------|------------|----------------|--------------------------|
+| `super@nz.com`    | `password` | **superadmin** | Todo (incl. ventas)      |
+| `demo@example.com`| `password` | inmobiliaria   | Solo alquileres          |
 
-El seed crea **dos usuarios demo** (solo en entorno `local`), ambos con password `password`:
-
-| Email                      | Rol            | Ve                       |
-|----------------------------|----------------|--------------------------|
-| `ggiuliano526@gmail.com`   | **superadmin** | Todo (incl. ventas)      |
-| `demo@example.com`         | inmobiliaria   | Solo alquileres          |
-
-> La sección **"Propiedades en venta"** es solo-superadmin: entrá con `ggiuliano526@gmail.com` para verla.
+> La sección **"Propiedades en venta"** es solo-superadmin: entrá con **`super@nz.com`** para verla.
 >
-> Los datos de ventas (propiedades) **no** vienen en el seed (el dump vive fuera del repo). Cargá propiedades a mano desde el admin, o importá el dump con `php artisan ventas:import` (requiere dejar `nzestudio.sql` en la base `nzestudio` y los WebP en `storage/app/import/` — ver `docs/plans/sub-fusion-2-ventas-plan.md`).
+> El seed **solo corre si la base está vacía** — nunca pisa datos existentes. Para re-seedear a mano: `docker compose exec php-fpm php artisan db:seed`.
+>
+> El seed también carga **datos demo de ventas**: 6 categorías + 8 propiedades en venta (sin fotos — las imágenes necesitan archivos reales). Para datos/fotos reales, importá el dump con `php artisan ventas:import` (ver `docs/plans/sub-fusion-2-ventas-plan.md`).
+>
+> En **producción** el superadmin se define por `SUPERADMIN_EMAIL` en el `.env` (no se hardcodea ningún email).
 
 ### DB de tests
 
@@ -69,7 +66,7 @@ En tu `.env`:
 DB_DUMP_PATH=C:/Users/tu/secretos/db-nz.sql
 ```
 
-Path **absoluto**. Si está vacío, MariaDB arranca con DB vacía y vos corrés migrations/seeders cuando quieras.
+Path **absoluto**. Si está vacío, MariaDB arranca limpia y el entrypoint de Laravel migra + seedea solo (usuarios de prueba de arriba).
 
 > ⚠️ El dump real tiene PII. **No commitearlo**. Está protegido por `.gitignore`.
 
