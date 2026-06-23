@@ -33,6 +33,26 @@ Cuando termine, abrí en el browser:
 | http://localhost:8082     | Legacy PHP intacto.                                 |
 | `localhost:3307`          | MariaDB para clientes externos (TablePlus, DBeaver).|
 
+### Primer arranque: migrá y seedeá la base
+
+La DB arranca **vacía** (los dumps reales tienen PII y están fuera de git). Para tener una base usable con usuarios de prueba, una sola vez:
+
+```bash
+docker compose exec php-fpm php artisan migrate
+docker compose exec php-fpm php artisan db:seed
+```
+
+El seed crea **dos usuarios demo** (solo en entorno `local`), ambos con password `password`:
+
+| Email                      | Rol            | Ve                       |
+|----------------------------|----------------|--------------------------|
+| `ggiuliano526@gmail.com`   | **superadmin** | Todo (incl. ventas)      |
+| `demo@example.com`         | inmobiliaria   | Solo alquileres          |
+
+> La sección **"Propiedades en venta"** es solo-superadmin: entrá con `ggiuliano526@gmail.com` para verla.
+>
+> Los datos de ventas (propiedades) **no** vienen en el seed (el dump vive fuera del repo). Cargá propiedades a mano desde el admin, o importá el dump con `php artisan ventas:import` (requiere dejar `nzestudio.sql` en la base `nzestudio` y los WebP en `storage/app/import/` — ver `docs/plans/sub-fusion-2-ventas-plan.md`).
+
 ### DB de tests
 
 Los tests Pest corren contra `inmobiliaria_test` (mismo container MariaDB). Se crea sola en el primer boot del volumen. Si tu volumen es anterior a sub-B, crearla una vez:
@@ -94,7 +114,7 @@ docker compose exec node-dev pnpm lint               # ESLint
 
 ## ¿En qué fase estamos?
 
-Mirá `docs/roadmap.md` para el estado de cada sub-proyecto (A–H). El presente sub-proyecto es **A — Infra + Bootstrap**.
+Mirá `docs/roadmap.md` para el estado actualizado. Los sub-proyectos base **A–J están DONE** y está en curso el **track Fusión NZ** (integrar el sitio público de venta al monorepo, 7 fases): **Fases 1–4 DONE** (consolidación, dominio ventas en Laravel, auth+roles, admin de ventas en React). Próximo: **Fase 5 — sitio público (Next SSG)**.
 
 ## Más info
 

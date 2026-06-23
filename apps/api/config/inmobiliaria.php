@@ -19,4 +19,11 @@ return [
      * Se usa en la rendición al dueño y en el listado mensual.
      */
     'commission_rate' => (float) env('NZ_COMMISSION_RATE', 0.10),
+
+    /*
+     * Email del usuario que el RoleSeeder promueve a superadmin (en prod, la cuenta
+     * real del dueño del sistema). Configurable por entorno — sin hardcodear emails.
+     * En local no hace falta: el seed crea un superadmin de prueba (super@nz.com).
+     */
+    'superadmin_email' => env('SUPERADMIN_EMAIL'),
 ];

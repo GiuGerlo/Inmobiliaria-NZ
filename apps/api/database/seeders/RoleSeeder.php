@@ -10,8 +10,6 @@ use Illuminate\Database\Seeder;
 
 final class RoleSeeder extends Seeder
 {
-    private const SUPERADMIN_EMAIL = 'ggiuliano526@gmail.com';
-
     public function run(): void
     {
         $superadmin = Role::firstOrCreate(['name' => Role::SUPERADMIN], ['label' => 'Superadministrador']);
@@ -20,8 +18,11 @@ final class RoleSeeder extends Seeder
         // Todos los usuarios sin rol → inmobiliaria (least privilege por default).
         User::query()->whereNull('role_id')->update(['role_id' => $inmobiliaria->id]);
 
-        // El superadmin, por email (hardcodeado).
-        User::query()->where('Email_User', self::SUPERADMIN_EMAIL)
-            ->update(['role_id' => $superadmin->id]);
+        // El superadmin se define por entorno (config/inmobiliaria.php ← SUPERADMIN_EMAIL),
+        // no hardcodeado. En prod = cuenta real del dueño.
+        $email = config('inmobiliaria.superadmin_email');
+        if (is_string($email) && $email !== '') {
+            User::query()->where('Email_User', $email)->update(['role_id' => $superadmin->id]);
+        }
     }
 }

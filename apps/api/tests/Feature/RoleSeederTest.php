@@ -9,12 +9,22 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('asigna superadmin a Giuliano y inmobiliaria al resto', function () {
-    $giuli = User::factory()->create(['Email_User' => 'ggiuliano526@gmail.com']);
+it('asigna superadmin al email configurado e inmobiliaria al resto', function () {
+    config(['inmobiliaria.superadmin_email' => 'jefe@nz.com']);
+    $jefe = User::factory()->create(['Email_User' => 'jefe@nz.com']);
     $otro = User::factory()->create(['Email_User' => 'staff@example.com']);
 
     $this->seed(RoleSeeder::class);
 
-    expect($giuli->refresh()->role->name)->toBe(Role::SUPERADMIN)
+    expect($jefe->refresh()->role->name)->toBe(Role::SUPERADMIN)
         ->and($otro->refresh()->role->name)->toBe(Role::INMOBILIARIA);
+});
+
+it('sin email configurado, nadie es superadmin', function () {
+    config(['inmobiliaria.superadmin_email' => null]);
+    $user = User::factory()->create(['Email_User' => 'staff@example.com']);
+
+    $this->seed(RoleSeeder::class);
+
+    expect($user->refresh()->role->name)->toBe(Role::INMOBILIARIA);
 });
