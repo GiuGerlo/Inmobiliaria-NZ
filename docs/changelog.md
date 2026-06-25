@@ -12,9 +12,10 @@ Historial de cambios por fase. Más reciente arriba.
 - **Cards de propiedad** (`PropertyCard.tsx`): overlay de gradiente que intensifica en hover, badge de categoría que vira a dorado, zoom de imagen. Sigue siendo server component.
 - **Galería de detalle** (`ImageCarousel.tsx`): prop opt-in `thumbnails` → **tira de miniaturas sincronizada** (embla thumbs) con hover zoom, activada en `/propiedades/[slug]`. Capua queda con dots intacto.
 - **Navegación/UX**: botón **scroll-to-top** (en `FloatingActions`), **barra de progreso** de scroll dorada (`ScrollProgress.tsx`), **preloader** breve de marca N|Z (`Preloader.tsx`), y **transición de página** sutil (`app/template.tsx`).
+- **Capua**: **crossfade** automático de las imágenes `transition-*` recuperado del legacy (`CapuaCrossfade.tsx`, fade + ken-burns) y la galería interior pasa de carrusel a **masonry** con lightbox (`MasonryGallery.tsx`, reusable).
 - **Verificación**: `lint` + `tsc --noEmit` limpios; Vitest 12 verdes; dev compila `GET / 200` sin errores. (Build export queda para correr con el dev apagado.)
 
-**Diferido (próxima ronda)**: #3 Capua (crossfade transition-* + galería masonry), #7 grid/lista + skeletons, #8 testimonios, #9 migración a shadcn, #10 pasada fina responsive/a11y. También descartado el blend `layoutId` cross-página (finicky con `output: export`, bajo payoff).
+**Diferido (próxima ronda)**: #7 grid/lista + skeletons, #8 testimonios, #9 migración a shadcn, #10 pasada fina responsive/a11y. También descartado el blend `layoutId` cross-página (finicky con `output: export`, bajo payoff).
 
 **Breaking**: nada. **Migración**: nada.
 

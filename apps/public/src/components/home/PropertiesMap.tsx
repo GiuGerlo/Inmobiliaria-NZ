@@ -6,6 +6,7 @@ import { APIProvider, Map, InfoWindow, useMap } from '@vis.gl/react-google-maps'
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { MapPin } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
+import { AnimatedText } from '@/components/AnimatedText';
 import type { SaleProperty } from '@/lib/types';
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -70,7 +71,11 @@ export function PropertiesMap({ properties }: { properties: SaleProperty[] }) {
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               Dónde estamos
             </span>
-            <h2 className="mt-4 font-display text-4xl text-ink lg:text-5xl">Mapa de propiedades</h2>
+            <AnimatedText
+              as="h2"
+              text="Mapa de propiedades"
+              className="mt-4 font-display text-4xl text-ink lg:text-5xl"
+            />
             <p className="mt-5 text-muted">
               Ubicación de nuestras propiedades disponibles en la región.
             </p>

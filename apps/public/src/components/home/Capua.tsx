@@ -15,7 +15,14 @@ import {
 } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { ImageCarousel, type CarouselImage } from '@/components/ImageCarousel';
+import { CapuaCrossfade } from './CapuaCrossfade';
+import { Gallery } from '@/components/Gallery';
+import { AnimatedText } from '@/components/AnimatedText';
 import { site } from '@/lib/site';
+
+const transitions = ['transition-01.jpg', 'transition-02.jpg', 'transition-03.jpg'].map(
+  (f) => `/img/capua/${f}`,
+);
 
 const slides: CarouselImage[] = [
   'slide-01.jpg',
@@ -98,6 +105,11 @@ export function Capua() {
           </Reveal>
         </div>
 
+        {/* Crossfade de imágenes (recuperado del legacy) */}
+        <Reveal className="mt-16">
+          <CapuaCrossfade images={transitions} />
+        </Reveal>
+
         {/* Amenities */}
         <Reveal>
           <div className="mt-24">
@@ -106,7 +118,11 @@ export function Capua() {
                 <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
                   Equipamiento
                 </span>
-                <h3 className="mt-3 font-display text-3xl text-ink">Amenities</h3>
+                <AnimatedText
+                  as="h3"
+                  text="Amenities"
+                  className="mt-3 font-display text-3xl text-ink"
+                />
               </div>
             </div>
             <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -126,15 +142,16 @@ export function Capua() {
         </Reveal>
 
         {/* El complejo por dentro */}
-        <div className="mt-24 grid items-center gap-12 lg:grid-cols-2">
-          <Reveal delay={0.1}>
-            <ImageCarousel images={interior} aspect="aspect-[4/3]" />
-          </Reveal>
-          <Reveal>
+        <div className="mt-24">
+          <Reveal className="max-w-2xl">
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               El complejo por dentro
             </span>
-            <h3 className="mt-3 font-display text-4xl text-ink">Conocé Capua de Edilizia</h3>
+            <AnimatedText
+              as="h3"
+              text="Conocé Capua de Edilizia"
+              className="mt-3 font-display text-4xl text-ink"
+            />
             <p className="mt-5 leading-relaxed text-muted">
               Vistas exteriores e interiores del complejo. Capua de Edilizia está emplazado en{' '}
               <strong className="text-ink">Funes, Santa Fe</strong>, una de las zonas de mayor
@@ -144,6 +161,9 @@ export function Capua() {
             <p className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-navy">
               <MapPin size={16} className="text-gold" /> Funes, Santa Fe
             </p>
+          </Reveal>
+          <Reveal delay={0.1} className="mt-10">
+            <Gallery images={interior} />
           </Reveal>
         </div>
       </div>

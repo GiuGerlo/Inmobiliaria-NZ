@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { UserCheck, ShieldCheck, Heart, ArrowRight } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
+import { AnimatedText } from '@/components/AnimatedText';
 
 const values = [
   {
@@ -48,9 +49,11 @@ export function About() {
               <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
                 Sobre nosotros
               </span>
-              <h2 className="mt-4 font-display text-4xl text-ink lg:text-5xl">
-                Conocé nuestra historia
-              </h2>
+              <AnimatedText
+                as="h2"
+                text="Conocé nuestra historia"
+                className="mt-4 font-display text-4xl text-ink lg:text-5xl"
+              />
               <p className="mt-6 leading-relaxed text-muted">
                 El Estudio Jurídico-Inmobiliario nació en 2020, en plena pandemia, de la mano de{' '}
                 <strong className="text-ink">Nadina Zaranich</strong> — abogada (2002) y corredora

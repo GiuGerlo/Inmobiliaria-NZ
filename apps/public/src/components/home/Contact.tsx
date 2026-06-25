@@ -1,5 +1,6 @@
 import { MapPin, Phone, Mail, Clock, Instagram } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
+import { AnimatedText } from '@/components/AnimatedText';
 import { site, whatsappLink } from '@/lib/site';
 
 // Embed estático de la oficina (constante propia, no input del admin).
@@ -22,9 +23,11 @@ export function Contact() {
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               Nuestro estudio
             </span>
-            <h2 className="mt-4 font-display text-4xl text-ink lg:text-5xl">
-              Visitanos o escribinos
-            </h2>
+            <AnimatedText
+              as="h2"
+              text="Visitanos o escribinos"
+              className="mt-4 font-display text-4xl text-ink lg:text-5xl"
+            />
             <p className="mt-5 text-muted">
               Estamos para asesorarte. Acercate a la oficina o contactanos para una consulta
               personalizada.

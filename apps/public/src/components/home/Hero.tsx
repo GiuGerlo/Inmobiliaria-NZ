@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Scale, Building2, HeartHandshake, Award, ArrowRight } from 'lucide-react';
 import { HeroHouse } from './HeroHouse';
+import { blurInContainer, BlurWord } from '@/components/AnimatedText';
 
 const MotionLink = motion.create(Link);
 
@@ -50,20 +51,29 @@ export function Hero() {
           </motion.span>
 
           <motion.h1
-            variants={item}
+            variants={blurInContainer}
+            aria-label="Encontrá la propiedad perfecta para vos"
             className="mt-7 max-w-3xl font-display text-5xl leading-[1.05] sm:text-6xl lg:text-7xl"
           >
-            Encontrá la propiedad{' '}
-            <span className="relative italic text-gold">
-              perfecta
+            {['Encontrá', 'la', 'propiedad'].map((w) => (
+              <span key={w} aria-hidden className="inline-block whitespace-pre">
+                <BlurWord>{w}</BlurWord>{' '}
+              </span>
+            ))}
+            <span aria-hidden className="relative inline-block whitespace-pre italic text-gold">
+              <BlurWord>perfecta</BlurWord>
               <motion.span
                 className="absolute -bottom-2 left-0 h-0.5 w-full origin-left hairline-gold"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.9, delay: 1, ease: [0.22, 1, 0.36, 1] }}
               />
             </span>{' '}
-            para vos
+            {['para', 'vos'].map((w) => (
+              <span key={w} aria-hidden className="inline-block whitespace-pre">
+                <BlurWord>{w}</BlurWord>{' '}
+              </span>
+            ))}
           </motion.h1>
 
           <motion.p variants={item} className="mt-7 max-w-xl text-lg leading-relaxed text-cream/75">

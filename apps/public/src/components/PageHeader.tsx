@@ -1,4 +1,5 @@
 import { Reveal } from '@/components/Reveal';
+import { AnimatedText } from '@/components/AnimatedText';
 
 /** Cabecera navy reutilizable para páginas interiores (catálogo, vendidas). */
 export function PageHeader({
@@ -18,7 +19,13 @@ export function PageHeader({
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
             {eyebrow}
           </span>
-          <h1 className="mt-4 font-display text-5xl leading-none lg:text-6xl">{title}</h1>
+          <AnimatedText
+            as="h1"
+            text={title}
+            trigger="load"
+            delay={0.1}
+            className="mt-4 font-display text-5xl leading-none lg:text-6xl"
+          />
           {subtitle && <p className="mt-5 max-w-xl text-cream/70">{subtitle}</p>}
         </Reveal>
       </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Home, Building2, Store, Trees, Car, MapPinned, type LucideIcon } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
+import { AnimatedText } from '@/components/AnimatedText';
 import type { PropertyType } from '@/lib/types';
 
 function iconFor(name: string): LucideIcon {
@@ -23,7 +24,11 @@ export function Categories({ types }: { types: PropertyType[] }) {
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               Nuestra cartera
             </span>
-            <h2 className="mt-4 font-display text-4xl lg:text-5xl">Explorá por categoría</h2>
+            <AnimatedText
+              as="h2"
+              text="Explorá por categoría"
+              className="mt-4 font-display text-4xl lg:text-5xl"
+            />
             <p className="mt-5 text-cream/70">
               Una amplia variedad de opciones para encontrar exactamente lo que buscás.
             </p>
