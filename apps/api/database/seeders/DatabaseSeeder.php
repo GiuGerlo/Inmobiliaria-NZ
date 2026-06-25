@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -34,7 +35,7 @@ class DatabaseSeeder extends Seeder
                 if (! $user->exists) {
                     $user->Nombre_User = $data['Nombre_User'];
                     $user->Pass_User = '';
-                    $user->password = bcrypt('password');
+                    $user->password = Hash::make('password');
                     $user->role_id = $data['role_id'];
                     $user->save();
                 }

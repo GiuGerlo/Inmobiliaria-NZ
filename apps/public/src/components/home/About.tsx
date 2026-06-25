@@ -33,10 +33,10 @@ export function About() {
                 <img
                   src="/img/logo-nadina.jpg"
                   alt="Nadina Zaranich"
-                  className="aspect-[4/5] w-full object-cover"
+                  className="aspect-[4/4] w-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-4 hidden max-w-xs rounded-card border-l-2 border-gold bg-navy p-6 text-cream shadow-lift sm:block">
+              <div className="absolute -bottom-6 -right-4 hidden max-w-xs rounded-card bg-navy-700 p-6 text-cream shadow-lift sm:block">
                 <p className="font-display text-lg italic leading-snug">
                   «Las oportunidades no ocurren, las creas.»
                 </p>

@@ -3,11 +3,8 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import type { ReactNode } from 'react';
 
-/**
- * Efecto "soft blur in" (catálogo animate-text): cada palabra entra con fade +
- * leve subida + desenfoque que se disipa. Apple-style hero/title reveal.
- */
-const EASE = [0.22, 1, 0.36, 1] as const;
+// ─── Blur-in (usado por Hero) ────────────────────────────────────────────────
+const BLUR_EASE = [0.22, 1, 0.36, 1] as const;
 
 export const blurInContainer: Variants = {
   hidden: {},
@@ -20,11 +17,10 @@ export const blurInWord: Variants = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.9, ease: EASE },
+    transition: { duration: 0.9, ease: BLUR_EASE },
   },
 };
 
-/** Una palabra animada (inline-block para que transform/blur funcionen). */
 export function BlurWord({ children }: { children: ReactNode }) {
   return (
     <motion.span variants={blurInWord} className="inline-block">
@@ -33,9 +29,34 @@ export function BlurWord({ children }: { children: ReactNode }) {
   );
 }
 
+// ─── Mask Reveal Up (animate-text: mask-reveal-up) ──────────────────────────
+// Per-line: cada línea sube desde abajo con fade + blur suave.
+// Spec: duration 760ms × 0.72 = 547ms | stagger 90ms × 0.72 = 65ms
+//       y 30px × 0.58 (y_travel_multiplier) = 17px | blur 6px
+//       ease enter: cubic-bezier(0.22, 1, 0.36, 1)
+const MASK_ENTER_EASE = [0.22, 1, 0.36, 1] as const;
+const MASK_DURATION = 0.547;
+const MASK_STAGGER = 0.065;
+const MASK_Y = 30 * 0.58; // ≈ 17px
+
+const maskContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: MASK_STAGGER } },
+};
+
+const maskLine: Variants = {
+  hidden: { opacity: 0, y: MASK_Y, filter: 'blur(6px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: MASK_DURATION, ease: MASK_ENTER_EASE },
+  },
+};
+
 type Tag = 'h1' | 'h2' | 'h3' | 'p' | 'span';
 
-/** Anima un texto plano palabra por palabra. */
+/** Anima un texto plano línea por línea con efecto mask-reveal-up. */
 export function AnimatedText({
   text,
   as = 'h2',
@@ -52,9 +73,14 @@ export function AnimatedText({
 }) {
   const reduced = useReducedMotion();
   const MotionTag = motion[as];
-  const words = text.split(' ');
+  const lines = text.split('\n');
 
-  const animationProps = reduced
+  const containerWithDelay: Variants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: MASK_STAGGER, delayChildren: delay } },
+  };
+
+  const animProps = reduced
     ? { initial: 'visible' as const, animate: 'visible' as const }
     : trigger === 'view'
       ? {
@@ -68,14 +94,20 @@ export function AnimatedText({
     <MotionTag
       className={className}
       aria-label={text}
-      variants={blurInContainer}
-      transition={{ delayChildren: delay }}
-      {...animationProps}
+      variants={delay ? containerWithDelay : maskContainer}
+      {...animProps}
     >
-      {words.map((w, i) => (
-        <span key={i} aria-hidden className="inline-block whitespace-pre">
-          <BlurWord>{w}</BlurWord>
-          {i < words.length - 1 ? ' ' : ''}
+      {lines.map((line, i) => (
+        // overflow-hidden crea el "mask": el texto sube desde abajo del borde.
+        <span key={i} className="block overflow-hidden">
+          <motion.span
+            aria-hidden
+            variants={maskLine}
+            className="block"
+            style={{ willChange: 'transform, opacity, filter' }}
+          >
+            {line}
+          </motion.span>
         </span>
       ))}
     </MotionTag>

@@ -13,6 +13,7 @@ import {
   Gamepad2,
   type LucideIcon,
 } from 'lucide-react';
+import { UbicacionImage } from './UbicacionImage';
 import { Reveal } from '@/components/Reveal';
 import { ImageCarousel, type CarouselImage } from '@/components/ImageCarousel';
 import { CapuaCrossfade } from './CapuaCrossfade';
@@ -164,6 +165,34 @@ export function Capua() {
           </Reveal>
           <Reveal delay={0.1} className="mt-10">
             <Gallery images={interior} />
+          </Reveal>
+        </div>
+
+        {/* Ubicación */}
+        <div className="mt-16 grid items-center gap-10 pt-8 lg:mt-24 lg:grid-cols-2 lg:pt-0">
+          <Reveal>
+            <UbicacionImage />
+          </Reveal>
+          <Reveal delay={0.15}>
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+              ¿Dónde queda?
+            </span>
+            <h3 className="mt-4 font-display text-4xl text-ink">Ubicación en Funes</h3>
+            <p className="mt-5 leading-relaxed text-muted">
+              Capua de Edilizia está emplazado en{' '}
+              <strong className="text-ink">Funes, Santa Fe</strong>, una de las zonas de mayor
+              proyección del área metropolitana de Rosario. Excelente conectividad, entorno
+              residencial consolidado y servicios cercanos.
+            </p>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Capua+Funes+Edilizia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-navy/30 px-7 py-3 text-sm font-semibold text-navy transition-colors hover:border-navy hover:bg-navy hover:text-cream"
+            >
+              <MapPin size={16} className="text-gold" />
+              Ver en Google Maps
+            </a>
           </Reveal>
         </div>
       </div>

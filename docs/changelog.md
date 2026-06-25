@@ -2,6 +2,24 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-25] Fusión NZ Fase 5++ — Rediseño visual profundo + SEO — DONE
+
+**Resumen**: Segunda pasada de diseño sobre `apps/public` — rediseño completo del Navbar (floating island pill), mapa, listado y detalle de propiedades, más correcciones SEO críticas para OpenGraph al compartir.
+
+**Cambios**:
+- **Navbar**: floating island pill — pill centrada fija con `backdrop-blur`, scroll state `bg-navy/70 → bg-navy/92`, hover links con pill background (no underline), mobile overlay fullscreen con links Fraunces 4xl + stagger + Escape key.
+- **PropertiesMap**: navy 2-columnas, mapa custom brand palette (cream/gold/celeste), `APIProvider language="es" region="AR"`, InfoWindow español sin emojis, badge conteo disponibles.
+- **PropertiesExplorer**: sticky filter bar con `backdrop-blur`, FilterChip activo en gold, search con focus gold ring, contador de resultados.
+- **PropertyCard**: imagen 16/10, gradiente dramático con hover, badge tipo en gold (bottom-left), border-l gold en hover, footer strip "Ver propiedad".
+- **Detalle de propiedad**: hero foto-background (60-68vh), overlay gradiente navy, info general como `InfoCard` grid (cards blancas con icono gold + label), servicios chips gold/8, características con check icon en círculo gold, `SectionHeading` con barra gold, sidebar navy.
+- **SEO — OpenGraph**: `og:type: 'website'` (era `'article'`), imágenes OG con `width/height/alt`, `twitter.images` con foto real de cada propiedad, `siteName`+`locale` en OG.
+- **SEO — Home**: `export const metadata` con `title: { absolute: site.name }` + canonical + OG.
+- **Sitemap**: vendidas `priority: 0.3 / changeFrequency: 'yearly'`, disponibles `0.6 / monthly`.
+- **Schema**: `openingHoursSpecification` corregido a 2 bloques (mañana 8–12, tarde 16–19).
+- **Seeder**: `DatabaseSeeder` usa `Hash::make()` en vez de `bcrypt()` — fix bug double-hash con cast `hashed` + `BCRYPT_ROUNDS=12`.
+
+**Breaking**: nada. **Migración**: nada (solo frontend + seeder).
+
 ## [2026-06-23] Fusión NZ Fase 5+ — Pulido visual del sitio público — DONE
 
 **Resumen**: Pasada de diseño/motion sobre `apps/public` para subir el nivel visual (es la cara de la inmobiliaria y página SEO-crítica). **Cero dependencias nuevas** (todo con framer-motion/embla ya instalados), SSG intacto y `prefers-reduced-motion` respetado en cada animación.

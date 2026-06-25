@@ -21,7 +21,7 @@ export function CapuaCrossfade({ images }: { images: string[] }) {
   }, [reduced, n]);
 
   return (
-    <div className="relative aspect-[16/7] w-full overflow-hidden rounded-card bg-navy shadow-lift">
+    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-card bg-navy shadow-lift sm:aspect-[16/9] lg:aspect-[16/10]">
       {images.map((src, i) => (
         <motion.img
           key={src}

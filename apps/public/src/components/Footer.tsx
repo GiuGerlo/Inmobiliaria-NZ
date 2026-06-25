@@ -90,7 +90,7 @@ export function Footer() {
           >
             <span>Desarrollado por</span>
             <Image
-              src="/img/logo-secundario.svg"
+              src="/img/logo-original.svg"
               alt={site.developer.name}
               width={90}
               height={28}

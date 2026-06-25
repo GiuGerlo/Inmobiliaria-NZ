@@ -20,7 +20,9 @@ apps/api/vendor/
 apps/api/node_modules/
 apps/web/node_modules/
 apps/public/node_modules/
+apps/public/.pnpm-store/
 node_modules/
+.pnpm-store/
 
 # NOTA: legacy/dompdf/vendor/ se commitea (es vendor manual del legacy, lo necesita)
 

@@ -10,14 +10,16 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+# Los workers fpm corren como www-data; el bind mount llega como root.
+# Sin esto no se escriben view cache ni uploads (storage/app/public).
+# También crea los subdirectorios que Laravel espera bajo storage/framework/.
+mkdir -p storage/framework/views storage/framework/cache/data storage/framework/sessions storage/logs storage/app/public bootstrap/cache
+chmod -R ugo+rwX storage bootstrap/cache
+
 if ! grep -q "^APP_KEY=base64:" .env; then
     echo "[entrypoint] APP_KEY vacía — generando"
     php artisan key:generate --force
 fi
-
-# Los workers fpm corren como www-data; el bind mount llega como root.
-# Sin esto no se escriben view cache ni uploads (storage/app/public).
-chmod -R ugo+rwX storage bootstrap/cache
 
 # --- Base de datos: migrar y seedear automáticamente ---
 # mariadb ya está "healthy" por depends_on, pero reintentamos por las dudas de timing.

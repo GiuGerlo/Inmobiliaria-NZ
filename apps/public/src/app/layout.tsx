@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Poppins, Fraunces } from 'next/font/google';
 import { site, businessJsonLd, jsonLdString } from '@/lib/site';
-import { ScrollProgress } from '@/components/ScrollProgress';
 import { Preloader } from '@/components/Preloader';
 import './globals.css';
 
@@ -57,7 +56,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: jsonLdString(businessJsonLd()) }}
         />
         <Preloader />
-        <ScrollProgress />
         {children}
       </body>
     </html>
