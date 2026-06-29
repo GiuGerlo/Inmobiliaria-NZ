@@ -1,8 +1,8 @@
 # 0004 — Motor de PDF: spatie/laravel-pdf + Gotenberg (Chromium)
 
-- **Estado**: aceptada
+- **Estado**: aceptada — **driver revisado 2026-06-29** (ver "Revisión Fase 6")
 - **Fecha**: 2026-06-15
-- **Sub-proyecto**: F
+- **Sub-proyecto**: F (motor) · Fusión NZ Fase 6 (revisión de driver)
 
 ## Contexto
 
@@ -53,6 +53,22 @@ como fallback.
 - La imagen php-fpm no cambia (no se le agrega Chromium).
 - Los assets de PDF (logo, firma) se embeben como data URI en los Blade; no dependen de URLs externas.
 - CI necesita Gotenberg o el fallback dompdf para los tests de PDF.
+
+## Revisión Fase 6 (2026-06-29) — driver Gotenberg → dompdf
+
+El propio bloque "Consecuencias" anticipó el riesgo: "si Hostinger compartido no corre containers, se
+evalúa Gotenberg gestionado o Browsershot". Confirmado en Fase 6 que **prod = Hostinger compartido sin
+Docker** (cierra ADR-0003 para la API), Gotenberg/Browsershot/Chrome quedan descartados (todos requieren
+Chromium o binarios externos). WeasyPrint necesita Python → no. Queda **dompdf** (PHP puro), que
+`spatie/laravel-pdf` ya soporta como driver.
+
+**Cambio**: `LARAVEL_PDF_DRIVER=gotenberg` → `dompdf`; `composer require dompdf/dompdf`; servicio
+`gotenberg` eliminado de `docker-compose.yml`. **La API de render no cambia** (`Pdf::view()->format()
+->landscape()->inline()`), así que `ReceiptPdf`, `PdfAsset` y los controllers quedan intactos. Único costo:
+dompdf no soporta flexbox → se convirtieron 3 layouts flex a tabla (`brand-header`, `brand-left`, `parties`
+en los Blade). Render real de los 3 PDFs verificado con fidelidad equivalente (header, alineaciones,
+backgrounds navy, acentos, footer fijo, landscape multipágina). Se mantiene `spatie/laravel-pdf` como capa
+de abstracción por si en un futuro VPS se quiere volver a un motor Chromium (sería solo flip de driver).
 
 ## Referencias
 

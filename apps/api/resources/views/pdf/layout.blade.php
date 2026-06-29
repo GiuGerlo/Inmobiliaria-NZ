@@ -13,35 +13,43 @@
             box-sizing: border-box;
         }
 
+        /* DejaVu Sans: dompdf la embebe completa (normal/bold/itálica + acentos). Evita
+           el fallback a serif en los textos en negrita (bug de Helvetica/Arial en dompdf). */
         body {
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-            font-size: 14px;
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 13px;
             color: #1a2230;
             margin: 0;
         }
 
-        /* Paleta NZ */
-        :root {
-            --navy: #13294b;
-            --gold: #c5a572;
-        }
-
-        .brand-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        /* Header de marca por tabla (dompdf no soporta flexbox). */
+        table.brand-header {
+            width: 100%;
+            border-collapse: collapse;
             padding-bottom: 14px;
             border-bottom: 3px solid #13294b;
         }
 
-        .brand-header .brand-left {
-            display: flex;
-            gap: 14px;
-            align-items: flex-start;
+        table.brand-header > tbody > tr > td {
+            vertical-align: top;
+            padding-bottom: 14px;
         }
 
-        .brand-header img.logo {
-            width: 78px;
+        table.brand-header td.brand-meta {
+            text-align: right;
+        }
+
+        table.brand-header table.brand-left td {
+            vertical-align: top;
+        }
+
+        table.brand-header td.logo-cell {
+            width: 124px;
+            padding-right: 16px;
+        }
+
+        table.brand-header img.logo {
+            width: 108px;
             height: auto;
         }
 
@@ -72,7 +80,7 @@
         .doc-meta .doc-number {
             margin-top: 4px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .doc-meta .doc-date {
@@ -85,25 +93,33 @@
             border-collapse: collapse;
         }
 
-        .signature {
+        /* Firma: caja de ancho fijo, imagen ARRIBA y centrada, línea + "Firma" debajo.
+           (img display:block + label inline-block no apilaban bien en dompdf.) */
+        table.signature {
             margin-top: 42px;
+            border-collapse: collapse;
         }
 
-        .signature img {
-            width: 150px;
+        table.signature td {
+            width: 180px;
+            text-align: center;
+            vertical-align: bottom;
+        }
+
+        table.signature img {
+            width: 140px;
             height: auto;
             display: block;
+            margin: 0 auto;
         }
 
-        .signature .label {
-            margin-top: 4px;
+        table.signature .label {
+            margin-top: 2px;
+            border-top: 1px solid #1a2230;
+            padding-top: 4px;
             font-size: 12px;
             font-weight: 700;
-            border-top: 1px solid #1a2230;
-            display: inline-block;
-            padding-top: 4px;
-            min-width: 150px;
-            text-align: center;
+            display: block;
         }
 
         .doc-footer {

@@ -38,9 +38,10 @@
         font-size: 13px;
     }
     table.ledger table.inner td.amount { text-align: right; }
-    table.ledger table.inner td.k { color: #43506a; font-weight: 600; }
+    table.ledger table.inner td.k { color: #43506a; font-weight: 700; }
+    /* Mismo tamaño que el resto del ledger; nowrap para no cortar en una sola línea. */
+    table.ledger table.inner tr.entrega-row td { white-space: nowrap; }
     .entrega {
-        font-size: 15px;
         font-weight: 700;
         color: #13294b;
     }
@@ -107,7 +108,7 @@
                 </td>
                 <td>
                     <table class="inner">
-                        <tr><td class="k">Total a entregar</td><td class="amount entrega">{{ $fmt($calc->settlementHandover()) }}</td></tr>
+                        <tr class="entrega-row"><td class="k">Total</td><td class="amount entrega">{{ $fmt($calc->settlementHandover()) }}</td></tr>
                     </table>
                 </td>
             </tr>

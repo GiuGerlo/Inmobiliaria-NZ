@@ -41,8 +41,6 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-      gotenberg:
-        condition: service_started
     networks: [appnet]
 
   # ----------------------- Node + Vite (HMR) -----------------------
@@ -80,15 +78,6 @@ services:
       NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY:-}
       # File watching sobre bind mount (Windows/Docker) — igual criterio que Vite.
       WATCHPACK_POLLING: "true"
-    networks: [appnet]
-
-  # ----------------------- Gotenberg (motor PDF Chromium) -----------------------
-  # Renderiza HTML→PDF con Chromium headless. Lo consume php-fpm vía HTTP interno
-  # (spatie/laravel-pdf, driver gotenberg). Sin puerto público — ver ADR-0004.
-  gotenberg:
-    image: gotenberg/gotenberg:8
-    # Chromium necesita esto para correr dentro del container sin privilegios extra.
-    command: ["gotenberg", "--chromium-disable-javascript=false"]
     networks: [appnet]
 
   # ----------------------- MariaDB -----------------------

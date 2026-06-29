@@ -9,9 +9,9 @@ use RuntimeException;
 /**
  * Embebe imágenes de marca (logo, firma) como data URI base64 en los Blade de PDF.
  *
- * Gotenberg renderiza el HTML en un container aparte y no alcanza rutas locales ni
- * `http://localhost/...` (el bug del legacy). Embeber en base64 evita toda dependencia
- * de red o de assets servidos.
+ * El motor (dompdf, PHP puro) no resuelve rutas locales ni `http://localhost/...` de
+ * forma confiable (el bug del legacy). Embeber en base64 evita toda dependencia de red
+ * o de assets servidos.
  */
 final class PdfAsset
 {

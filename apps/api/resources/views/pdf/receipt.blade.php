@@ -3,18 +3,16 @@
 @section('title', 'Recibo '.$receipt->Nro_Recibo)
 
 @push('styles')
-    .parties {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
+    table.parties {
+        width: 100%;
         margin-top: 18px;
         padding-bottom: 14px;
         border-bottom: 1px solid #d7dce5;
         line-height: 1.6;
     }
-    .parties .col { width: 48%; }
-    .parties .col.right { text-align: right; }
-    .parties strong { color: #13294b; }
+    table.parties td { vertical-align: top; width: 50%; }
+    table.parties td.right { text-align: right; }
+    table.parties strong { color: #13294b; }
 
     table.charges {
         width: 100%;
@@ -63,21 +61,23 @@
         'docDate' => now()->format('d/m/Y'),
     ])
 
-    <div class="parties">
-        <div class="col">
-            <strong>Inquilino:</strong> {{ $contract->tenant->NYA_Inquilino }}<br>
-            <strong>Teléfono:</strong> {{ $contract->tenant->Tel_Inquilino }}<br>
-            <strong>I.V.A:</strong> Consumidor Final
-        </div>
-        <div class="col right">
-            <strong>Contrato:</strong> {{ $contract->F_Inicio?->format('d/m/Y') }} — {{ $contract->F_Fin?->format('d/m/Y') }}<br>
-            <strong>En concepto de:</strong> Alquiler<br>
-            <strong>Dirección:</strong> {{ $contract->property->Dir_Propiedad }}<br>
-            <strong>Dueño:</strong> {{ $contract->owner->NYA_Dueno }}<br>
-            <strong>Mes / Año:</strong> {{ $receipt->Mes_Rend }} / {{ $receipt->Ano_Rend }}<br>
-            <strong>Forma de pago:</strong> {{ $receipt->paymentMethod->Desc_FP }}
-        </div>
-    </div>
+    <table class="parties">
+        <tr>
+            <td>
+                <strong>Inquilino:</strong> {{ $contract->tenant->NYA_Inquilino }}<br>
+                <strong>Teléfono:</strong> {{ $contract->tenant->Tel_Inquilino }}<br>
+                <strong>I.V.A:</strong> Consumidor Final
+            </td>
+            <td class="right">
+                <strong>Contrato:</strong> {{ $contract->F_Inicio?->format('d/m/Y') }} — {{ $contract->F_Fin?->format('d/m/Y') }}<br>
+                <strong>En concepto de:</strong> Alquiler<br>
+                <strong>Dirección:</strong> {{ $contract->property->Dir_Propiedad }}<br>
+                <strong>Dueño:</strong> {{ $contract->owner->NYA_Dueno }}<br>
+                <strong>Mes / Año:</strong> {{ $receipt->Mes_Rend }} / {{ $receipt->Ano_Rend }}<br>
+                <strong>Forma de pago:</strong> {{ $receipt->paymentMethod->Desc_FP }}
+            </td>
+        </tr>
+    </table>
 
     <table class="charges">
         @foreach ($items as $label => $value)

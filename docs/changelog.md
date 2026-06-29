@@ -2,6 +2,23 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-06-29] Fusión NZ Fase 6 — Motor PDF (Gotenberg → dompdf) — DONE
+
+**Resumen**: Se migra el motor de los 3 PDFs (recibo, rendición, listado mensual) de **Gotenberg**
+(Chromium en container) a **dompdf** (PHP puro), porque prod = Hostinger compartido sin Docker (donde
+Gotenberg no corre). Desbloquea el deploy del admin (Fase 7). Se mantiene `spatie/laravel-pdf` como capa
+de abstracción → la API de render no cambia; el diff es config + CSS.
+
+**Cambios**:
+- **Driver**: `LARAVEL_PDF_DRIVER=gotenberg` → `dompdf` en `.env`/`.env.example`; se quita `GOTENBERG_URL`. `composer require dompdf/dompdf` (^3.1).
+- **Blades flex→tabla** (dompdf no soporta flexbox): `brand-header`/`brand-left` (`layout.blade` + partial) y `.parties` (`receipt.blade`) pasan a layout por `<table>`. Se borra el bloque `:root` sin uso (los colores ya eran hex literales). `settlement` y `monthly-payments` ya eran table-based → sin cambios.
+- **Infra**: servicio `gotenberg` eliminado de `docker-compose.yml` (+ su `depends_on` en `php-fpm`). Sin Chromium en el stack.
+- **Sin tocar**: `ReceiptPdf`, `PdfAsset` (solo se actualizó su docblock), `ReceiptPdfController`, `MonthlyPaymentsReportController`, `ReceiptCalculator`, `MonthlyPaymentsReport` — la API `Pdf::view()->format()->landscape()->inline()` funciona igual con dompdf.
+- **Verificación**: render real de los 3 PDFs con datos de la DB — header de marca, alineaciones, backgrounds navy de headers, acentos (á/é/í/ó/ñ), footer fijo y listado landscape multipágina, todo correcto y equivalente a Gotenberg. **Pest 164 verdes** ahora **sin** el container gotenberg (bien para el CI de Fase 7). Pint limpio.
+- **ADR-0004**: sección "Revisión Fase 6" (driver dompdf por restricción de hosting; cierra el riesgo que el propio ADR anticipó).
+
+**Breaking**: nada (mismos endpoints, misma salida). **Migración**: `composer install` (suma `dompdf/dompdf`); `LARAVEL_PDF_DRIVER=dompdf` en `.env`; `docker compose up -d` ya no levanta `gotenberg`.
+
 ## [2026-06-25] Fusión NZ Fase 5++ — Rediseño visual profundo + SEO — DONE
 
 **Resumen**: Segunda pasada de diseño sobre `apps/public` — rediseño completo del Navbar (floating island pill), mapa, listado y detalle de propiedades, más correcciones SEO críticas para OpenGraph al compartir.
