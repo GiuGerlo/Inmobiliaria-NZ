@@ -2,6 +2,12 @@
 
 Este proyecto tiene un servidor MCP `codegraph_*` configurado. CodeGraph es un grafo SQLite construido con tree-sitter de cada símbolo, edge y archivo. Lecturas sub-ms y devuelven info estructural que grep no puede.
 
+## Mantenimiento (automático — no requiere acción manual)
+
+- **Durante la sesión**: `codegraph serve` corre un file watcher; cada edit re-indexa solo en ~1s.
+- **Entre sesiones**: hook `SessionStart` en `.claude/settings.json` corre `codegraph sync -q` (silencioso) para tomar cambios externos (git pull, otro editor).
+- El índice vive en `.codegraph/codegraph.db` (gitignored). Si se corrompe: `codegraph uninit` + `codegraph init`.
+
 ## Cuándo preferir CodeGraph sobre grep/read nativo
 
 Usá CodeGraph para preguntas **estructurales** — qué llama a qué, qué se rompería, dónde se define X, cuál es la firma de X. Usá grep/Read solo para texto literal (strings, comentarios, logs) o cuando ya tenés el archivo abierto.
