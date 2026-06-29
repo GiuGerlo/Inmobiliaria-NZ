@@ -88,8 +88,8 @@ export function PaymentMethodsPage() {
       <DataTable
         columns={columns}
         data={data?.data ?? []}
-        pageCount={data?.meta.last_page ?? 0}
-        total={data?.meta.total ?? 0}
+        pageCount={data?.meta?.last_page ?? 0}
+        total={data?.meta?.total ?? 0}
         pagination={pagination}
         onPaginationChange={setPagination}
         sorting={sorting}
