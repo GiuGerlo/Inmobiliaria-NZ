@@ -46,6 +46,24 @@ rm maintenance.on        # desactivar
 
 ---
 
+## Estado de los valores (REPO PÚBLICO — no pegar valores reales acá)
+
+Los valores reales (IP/usuario SSH, rutas absolutas, nombres de DB, token) **no van a este doc**
+porque el repo es público. Viven en: **GitHub Secrets** (environment `dev`/`production`) + tus
+**notas seguras** (password manager). Acá solo trackeamos qué está cargado.
+
+| Clave | Dónde vive | Estado dev |
+|---|---|---|
+| `SSH_HOST` / `SSH_PORT` / `SSH_USER` | GitHub Secret (env `dev`) | OK |
+| `SSH_KEY` (privada) | GitHub Secret (env `dev`) | OK |
+| `DEPLOY_PATH_API` | GitHub Secret (env `dev`) | OK (doc root `…/public`; deny `.htaccess` en el padre OK) |
+| `DEPLOY_PATH_PUBLIC` | GitHub Secret (env `dev`) | OK |
+| `MAINT_SECRET` | GitHub Secret (env `dev`) + notas | OK |
+| DB dev (name/user/pass) | `.env` del server + notas | DB creada OK; `.env` se carga en Bloque 6 |
+| Secrets de `production` | GitHub Secret (env `production`) | pendiente (en el corte) |
+
+---
+
 ## Bloque 1 — Hostinger: subdominios (hPanel)
 
 Entrá a hPanel → **Dominios → Subdominios**. Creá estos 4 (los de prod podés dejarlos para el final):
