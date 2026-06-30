@@ -153,21 +153,85 @@ En cada uno, **Settings → Secrets**, cargá:
 
 ## Bloque 6 — `.env` en el servidor (uno por entorno)
 
-El `.env` con credenciales reales **vive en el server, no en git**. Te voy a dejar un
-`.env.example` actualizado; vos creás el real en cada carpeta Laravel del server.
+El `.env` con credenciales reales **vive en el server, no en git** (el deploy lo excluye, nunca lo pisa).
+La carpeta `DEPLOY_PATH_API` ya existe (ahí pusiste el deny `.htaccess`), así que **podés crear el
+`.env` ANTES del primer deploy** → el primer deploy migra sin fallar.
 
-Para **dev** (`~/laravel-api-dev/.env`):
+Por SSH:
+```
+cd <DEPLOY_PATH_API>          # la carpeta laravel-api-dev (donde está el deny .htaccess)
+nano .env                     # pegá el template de abajo y completá los <...>
+```
 
-- [ ] `APP_ENV=production` (sí, production aunque sea dev: desactiva debug)
-- [ ] `APP_DEBUG=false`
-- [ ] `APP_KEY=` → generar con `php artisan key:generate` por SSH
-- [ ] `APP_URL=https://admin-dev.nz-estudiojuridicoinmobiliario.com`
-- [ ] `DB_*` → datos de `nz_dev` (Bloque 2)
-- [ ] `SANCTUM_STATEFUL_DOMAINS` y `SESSION_DOMAIN` → dominios dev
-- [ ] Tokens de **WhatsApp Meta** (los mismos aprobados, o número de prueba para dev)
-- [ ] `QUEUE_CONNECTION=database` (en local es `sync`; en prod la cola la procesa el cron del Bloque 7)
-- [ ] `APP_MAINTENANCE_*` y el **token secreto de mantenimiento** (te lo genero yo, lo pegás acá)
+APP_KEY sin artisan (todavía no está la app): generá una y pegala en `APP_KEY=`:
+```
+echo "base64:$(openssl rand -base64 32)"
+```
 
+### Template `.env` dev (completá los `<...>`, no commitear)
+```env
+APP_NAME="Inmobiliaria NZ"
+APP_ENV=production
+APP_KEY=<pegar el base64:... generado arriba>
+APP_DEBUG=false
+APP_URL=https://admin-dev.nz-estudiojuridicoinmobiliario.com
+
+APP_LOCALE=es
+APP_FALLBACK_LOCALE=es
+APP_FAKER_LOCALE=es_AR
+APP_MAINTENANCE_DRIVER=file
+
+BCRYPT_ROUNDS=12
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_LEVEL=warning
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=u407412506_nz_dev
+DB_USERNAME=u407412506_nz_dev_user
+DB_PASSWORD=<pass de la DB dev>
+
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_DOMAIN=admin-dev.nz-estudiojuridicoinmobiliario.com
+SANCTUM_STATEFUL_DOMAINS=admin-dev.nz-estudiojuridicoinmobiliario.com
+
+QUEUE_CONNECTION=database
+CACHE_STORE=file
+FILESYSTEM_DISK=local
+MAIL_MAILER=log
+BROADCAST_CONNECTION=log
+
+LARAVEL_PDF_DRIVER=dompdf
+
+# WhatsApp Meta (dejá vacío en dev si no vas a probar envíos reales)
+WHATSAPP_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_API_VERSION=v21.0
+WHATSAPP_TEMPLATE_RECIBO=
+WHATSAPP_TEMPLATE_RENDICION=
+WHATSAPP_TEMPLATE_LANG=es
+WHATSAPP_TEMPLATE_RECORDATORIO_PAGO=
+WHATSAPP_TEMPLATE_RECORDATORIO_FALTANTE=
+
+NZ_NAME="Nadina Zaranich"
+NZ_LOCALITY="Guatimozín"
+NZ_ADDRESS="Catamarca 227"
+NZ_PHONE="3468-495281"
+NZ_HOURS="8 hs a 12 hs - 16 hs a 20 hs"
+NZ_CUIT="27-27036340-2"
+NZ_COMMISSION_RATE=0.10
+
+# Email que el RoleSeeder promueve a superadmin (tu cuenta)
+SUPERADMIN_EMAIL=<tu email de admin>
+```
+
+> Mantenimiento del admin = `php artisan down --secret="<MAINT_SECRET>"` (no va en `.env`, se pasa
+> en el comando). El `<MAINT_SECRET>` es el mismo token del GitHub Secret.
+
+- [ ] `.env` dev creado y completado.
 - [ ] Repetir para **prod** en el corte, con datos de `nz_prod` y URLs de prod.
 
 ---
