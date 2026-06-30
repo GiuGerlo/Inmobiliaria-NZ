@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!--
+  Página de mantenimiento del sitio público de ventas.
+  Se sirve (HTTP 503) cuando existe el archivo `maintenance.on` en el document root.
+  Ver reglas en .htaccess y el toggle en docs/runbooks/fase7-pasos-manuales.md.
+-->
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>En mantenimiento — Nadina Zaranich</title>
+    <style>
+        :root { --navy: #2d465e; --accent: #3690e7; --ink: #1f2937; --muted: #6b7280; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--navy); color: var(--ink); padding: 24px;
+        }
+        .card {
+            background: #fff; border-radius: 16px; max-width: 480px; width: 100%;
+            padding: 40px 32px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+        }
+        .logo { height: 56px; width: auto; margin-bottom: 24px; }
+        .badge {
+            display: inline-block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--accent); font-weight: 700; margin-bottom: 16px;
+        }
+        h1 { font-size: 24px; margin: 0 0 12px; color: var(--navy); }
+        p { font-size: 15px; line-height: 1.6; color: var(--muted); margin: 0 0 8px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img class="logo" src="/img/logo.png" alt="Nadina Zaranich — Estudio Jurídico Inmobiliario">
+        <div class="badge">Mantenimiento</div>
+        <h1>Volvemos enseguida</h1>
+        <p>Estamos haciendo mejoras en el sitio.</p>
+        <p>Gracias por tu paciencia.</p>
+    </div>
+</body>
+</html>

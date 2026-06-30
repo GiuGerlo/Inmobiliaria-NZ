@@ -22,6 +22,17 @@ docs(roadmap): cerrar sub-A, abrir sub-B
 - **Sub-proyectos sueltos (A–J)**: una rama por fase `fase/<letra>-<slug>` (ej. `fase/A-infra-bootstrap`), merge a `main` al aprobar.
 - **Track Fusión NZ (Fases 1–7)**: **una sola rama** `fusion-nz` para toda la migración (rama por fase es muy tedioso). Se sigue commiteando **una fase = un commit** dentro de esa rama. Merge a `main` cuando se cierra el track (o por hitos, si se decide).
 
+## Ramas de entorno (deploy, desde Fase 7)
+
+Modelo de 3 ramas para el pipeline dev→prod en Hostinger (CI/CD por GitHub Actions):
+
+- **`main`** — trabajo local / integración. **No deploya nada.**
+- **`dev`** — push dispara deploy automático a la **instancia dev** (subdominios `*-dev` / `dev.`).
+- **`production`** — push dispara deploy automático a **producción**.
+
+Flujo: `main` → merge a `dev` (probar en server real) → merge a `production` (sale a prod, solo
+cuando dev está OK). Topología de subdominios y DBs por entorno: `docs/runbooks/fase7-pasos-manuales.md`.
+
 ## Antes de mergear una fase
 
 - [ ] Tests pasan (`pest` + `vitest`).

@@ -1,0 +1,31 @@
+# .htaccess del sitio público (Next export). Se copia a out/ en el build.
+#
+# Por ahora solo contiene el GATE DE MANTENIMIENTO. Las reglas de routing/clean-URLs
+# del export estático se agregan en la fase de deploy (workflows).
+#
+# === Modo mantenimiento ===
+#   Activar:    crear un archivo vacío `maintenance.on` en este document root
+#               (por SSH: `touch maintenance.on`).
+#   Desactivar: borrar `maintenance.on` (`rm maintenance.on`).
+#   Bypass del operador: visitar UNA vez  /__open/<MAINT_SECRET>
+#               → setea cookie `nz_maint_bypass` por 8 h y te deja navegar normal.
+#
+# `__MAINT_SECRET__` se reemplaza por el token real en el deploy (GitHub secret MAINT_SECRET).
+# Nunca commitear el token real.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1) Ruta secreta: setea la cookie de bypass (8 h = 480 min) y vuelve al home.
+    RewriteRule ^__open/__MAINT_SECRET__/?$ / [CO=nz_maint_bypass:__MAINT_SECRET__:%{HTTP_HOST}:480:/,R=302,L]
+
+    # 2) Gate: si existe maintenance.on y NO tenés la cookie válida → 503 + maintenance.html.
+    #    Se excluyen los assets para que la propia página de mantenimiento cargue su logo/estilos.
+    RewriteCond %{DOCUMENT_ROOT}/maintenance.on -f
+    RewriteCond %{HTTP_COOKIE} !nz_maint_bypass=__MAINT_SECRET__ [NC]
+    RewriteCond %{REQUEST_URI} !^/maintenance\.html$ [NC]
+    RewriteCond %{REQUEST_URI} !\.(css|js|png|jpe?g|svg|gif|ico|webp|woff2?|ttf)$ [NC]
+    RewriteRule ^ - [R=503,L]
+</IfModule>
+
+ErrorDocument 503 /maintenance.html
