@@ -1,0 +1,84 @@
+name: Deploy sitio publico
+
+# Next SSG (output: export). Trae el catálogo de la API EN BUILD y deploya el out/ estático.
+# Branch -> entorno igual que el API. Requiere que la API del entorno ya esté viva y con datos
+# (deploya primero el API). Ver docs/runbooks/fase7-pasos-manuales.md.
+on:
+  push:
+    branches: [dev, production]
+    paths:
+      - 'apps/public/**'
+      - '.github/workflows/deploy-public.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-public-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build + deploy (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ github.ref_name == 'production' && 'production' || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Habilitar pnpm
+        run: corepack enable
+
+      # URLs públicas por entorno (no son secretos: son dominios). El build fetchea la API por HTTPS.
+      - name: URLs del entorno
+        id: urls
+        run: |
+          if [ "${{ github.ref_name }}" = "production" ]; then
+            echo "api=https://admin.nz-estudiojuridicoinmobiliario.com/api/v1" >> "$GITHUB_OUTPUT"
+            echo "site=https://nz-estudiojuridicoinmobiliario.com" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=https://admin-dev.nz-estudiojuridicoinmobiliario.com/api/v1" >> "$GITHUB_OUTPUT"
+            echo "site=https://dev.nz-estudiojuridicoinmobiliario.com" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build (export estatico)
+        working-directory: apps/public
+        env:
+          API_INTERNAL_URL: ${{ steps.urls.outputs.api }}
+          NEXT_PUBLIC_API_URL: ${{ steps.urls.outputs.api }}
+          NEXT_PUBLIC_SITE_URL: ${{ steps.urls.outputs.site }}
+          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      # Next no garantiza copiar dotfiles del public/: copiamos el .htaccess a mano e inyectamos
+      # el token de mantenimiento (enmascarado en logs por GitHub).
+      - name: Asegurar .htaccess + inyectar token de mantenimiento
+        env:
+          MAINT_SECRET: ${{ secrets.MAINT_SECRET }}
+        run: |
+          cp apps/public/public/.htaccess apps/public/out/.htaccess
+          sed -i "s|__MAINT_SECRET__|${MAINT_SECRET}|g" apps/public/out/.htaccess
+
+      - name: Cargar llave SSH de deploy
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      # --delete limpia lo viejo; se protege el flag de mantenimiento del server.
+      - name: Rsync out/ al servidor
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_PUBLIC: ${{ secrets.DEPLOY_PATH_PUBLIC }}
+        run: |
+          rsync -az --delete \
+            --exclude='maintenance.on' \
+            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
+            apps/public/out/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_PUBLIC}/"

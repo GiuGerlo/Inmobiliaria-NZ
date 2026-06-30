@@ -3,6 +3,12 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+    # Prod (Apache): forzar que "/" pase por el front controller de Laravel y no
+    # por el index.html del SPA. Asi `php artisan down` (mantenimiento) corta TODO
+    # el admin — SPA incluida — porque toda ruta no-archivo entra por index.php y
+    # el Route::fallback sirve el SPA. En local nginx ignora este .htaccess.
+    DirectoryIndex index.php
+
     RewriteEngine On
 
     # Handle Authorization Header

@@ -1,0 +1,96 @@
+name: Deploy API + admin
+
+# Branch -> entorno: push a `dev` deploya a la instancia dev; push a `production` a prod.
+# El environment (con sus secrets) se elige por la rama. Ver docs/runbooks/fase7-pasos-manuales.md.
+on:
+  push:
+    branches: [dev, production]
+    paths:
+      - 'apps/api/**'
+      - 'apps/web/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-api-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build + deploy (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ${{ github.ref_name == 'production' && 'production' || 'dev' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # PHP 8.4 = misma versión que Hostinger, para que el vendor/ buildeado sea compatible.
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, gd, fileinfo, openssl, zip, curl, intl, bcmath
+          tools: composer
+
+      - name: Composer install (api, sin dev)
+        working-directory: apps/api
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Habilitar pnpm
+        run: corepack enable
+
+      - name: Build admin SPA (apps/web)
+        working-directory: apps/web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+
+      # La SPA queda dentro de public/ de Laravel; el Route::fallback la sirve.
+      - name: Copiar build del SPA a public/ de Laravel
+        run: cp -r apps/web/dist/. apps/api/public/
+
+      - name: Cargar llave SSH de deploy
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      # --delete limpia archivos viejos, pero se protegen: .env, uploads (storage/app/public),
+      # import, logs y el flag de mantenimiento. Esos viven solo en el server.
+      - name: Rsync API al servidor
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          rsync -az --delete \
+            --exclude='.env' \
+            --exclude='.git/' \
+            --exclude='/tests/' \
+            --exclude='/storage/app/public/' \
+            --exclude='/storage/app/import/' \
+            --exclude='/storage/logs/' \
+            --exclude='maintenance.on' \
+            -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
+            apps/api/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_API}/"
+
+      # Requiere que el .env ya exista en el server (Bloque 6 del runbook) con APP_KEY + DB.
+      - name: Post-deploy (migrate + storage:link + caches)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "cd '${DEPLOY_PATH_API}' && \
+             php artisan migrate --force && \
+             mkdir -p storage/app/public && \
+             (php artisan storage:link || true) && \
+             php artisan optimize"
