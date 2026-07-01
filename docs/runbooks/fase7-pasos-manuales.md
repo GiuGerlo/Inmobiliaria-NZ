@@ -231,8 +231,13 @@ SUPERADMIN_EMAIL=<tu email de admin>
 > Mantenimiento del admin = `php artisan down --secret="<MAINT_SECRET>"` (no va en `.env`, se pasa
 > en el comando). El `<MAINT_SECRET>` es el mismo token del GitHub Secret.
 
-- [ ] `.env` dev creado y completado.
+- [x] `.env` dev creado y completado (APP_KEY generada, DB conecta OK).
 - [ ] Repetir para **prod** en el corte, con datos de `nz_prod` y URLs de prod.
+
+> **PHP CLI en el server**: el selector de PHP de hPanel aplica a la **web** (LiteSpeed); el `php`
+> del SSH sigue en el default (8.2). El binario 8.4 real es `/opt/alt/php84/usr/bin/php` (no hay
+> wrapper `php8.4`). El deploy ya usa esa ruta absoluta; para tu uso manual, alias en `~/.bashrc`:
+> `alias php='/opt/alt/php84/usr/bin/php'`.
 
 ---
 
@@ -240,8 +245,8 @@ SUPERADMIN_EMAIL=<tu email de admin>
 
 Los envíos de WhatsApp usan cola. En shared hosting no hay worker permanente → un cron lo procesa.
 
-- [ ] hPanel → Avanzado → Cron Jobs → agregar, cada 1 minuto:
-      `cd ~/laravel-api-dev && php artisan queue:work --stop-when-empty --max-time=50 >> storage/logs/queue.log 2>&1`
+- [ ] hPanel → Avanzado → Cron Jobs → agregar, cada 1 minuto (ruta real del server + binario 8.4):
+      `cd /home/u407412506/domains/nz-estudiojuridicoinmobiliario.com/public_html/laravel-api-dev && /opt/alt/php84/usr/bin/php artisan queue:work --stop-when-empty --max-time=50 >> storage/logs/queue.log 2>&1`
 - [ ] (En el corte) el mismo cron apuntando a la carpeta de prod.
 
 ---
@@ -262,6 +267,9 @@ arriba y con datos ANTES de buildear el público. Orden la primera vez:
 1. Tener listos los Bloques 1–6 (subdominios, DB, SSH, secrets, `.env` del server con `APP_KEY`).
 2. Push a `dev` (o "Run workflow" manual de **deploy-api** primero). Esperar que termine OK:
    migra la DB, deja el admin en `admin-dev.…`.
+   > El workflow corre `migrate --force` pero **NO seedea**. Tras el primer deploy, una vez por SSH:
+   > `cd <DEPLOY_PATH_API> && /opt/alt/php84/usr/bin/php artisan db:seed --class=RoleSeeder --force`
+   > (crea roles + promueve `SUPERADMIN_EMAIL`; el usuario con ese email debe existir ya — viene del dump).
 3. Cargar datos de prueba en `nz_dev` (Bloque 8) — si no hay propiedades, el público buildea vacío.
 4. Correr **deploy-public** (push que toque `apps/public/**`, o "Run workflow" manual). Buildea
    contra la API dev y publica en `dev.…`.
