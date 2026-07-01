@@ -50,7 +50,11 @@ jobs:
 
       - name: Composer install (api, sin dev)
         working-directory: apps/api
-        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+        run: |
+          # package:discover (post-autoload-dump) bootea Laravel: sin estos dirs, view.compiled
+          # resuelve a realpath()=false → "Please provide a valid cache path".
+          mkdir -p storage/framework/views storage/framework/cache storage/framework/sessions bootstrap/cache
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -125,6 +129,7 @@ jobs:
       # Mantenimiento ON: nadie ve estado a medias mientras migramos. El flag vive en
       # storage/framework/, que el rsync excluye (así no lo borra --delete). || true = primer deploy.
       - name: Mantenimiento ON
+        id: maint_on
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
@@ -133,6 +138,7 @@ jobs:
         run: |
           ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
             "cd '${DEPLOY_PATH_API}' && /opt/alt/php84/usr/bin/php artisan down --retry=60 || true"
+          echo "on=1" >> "$GITHUB_OUTPUT"
 
       # rsync incremental (o full con --checksum). --backup-dir guarda lo pisado/borrado.
       # --delete protege: .env, uploads, import, logs, storage/framework (flag down), maintenance.on.
@@ -201,7 +207,7 @@ jobs:
 
       # Mantenimiento OFF pase lo que pase: si migrate falló, igual levantamos el admin.
       - name: Mantenimiento OFF
-        if: ${{ always() }}
+        if: ${{ always() && steps.maint_on.outputs.on == '1' }}
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
