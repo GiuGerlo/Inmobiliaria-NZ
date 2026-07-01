@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const propertyPages = properties.map((p) => ({
     url: `${base}/propiedades/${p.slug}`,
     lastModified: p.is_sold ? new Date('2025-01-01') : new Date(),
-    changeFrequency: (p.is_sold ? 'yearly' : 'monthly') as const,
+    changeFrequency: p.is_sold ? ('yearly' as const) : ('monthly' as const),
     priority: p.is_sold ? 0.3 : 0.6,
   }));
 
