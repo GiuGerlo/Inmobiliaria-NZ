@@ -146,7 +146,6 @@ export function PropertiesMap({ properties }: { properties: SaleProperty[] }) {
                     fullscreenControl={false}
                     zoomControl
                     className="h-full w-full"
-                    // @ts-expect-error — styles deprecated en v3.54+ pero funcional
                     styles={MAP_STYLES}
                   >
                     <Markers points={points} onSelect={setSelected} />
