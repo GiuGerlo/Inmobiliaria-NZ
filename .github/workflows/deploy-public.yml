@@ -3,6 +3,7 @@ name: Deploy sitio publico
 # Next SSG (output: export). Trae el catálogo de la API EN BUILD y deploya el out/ estático.
 # Branch -> entorno igual que el API. Requiere que la API del entorno ya esté viva y con datos
 # (deploya primero el API). Ver docs/runbooks/fase7-pasos-manuales.md.
+# Cada corrida: backup de los archivos pisados/borrados -> rsync -> health check. Reporte en el summary.
 on:
   push:
     branches: [dev, production]
@@ -10,6 +11,11 @@ on:
       - 'apps/public/**'
       - '.github/workflows/deploy-public.yml'
   workflow_dispatch:
+    inputs:
+      force_full:
+        description: 'Force full resync (rsync --checksum: re-verifica todo byte a byte)'
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-public-${{ github.ref_name }}
@@ -25,13 +31,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Habilitar pnpm
-        run: corepack enable
+          cache: pnpm
+          cache-dependency-path: apps/public/pnpm-lock.yaml
 
       # URLs públicas por entorno (no son secretos: son dominios). El build fetchea la API por HTTPS.
       - name: URLs del entorno
@@ -70,15 +80,72 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
+      # Variables compartidas: timestamp, base de backups (fuera del webroot), modo full.
+      - name: Variables de deploy
+        env:
+          DEPLOY_PATH_PUBLIC: ${{ secrets.DEPLOY_PATH_PUBLIC }}
+        run: |
+          set -euo pipefail
+          TS=$(date +%Y%m%d-%H%M%S)
+          HOME_DIR=$(echo "$DEPLOY_PATH_PUBLIC" | sed 's#\(/home/[^/]*\).*#\1#')
+          BACKUP_BASE="$HOME_DIR/deploy-backups/${{ github.ref_name }}/public"
+          echo "TS=$TS" >> "$GITHUB_ENV"
+          echo "BACKUP_BASE=$BACKUP_BASE" >> "$GITHUB_ENV"
+          echo "BACKUP_DIR=$BACKUP_BASE/$TS" >> "$GITHUB_ENV"
+          if [ "${{ github.event.inputs.force_full }}" = "true" ]; then
+            echo "RSYNC_EXTRA=--checksum --ignore-times" >> "$GITHUB_ENV"
+          else
+            echo "RSYNC_EXTRA=" >> "$GITHUB_ENV"
+          fi
+
+      # rsync incremental (o full con --checksum). --backup-dir guarda lo pisado/borrado.
       # --delete limpia lo viejo; se protege el flag de mantenimiento del server.
-      - name: Rsync out/ al servidor
+      - name: Rsync out/ + backup de archivos + reporte
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH_PUBLIC: ${{ secrets.DEPLOY_PATH_PUBLIC }}
         run: |
-          rsync -az --delete \
+          set -euo pipefail
+          rsync -az --delete -i --stats ${RSYNC_EXTRA} \
+            --backup --backup-dir="${BACKUP_DIR}/files-replaced" \
             --exclude='maintenance.on' \
             -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
-            apps/public/out/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_PUBLIC}/"
+            apps/public/out/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_PUBLIC}/" | tee /tmp/rsync-public.txt
+          CREATED=$(grep -c '^<f+++' /tmp/rsync-public.txt || true)
+          UPDATED=$(grep -cE '^<f[^+]' /tmp/rsync-public.txt || true)
+          DELETED=$(grep -c '^\*deleting' /tmp/rsync-public.txt || true)
+          {
+            echo "### Deploy público (${{ github.ref_name }}) — reporte de archivos"
+            echo ""
+            echo "| Nuevos | Modificados | Borrados |"
+            echo "|---|---|---|"
+            echo "| ${CREATED} | ${UPDATED} | ${DELETED} |"
+            echo ""
+            echo "Backup de esta corrida: \`${BACKUP_DIR}/files-replaced\`"
+            echo ""
+            echo "<details><summary>rsync --stats</summary>"
+            echo ""
+            echo '```'
+            grep -E 'Number of|files transferred|Total .* size|deleted' /tmp/rsync-public.txt || true
+            echo '```'
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Poda: dejar solo los 5 backups más nuevos de este entorno.
+      - name: Podar backups viejos (>5)
+        if: ${{ always() }}
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "ls -1dt '${BACKUP_BASE}'/*/ 2>/dev/null | tail -n +6 | xargs -r rm -rf" || true
+
+      # Health check: si la home no responde 200, la corrida falla y GitHub notifica.
+      - name: Health check público
+        run: |
+          curl -fsS --retry 3 --retry-delay 5 "${{ steps.urls.outputs.site }}/" >/dev/null \
+            && echo "health OK: ${{ steps.urls.outputs.site }}/"

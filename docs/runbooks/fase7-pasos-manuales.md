@@ -279,6 +279,41 @@ arriba y con datos ANTES de buildear el público. Orden la primera vez:
 
 ---
 
+## Deploy: backups, reporte y force-full (referencia)
+
+Cada corrida de los workflows deja una **red de seguridad**. No necesitás hacer nada; esto es para
+cuando algo salga mal o quieras auditar.
+
+### Qué guarda cada deploy
+Fuera del webroot, en `~/deploy-backups/<entorno>/{api,public}/<timestamp>/`:
+- **API**: `db.sql.gz` (dump de la DB previo a migrar) + `files-replaced/` (los archivos que el deploy
+  pisó o borró, con su ruta original).
+- **Público**: `files-replaced/` (idem, sin DB — es estático).
+
+Se retienen los **5 más nuevos** por entorno; el deploy poda los viejos solo.
+
+### Reporte
+El summary de cada corrida (pestaña Actions → la corrida) muestra una tabla **nuevos / modificados /
+borrados** + el bloque `rsync --stats`. Sirve para ver de un vistazo qué cambió.
+
+### Restaurar a mano (si un deploy salió mal)
+Por SSH, entorno dev de ejemplo:
+```
+BK=~/deploy-backups/dev/api/<timestamp>     # elegí la carpeta del backup bueno
+# 1) DB:
+gunzip < "$BK/db.sql.gz" | mysql -u <DB_USER> -p <DB_NAME>
+# 2) Archivos pisados/borrados (volver a su lugar bajo el deploy path):
+cp -a "$BK/files-replaced/." "<DEPLOY_PATH_API>/"
+```
+(Para el público es igual pero solo el paso 2, con `files-replaced` de `.../public/<timestamp>`.)
+
+### Force full resync
+Si sospechás que el server quedó desincronizado/corrupto: Actions → el workflow (deploy-api o
+deploy-public) → **Run workflow** → marcá **`force_full`** = true. Fuerza a rsync a re-verificar
+**todo byte a byte** (`--checksum`), no solo por fecha. El deploy normal (push) sigue siendo incremental.
+
+---
+
 ## Bloque 9 — Corte a producción (recién cuando dev esté de 10)
 
 Esto es el switch final; va a su propio runbook detallado (`docs/runbooks/corte-fase7.md`), pero

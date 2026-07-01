@@ -2,6 +2,8 @@ name: Deploy API + admin
 
 # Branch -> entorno: push a `dev` deploya a la instancia dev; push a `production` a prod.
 # El environment (con sus secrets) se elige por la rama. Ver docs/runbooks/fase7-pasos-manuales.md.
+# Cada corrida: build en el runner -> backup en el server (DB + archivos pisados) -> rsync ->
+# migrate bajo mantenimiento -> health check. Reporte de archivos en el summary.
 on:
   push:
     branches: [dev, production]
@@ -10,6 +12,11 @@ on:
       - 'apps/web/**'
       - '.github/workflows/deploy-api.yml'
   workflow_dispatch:
+    inputs:
+      force_full:
+        description: 'Force full resync (rsync --checksum: re-verifica todo byte a byte)'
+        type: boolean
+        default: false
 
 concurrency:
   group: deploy-api-${{ github.ref_name }}
@@ -33,17 +40,29 @@ jobs:
           extensions: pdo_mysql, mbstring, gd, fileinfo, openssl, zip, curl, intl, bcmath
           tools: composer
 
+      # Cache del vendor/: si composer.lock no cambió, install queda casi instantáneo.
+      - name: Cache de composer (vendor)
+        uses: actions/cache@v4
+        with:
+          path: apps/api/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('apps/api/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
       - name: Composer install (api, sin dev)
         working-directory: apps/api
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Habilitar pnpm
-        run: corepack enable
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Build admin SPA (apps/web)
         working-directory: apps/web
@@ -60,25 +79,109 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      # --delete limpia archivos viejos, pero se protegen: .env, uploads (storage/app/public),
-      # import, logs y el flag de mantenimiento. Esos viven solo en el server.
-      - name: Rsync API al servidor
+      # Variables compartidas por los pasos siguientes (timestamp, base de backups, modo full).
+      - name: Variables de deploy
+        env:
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          set -euo pipefail
+          TS=$(date +%Y%m%d-%H%M%S)
+          # Base de backups FUERA del webroot (no accesible por HTTP): ~/deploy-backups.
+          HOME_DIR=$(echo "$DEPLOY_PATH_API" | sed 's#\(/home/[^/]*\).*#\1#')
+          BACKUP_BASE="$HOME_DIR/deploy-backups/${{ github.ref_name }}/api"
+          echo "TS=$TS" >> "$GITHUB_ENV"
+          echo "BACKUP_BASE=$BACKUP_BASE" >> "$GITHUB_ENV"
+          echo "BACKUP_DIR=$BACKUP_BASE/$TS" >> "$GITHUB_ENV"
+          if [ "${{ github.event.inputs.force_full }}" = "true" ]; then
+            echo "RSYNC_EXTRA=--checksum --ignore-times" >> "$GITHUB_ENV"
+          else
+            echo "RSYNC_EXTRA=" >> "$GITHUB_ENV"
+          fi
+
+      # Backup ANTES de tocar nada: dump de la DB (creds del .env del server) + gzip.
+      # Si el dump falla, el paso falla y no se deploya (no querés deploy sin red).
+      - name: Backup de DB (server)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
         run: |
-          rsync -az --delete \
+          set -euo pipefail
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "bash -s -- '${DEPLOY_PATH_API}' '${BACKUP_DIR}'" <<'REMOTE'
+          set -euo pipefail
+          DEPLOY_PATH_API="$1"; BACKUP_DIR="$2"
+          cd "$DEPLOY_PATH_API"
+          mkdir -p "$BACKUP_DIR"
+          rd() { grep -m1 "^$1=" .env | cut -d= -f2- | sed 's/^"//;s/"$//'; }
+          mysqldump --no-tablespaces \
+            -h"$(rd DB_HOST)" -P"$(rd DB_PORT)" \
+            -u"$(rd DB_USERNAME)" -p"$(rd DB_PASSWORD)" \
+            "$(rd DB_DATABASE)" | gzip > "$BACKUP_DIR/db.sql.gz"
+          echo "DB backup -> $BACKUP_DIR/db.sql.gz ($(du -h "$BACKUP_DIR/db.sql.gz" | cut -f1))"
+          REMOTE
+
+      # Mantenimiento ON: nadie ve estado a medias mientras migramos. El flag vive en
+      # storage/framework/, que el rsync excluye (así no lo borra --delete). || true = primer deploy.
+      - name: Mantenimiento ON
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "cd '${DEPLOY_PATH_API}' && /opt/alt/php84/usr/bin/php artisan down --retry=60 || true"
+
+      # rsync incremental (o full con --checksum). --backup-dir guarda lo pisado/borrado.
+      # --delete protege: .env, uploads, import, logs, storage/framework (flag down), maintenance.on.
+      - name: Rsync API + backup de archivos + reporte
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete -i --stats ${RSYNC_EXTRA} \
+            --backup --backup-dir="${BACKUP_DIR}/files-replaced" \
             --exclude='.env' \
+            --exclude='.env.example' \
             --exclude='.git/' \
+            --exclude='.gitignore' \
+            --exclude='.gitattributes' \
+            --exclude='README.md' \
+            --exclude='phpunit.xml' \
+            --exclude='.editorconfig' \
+            --exclude='pint.json' \
             --exclude='/tests/' \
             --exclude='/storage/app/public/' \
             --exclude='/storage/app/import/' \
             --exclude='/storage/logs/' \
+            --exclude='/storage/framework/' \
             --exclude='maintenance.on' \
             -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
-            apps/api/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_API}/"
+            apps/api/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_API}/" | tee /tmp/rsync-api.txt
+          CREATED=$(grep -c '^<f+++' /tmp/rsync-api.txt || true)
+          UPDATED=$(grep -cE '^<f[^+]' /tmp/rsync-api.txt || true)
+          DELETED=$(grep -c '^\*deleting' /tmp/rsync-api.txt || true)
+          {
+            echo "### Deploy API (${{ github.ref_name }}) — reporte de archivos"
+            echo ""
+            echo "| Nuevos | Modificados | Borrados |"
+            echo "|---|---|---|"
+            echo "| ${CREATED} | ${UPDATED} | ${DELETED} |"
+            echo ""
+            echo "Backup de esta corrida: \`${BACKUP_DIR}\` (DB + files-replaced)"
+            echo ""
+            echo "<details><summary>rsync --stats</summary>"
+            echo ""
+            echo '```'
+            grep -E 'Number of|files transferred|Total .* size|deleted' /tmp/rsync-api.txt || true
+            echo '```'
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Requiere que el .env ya exista en el server (Bloque 6 del runbook) con APP_KEY + DB.
       - name: Post-deploy (migrate + storage:link + caches)
@@ -91,7 +194,40 @@ jobs:
           ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
             "cd '${DEPLOY_PATH_API}' && \
              PHP=/opt/alt/php84/usr/bin/php && \
+             mkdir -p storage/framework/cache storage/framework/views storage/framework/sessions storage/app/public && \
              \$PHP artisan migrate --force && \
-             mkdir -p storage/app/public && \
              (\$PHP artisan storage:link || true) && \
              \$PHP artisan optimize"
+
+      # Mantenimiento OFF pase lo que pase: si migrate falló, igual levantamos el admin.
+      - name: Mantenimiento OFF
+        if: ${{ always() }}
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+        run: |
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "cd '${DEPLOY_PATH_API}' && /opt/alt/php84/usr/bin/php artisan up || true"
+
+      # Poda: dejar solo los 5 backups más nuevos de este entorno.
+      - name: Podar backups viejos (>5)
+        if: ${{ always() }}
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
+            "ls -1dt '${BACKUP_BASE}'/*/ 2>/dev/null | tail -n +6 | xargs -r rm -rf" || true
+
+      # Health check: si el admin no responde 200, la corrida falla y GitHub notifica.
+      - name: Health check API
+        run: |
+          if [ "${{ github.ref_name }}" = "production" ]; then
+            URL="https://admin.nz-estudiojuridicoinmobiliario.com/api/v1/health"
+          else
+            URL="https://admin-dev.nz-estudiojuridicoinmobiliario.com/api/v1/health"
+          fi
+          curl -fsS --retry 3 --retry-delay 5 "$URL" && echo "" && echo "health OK: $URL"
