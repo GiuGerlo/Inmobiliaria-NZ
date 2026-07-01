@@ -87,8 +87,9 @@ jobs:
         run: |
           set -euo pipefail
           TS=$(date +%Y%m%d-%H%M%S)
-          HOME_DIR=$(echo "$DEPLOY_PATH_PUBLIC" | sed 's#\(/home/[^/]*\).*#\1#')
-          BACKUP_BASE="$HOME_DIR/deploy-backups/${{ github.ref_name }}/public"
+          # Carpeta backups a nivel del dominio (fuera del webroot), misma que usa el legacy.
+          DOMAIN_ROOT=$(dirname "$(dirname "$DEPLOY_PATH_PUBLIC")")
+          BACKUP_BASE="$DOMAIN_ROOT/backups/${{ github.ref_name }}/public"
           echo "TS=$TS" >> "$GITHUB_ENV"
           echo "BACKUP_BASE=$BACKUP_BASE" >> "$GITHUB_ENV"
           echo "BACKUP_DIR=$BACKUP_BASE/$TS" >> "$GITHUB_ENV"
@@ -113,9 +114,17 @@ jobs:
             --exclude='maintenance.on' \
             -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
             apps/public/out/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_PUBLIC}/" | tee /tmp/rsync-public.txt
-          CREATED=$(grep -c '^<f+++' /tmp/rsync-public.txt || true)
-          UPDATED=$(grep -cE '^<f[^+]' /tmp/rsync-public.txt || true)
-          DELETED=$(grep -c '^\*deleting' /tmp/rsync-public.txt || true)
+          grep '^<f+++' /tmp/rsync-public.txt | awk '{print $2}' > /tmp/f-new.txt || true
+          grep -E '^<f[^+]' /tmp/rsync-public.txt | awk '{print $2}' > /tmp/f-mod.txt || true
+          grep '^\*deleting' /tmp/rsync-public.txt | awk '{print $2}' > /tmp/f-del.txt || true
+          CREATED=$(wc -l < /tmp/f-new.txt); UPDATED=$(wc -l < /tmp/f-mod.txt); DELETED=$(wc -l < /tmp/f-del.txt)
+          emit() { # $1=título $2=archivo con la lista
+            local n; n=$(wc -l < "$2")
+            [ "$n" -eq 0 ] && return
+            echo "<details><summary>$1 ($n)</summary>"; echo ""; echo '```'
+            head -100 "$2"; [ "$n" -gt 100 ] && echo "... (+$((n-100)) más)"
+            echo '```'; echo "</details>"; echo ""
+          }
           {
             echo "### Deploy público (${{ github.ref_name }}) — reporte de archivos"
             echo ""
@@ -125,6 +134,9 @@ jobs:
             echo ""
             echo "Backup de esta corrida: \`${BACKUP_DIR}/files-replaced\`"
             echo ""
+            emit "🟢 Nuevos" /tmp/f-new.txt
+            emit "🟡 Modificados" /tmp/f-mod.txt
+            emit "🔴 Borrados" /tmp/f-del.txt
             echo "<details><summary>rsync --stats</summary>"
             echo ""
             echo '```'

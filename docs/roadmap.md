@@ -44,7 +44,7 @@ público sigue vivo en su hosting actual hasta el corte (Fase 7).
 | **4** | Admin de ventas (React) | 🟢 DONE 2026-06-22 | 3 | Sección "Propiedades en venta" en `apps/web` (solo `is_superadmin`): CRUD, ABM categorías, multi-upload + **reorder de fotos drag-drop** (pragmatic-dnd), vendidas, filtros. Vitest 52 verdes. (Reorder de filas de la tabla diferido.) |
 | **5** | Sitio público (Next SSG) | 🟢 DONE 2026-06-23 | 2, 4 | `apps/public` (Next 15 `output: export`): home (hero/Capua/about/categorías/**mapa interactivo**/contacto), catálogo+filtros, detalle por **slug** + OG/JSON-LD, vendidas; `map_embed` sanitizado; sitemap/robots; servicio `next-public` en compose. Pest 164 + Vitest 12 verdes. **+ Pulido visual 2026-06-23**: casa line-art SVG en hero, contadores animados, cards editoriales, galería con miniaturas, scroll-to-top/progreso/preloader/transición de página, **Capua crossfade + galería masonry** (sin deps nuevas). Diferido: grid-lista, testimonios, shadcn. |
 | **6** | Motor PDF | 🟢 DONE 2026-06-29 | — | Driver Gotenberg → **dompdf** (PHP puro, ADR-0004 revisado): config + 3 layouts flex→tabla, Gotenberg fuera del compose, los 3 PDFs re-verificados con render real. Pest 164 verdes sin Chromium. |
-| **7** | Deploy Hostinger + corte | ⚪ pendiente (**desbloqueada**) | 1–6 | CI/CD: admin → `admin.nz-...`, público Next SSG → `nz-...`; hook de rebuild; env/TLS/DB; baja del legacy de alquileres y del nz-estudio viejo. (Absorbe sub-H.) |
+| **7** | Deploy Hostinger + corte | 🟡 EN PROGRESO | 1–6 | CI/CD por GitHub Actions + rsync (ADR-0003, Hostinger compartido). **Hecho**: workflows `deploy-api`/`deploy-public` con backups (DB+archivos, retención 5), reporte de archivos, ventana de mantenimiento, cache, health check, `force_full`; modo mantenimiento; subdominios/DB/SSH/secrets dev; **primer deploy-api a `dev` verde** (migrate + health 200). **Falta**: datos en `nz_dev` (Bloque 8), deploy-public, cron cola, y el **corte a prod** (Bloque 9). |
 
 Roles destino: `superadmin` (Giuliano, ve todo) / `inmobiliaria` (staff y dueña Nadina, solo alquileres).
 
@@ -52,7 +52,7 @@ Roles destino: `superadmin` (Giuliano, ve todo) / `inmobiliaria` (staff y dueña
 
 - ADR-0001: **API-only vs Inertia.js** (afecta E principalmente).
 - ADR-0002: **Rename tablas a inglés/snake_case vs preservar nombres legacy** (afecta B, D). ✅ cerrado.
-- ADR-0003: **Deploy strategy** (Hostinger compartido vs VPS containerizado) (afecta H). La unión con el otro proyecto (`C:\laragon\www\nz-estudio`, PHP+Docker+GitHub Actions) como subdominio inclina a **VPS** con compose fusionado.
+- ADR-0003: **Deploy strategy** — **Hostinger compartido** (sin Docker): GitHub Actions buildea + `rsync` por SSH; backups por corrida (retención 5), mantenimiento, health check, `force_full`; sin rollback automático. ✅ cerrado (2026-07-01).
 - ADR-0008: **Canal WhatsApp** — Cloud API oficial (Meta) vs BSP de pago / no oficial / wa.me (afecta I). Elegido: **Cloud API oficial**. ✅ cerrado.
 - ADR-0004: **PDF lib** (spatie/laravel-pdf vs dompdf directo) (afecta F).
 - ADR-0006: **OpenAPI autogenerada (scramble)** (afecta D, E). ✅ cerrado.

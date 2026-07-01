@@ -29,6 +29,7 @@ Route::prefix('v1')->group(function () {
         return response()->json([
             'ok' => true,
             'service' => 'inmobiliaria-api',
+            'env' => app()->environment(),
             'ts' => now()->toIso8601String(),
         ]);
     });

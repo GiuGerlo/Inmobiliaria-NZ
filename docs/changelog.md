@@ -2,6 +2,35 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-07-01] Fusión NZ Fase 7 — Pipeline de deploy (API en dev) — EN PROGRESO
+
+**Resumen**: Se robustece el CI/CD de deploy (GitHub Actions + rsync a Hostinger compartido, ADR-0003)
+y se hace el **primer deploy real del API + admin a la instancia `dev`** (verde: migrate bajo
+mantenimiento + health check 200). La fase sigue abierta: falta datos, deploy-public, cron y el corte a prod.
+
+**Cambios**:
+- **Workflows** `deploy-api.yml` / `deploy-public.yml` reforzados: cache composer/pnpm; **backups por
+  corrida** en `backups/` a nivel del dominio (junto a `public_html`, fuera del webroot,
+  `<dominio>/backups/<env>/{api,public}/<ts>/`: dump DB `mysqldump|gzip` +
+  `files-replaced/` vía `rsync --backup-dir`), retención 5 con poda; **reporte** de archivos
+  nuevos/modificados/borrados (lista + `--stats`) en el summary; **ventana de mantenimiento** en el API
+  (`down → rsync → migrate → up`, con `up` en `if: always()`); **health check** post-deploy; input manual
+  **`force_full`** (rsync `--checksum`); excludes ampliados (no sube docs/meta/`storage/framework`).
+- **Fixes del pipeline** (detectados en el primer deploy): crear `storage/framework/{views,cache,sessions}`
+  en el runner antes de `composer install` (evita `package:discover` → "valid cache path"); PHP CLI del
+  server = ruta absoluta `/opt/alt/php84/usr/bin/php` (el CLI default es 8.2); "Mantenimiento OFF" solo
+  corre si "ON" se ejecutó.
+- **Endpoint** `GET /api/v1/health` suma `env` (`app()->environment()`).
+- **ADR-0003** escrito y **cerrado** (Hostinger compartido + rsync; sin rollback automático).
+- **Runbook** `fase7-pasos-manuales.md`: `.env` dev, binario PHP 8.4, cron con php84, seed `RoleSeeder`
+  post-primer-deploy, sección de backups/restore/`force_full`.
+- **Infra dev**: subdominios `admin-dev.`/`dev.`, DB `nz_dev`, llave SSH de deploy, secrets del env `dev`,
+  `.env` del server; rama `dev` creada.
+
+**Breaking**: nada.
+**Migración**: el `.env` del server debe existir antes del primer deploy (con `APP_KEY` + DB); tras el
+primer `migrate` correr `db:seed --class=RoleSeeder --force` (crea roles + promueve `SUPERADMIN_EMAIL`).
+
 ## [2026-06-29] Fusión NZ Fase 6 — Motor PDF (Gotenberg → dompdf) — DONE
 
 **Resumen**: Se migra el motor de los 3 PDFs (recibo, rendición, listado mensual) de **Gotenberg**

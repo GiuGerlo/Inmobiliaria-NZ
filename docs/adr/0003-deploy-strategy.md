@@ -40,7 +40,8 @@ Modelo de ramas (ver `git-workflow.md`): `dev` deploya a la instancia dev, `prod
 `rsync`ean por SSH. Sobre esa base, cada corrida incorpora:
 
 - **Backups por corrida** (retención **5** por entorno, poda automática), fuera del webroot en
-  `~/deploy-backups/<entorno>/{api,public}/<timestamp>/`:
+  `<dominio>/backups/<entorno>/{api,public}/<timestamp>/` (la carpeta `backups/` a nivel del dominio,
+  junto a `public_html` — la misma que usa el deploy del legacy):
   - API: `mysqldump | gzip` de la DB **antes** de migrar + copia de los archivos pisados/borrados
     (`rsync --backup-dir`).
   - Público: solo copia de archivos (es estático, no toca DB).

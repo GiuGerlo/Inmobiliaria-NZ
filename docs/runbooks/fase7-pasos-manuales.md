@@ -285,7 +285,8 @@ Cada corrida de los workflows deja una **red de seguridad**. No necesitás hacer
 cuando algo salga mal o quieras auditar.
 
 ### Qué guarda cada deploy
-Fuera del webroot, en `~/deploy-backups/<entorno>/{api,public}/<timestamp>/`:
+En la carpeta **`backups/` a nivel del dominio** (junto a `public_html`, fuera del webroot — la misma
+que usa el deploy del legacy), en `backups/<entorno>/{api,public}/<timestamp>/`:
 - **API**: `db.sql.gz` (dump de la DB previo a migrar) + `files-replaced/` (los archivos que el deploy
   pisó o borró, con su ruta original).
 - **Público**: `files-replaced/` (idem, sin DB — es estático).
@@ -299,7 +300,7 @@ borrados** + el bloque `rsync --stats`. Sirve para ver de un vistazo qué cambi�
 ### Restaurar a mano (si un deploy salió mal)
 Por SSH, entorno dev de ejemplo:
 ```
-BK=~/deploy-backups/dev/api/<timestamp>     # elegí la carpeta del backup bueno
+BK=<dominio>/backups/dev/api/<timestamp>     # carpeta backups junto a public_html; elegí el backup bueno
 # 1) DB:
 gunzip < "$BK/db.sql.gz" | mysql -u <DB_USER> -p <DB_NAME>
 # 2) Archivos pisados/borrados (volver a su lugar bajo el deploy path):
