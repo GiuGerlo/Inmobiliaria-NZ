@@ -13,7 +13,8 @@ Este directorio es la **memoria larga** del proyecto. CLAUDE.md y `.claude/rules
 | `adr/` | Architecture Decision Records — decisiones grandes con contexto y consecuencias. |
 | `changelog.md` | Qué cambió en cada fase, con fecha. |
 | `legacy/` | Foto del estado anterior antes de tocar — referencia histórica. |
-| `api/` | (futuro) OpenAPI / contratos del API. |
+| `runbooks/` | Operación: **[deploy](runbooks/README-deploy.md)**, [modo mantenimiento](runbooks/modo-mantenimiento.md), [pasos manuales de infra](runbooks/fase7-pasos-manuales.md). |
+| API (OpenAPI) | **Autogenerada** del código con Scramble. UI navegable en `http://localhost:8080/docs/api` (solo local) · spec en `/docs/api.json`. |
 
 ## Convenciones
 

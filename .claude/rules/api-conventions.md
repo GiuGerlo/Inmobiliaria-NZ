@@ -32,7 +32,9 @@
 
 ## Documentación
 
-- Generar OpenAPI desde código (ej. `scramble`) o mantener `docs/api/openapi.yaml`. Decisión en ADR.
+- OpenAPI **autogenerada desde el código** con `dedoc/scramble` (ya instalado). UI navegable en
+  `http://localhost:8080/docs/api`, spec en `/docs/api.json`. Restringida a entorno `local` (403 en
+  dev/prod). No mantener YAML a mano.
 
 ## Headers obligatorios en responses
 

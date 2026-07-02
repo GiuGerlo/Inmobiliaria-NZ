@@ -28,6 +28,8 @@ Resumen — detalle completo en `.claude/rules/stack.md`.
 - **Planes de implementación** → `docs/plans/`.
 - **Decisiones arquitectónicas** → `docs/adr/`.
 - **Historial por fase** → `docs/changelog.md`.
+- **Operación / deploy** → `docs/runbooks/` (`README-deploy.md` = resumen, `modo-mantenimiento.md`, `fase7-pasos-manuales.md`).
+- **Doc del API (OpenAPI)** → autogenerada con Scramble en `http://localhost:8080/docs/api` (solo local).
 - **Foto del legacy** → `docs/legacy/snapshot-php.md`.
 - **Referencia del sitio público** → `legacy-nz-estudio/` (copia de nz-estudio PHP, sin secretos/uploads/dumps; insumo de la Fusión NZ). Su `.github/` + `docker/` sirven de base para el deploy de Fase 7.
 

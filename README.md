@@ -29,6 +29,7 @@ Cuando termine, abrí en el browser:
 | URL                       | Qué es                                              |
 |---------------------------|-----------------------------------------------------|
 | http://localhost:8080     | App nueva (React + Laravel via Nginx).              |
+| http://localhost:8080/docs/api | Documentación del API (OpenAPI, autogenerada por Scramble). Solo en local. |
 | http://localhost:8081     | phpMyAdmin (login con `inmo` + password del `.env`).|
 | http://localhost:8082     | Legacy PHP intacto.                                 |
 | `localhost:3307`          | MariaDB para clientes externos (TablePlus, DBeaver).|
@@ -119,3 +120,5 @@ Mirá `docs/roadmap.md` para el estado actualizado. Los sub-proyectos base **A�
 - `docs/architecture.md` — arquitectura global.
 - `docs/changelog.md` — qué cambió en cada fase.
 - `docs/adr/` — decisiones arquitectónicas grandes con su razón.
+- `docs/runbooks/README-deploy.md` — **cómo funciona el deploy** (ramas, workflows, URLs, server, rollback).
+- API: doc OpenAPI autogenerada en `http://localhost:8080/docs/api` (local).
