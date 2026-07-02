@@ -13,6 +13,7 @@ import { ContractsPage } from '@/features/contracts/ContractsPage';
 import { ReceiptsPage } from '@/features/receipts/ReceiptsPage';
 import { RemindersPage } from '@/features/whatsapp/RemindersPage';
 import { SalesPropertiesPage } from '@/features/sales-properties/SalesPropertiesPage';
+import { ProfilePage } from '@/features/profile/ProfilePage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
           { path: 'contratos', element: <ContractsPage /> },
           { path: 'recibos', element: <ReceiptsPage /> },
           { path: 'recordatorios', element: <RemindersPage /> },
+          { path: 'perfil', element: <ProfilePage /> },
           {
             element: <RequireSuperadmin />,
             children: [{ path: 'propiedades-venta', element: <SalesPropertiesPage /> }],

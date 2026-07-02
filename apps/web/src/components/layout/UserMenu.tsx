@@ -53,7 +53,7 @@ export function UserMenu() {
           <span className="text-xs font-normal text-muted-foreground">{user.email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>
+        <DropdownMenuItem onSelect={() => navigate('/perfil')}>
           <UserIcon className="size-4" />
           Mi perfil
         </DropdownMenuItem>
