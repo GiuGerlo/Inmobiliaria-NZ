@@ -42,7 +42,7 @@ export function BatchProgress({ batchId, onRetry, onClose }: BatchProgressProps)
     <div className="space-y-4">
       <div>
         <div className="flex justify-between text-sm">
-          <span>{finished ? 'Envío finalizado' : 'Enviando…'}</span>
+          <span>{finished ? 'Envío finalizado' : done === 0 ? 'En cola…' : 'Enviando…'}</span>
           <span className="tabular-nums text-muted-foreground">
             {done}/{data.total}
           </span>
@@ -55,6 +55,12 @@ export function BatchProgress({ batchId, onRetry, onClose }: BatchProgressProps)
           <span>✗ {data.failed} fallidos</span>
           <span>… {data.queued} en cola</span>
         </div>
+        {!finished && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Se envía en segundo plano y puede tardar hasta ~1 minuto. El estado se actualiza solo;
+            también podés cerrar y verlo en el Historial.
+          </p>
+        )}
       </div>
 
       <ul className="max-h-72 divide-y overflow-y-auto rounded-md border">
