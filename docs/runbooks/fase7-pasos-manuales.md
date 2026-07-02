@@ -249,14 +249,24 @@ cola. **Requerido para que los recordatorios masivos se envíen en el server.** 
 individuales NO usan cola (van por `afterResponse`), así que siguen andando aunque el cron falle.
 Local usa `sync` (inline) → no necesita cron.
 
+- [ ] Crear un script en el server (SSH) — evita los problemas de comillas del cron de hPanel.
+      `~/queue-nz-dev.sh`:
+      ```sh
+      #!/bin/sh
+      cd /home/u407412506/domains/nz-estudiojuridicoinmobiliario.com/public_html/laravel-api-dev
+      /opt/alt/php84/usr/bin/php artisan queue:work --stop-when-empty --max-time=50 >> storage/logs/queue.log 2>&1
+      ```
+      Luego `chmod +x ~/queue-nz-dev.sh`. (En prod: script equivalente apuntando a `~/laravel-api`.)
 - [ ] hPanel → Avanzado → Cron Jobs → tipo **Personalizado** (no "PHP"), cada 1 minuto (los 5 campos
-      en `*`). Comando (ruta real + binario 8.4, envuelto en `/bin/sh -c`):
-      `/bin/sh -c 'cd /home/u407412506/domains/nz-estudiojuridicoinmobiliario.com/public_html/laravel-api-dev && /opt/alt/php84/usr/bin/php artisan queue:work --stop-when-empty --max-time=50 >> storage/logs/queue.log 2>&1'`
-- [ ] (En el corte) el mismo cron apuntando a la carpeta de prod.
+      en `*`). Comando = solo el script:
+      `/bin/sh /home/u407412506/queue-nz-dev.sh`
+- [ ] (En el corte) el mismo patrón con el script de prod.
 
-> **Por qué `/bin/sh -c '…'`**: hPanel envuelve el comando en `timeout`, que ejecuta el primer token como
-> binario. Si empieza con `cd` (builtin del shell) da `timeout: failed to run command 'cd'`. Envolverlo
-> en `/bin/sh -c '…'` hace que `timeout` corra `/bin/sh` (binario) y el shell interno haga el `cd`.
+> **Por qué un script y no el comando inline**: hPanel envuelve el comando del cron en `timeout`, que
+> ejecuta el primer token como binario. Empezar con `cd` (builtin) da `timeout: failed to run command
+> 'cd'`; y el inline con comillas (`/bin/sh -c '…'`) tampoco corría vía hPanel (nunca creaba el
+> `queue.log`). Un script invocado con `/bin/sh <script>` elimina el problema: `timeout` corre `/bin/sh`
+> (binario) y el script hace el `cd` + artisan.
 
 > Worker efímero (`--stop-when-empty --max-time=50`): arranca, drena, muere antes de que el hosting lo
 > mate; como es un proceso nuevo cada corrida, lee la config fresca → **no hace falta `queue:restart`**

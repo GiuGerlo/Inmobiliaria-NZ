@@ -41,6 +41,9 @@ export function useSendWhatsApp() {
   return useMutation({
     mutationFn: ({ number, input }: { number: number; input: SendWhatsAppInput }) =>
       sendReceiptWhatsApp(number, input),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.receipts.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.receipts.all });
+      qc.invalidateQueries({ queryKey: queryKeys.whatsapp.all });
+    },
   });
 }

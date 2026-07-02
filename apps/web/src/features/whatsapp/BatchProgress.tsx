@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Clock, RotateCw, XCircle } from 'lucide-react';
 import { toast } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { errorMessage } from '@/lib/api-error';
+import { queryKeys } from '@/lib/query-keys';
 import { useBatch, useRetryBatch } from './queries';
 import type { WhatsAppStatus } from './types';
 
@@ -21,12 +24,19 @@ type BatchProgressProps = {
 export function BatchProgress({ batchId, onRetry, onClose }: BatchProgressProps) {
   const { data } = useBatch(batchId);
   const retry = useRetryBatch();
+  const qc = useQueryClient();
+
+  const finished = data ? data.queued === 0 : false;
+
+  // Al terminar el lote, refrescá el historial para que muestre los estados finales sin recargar.
+  useEffect(() => {
+    if (finished) qc.invalidateQueries({ queryKey: queryKeys.whatsapp.all });
+  }, [finished, qc]);
 
   if (!data) return <p className="text-sm text-muted-foreground">Iniciando envío…</p>;
 
   const done = data.total - data.queued;
   const pct = data.total > 0 ? Math.round((done / data.total) * 100) : 0;
-  const finished = data.queued === 0;
 
   function handleRetry() {
     retry.mutate(batchId, {

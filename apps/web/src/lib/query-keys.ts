@@ -44,6 +44,7 @@ export const queryKeys = {
     list: (params: ReceiptListParams) => ['receipts', 'list', params] as const,
   },
   whatsapp: {
+    all: ['whatsapp'] as const,
     messages: (params: unknown) => ['whatsapp', 'messages', params] as const,
     batch: (batchId: string) => ['whatsapp', 'batch', batchId] as const,
   },
