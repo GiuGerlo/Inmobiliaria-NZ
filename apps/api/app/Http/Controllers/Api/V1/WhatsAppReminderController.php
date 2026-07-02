@@ -63,7 +63,7 @@ final class WhatsAppReminderController extends Controller
         }
 
         if ($total > 0) {
-            SendBulkReminder::dispatch($batchId)->afterResponse();
+            SendBulkReminder::dispatch($batchId);
         }
 
         return response()->json([

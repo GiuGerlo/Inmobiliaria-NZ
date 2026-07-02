@@ -79,7 +79,7 @@ final class WhatsAppMessageController extends Controller
         }
 
         if ($failed->isNotEmpty()) {
-            SendBulkReminder::dispatch($newBatch)->afterResponse();
+            SendBulkReminder::dispatch($newBatch);
         }
 
         return response()->json(['batch_id' => $newBatch, 'total' => $failed->count()], 202);

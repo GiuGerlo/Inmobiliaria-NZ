@@ -48,8 +48,11 @@ con un entorno de prueba gratis para validar antes de producción. El costo es m
   por envío.
 - Secretos (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, nombres de plantilla) en `.env`, nunca
   commiteados. Para prod hace falta un **token permanente** (System User), no el temporal de 24 h.
-- Envío **encolado** (job `SendWhatsAppDocument`). Por ahora cola `sync` (sin worker); en prod (sub-H) se
-  flipea a `database` + `queue:work`.
+- Envío de **recibos/rendiciones** (job `SendWhatsAppDocument`): corre por `afterResponse` (tras la
+  respuesta HTTP, en el proceso web) — instantáneo y sin depender de un worker. Los **recordatorios
+  masivos** (job `SendBulkReminder`) sí van por cola `database` + `queue:work` (worker CLI por cron en
+  el server), porque un lote largo no puede correr en el proceso web de shared hosting. Local usa
+  `sync` (inline). Ver `docs/runbooks/fase7-pasos-manuales.md` Bloque 7.
 - Teléfonos legacy se normalizan a E.164 con `propaganistas/laravel-phone`. Pendiente de confirmar
   empíricamente el caso del "9" de celular AR contra el número de prueba de Meta.
 - Estado de entrega/lectura (webhook) queda **fuera de alcance**; el MVP registra "enviado" + message id.

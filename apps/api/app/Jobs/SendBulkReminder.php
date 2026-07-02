@@ -25,6 +25,12 @@ final class SendBulkReminder implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Idempotente (solo procesa filas `queued`) → si el worker muere/timeout a mitad del
+     * lote, la próxima corrida re-toma y termina lo que falta. tries>1 hace posible ese resume.
+     */
+    public int $tries = 3;
+
     public function __construct(public readonly string $batchId) {}
 
     public function handle(WhatsAppSender $sender): void

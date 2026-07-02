@@ -49,8 +49,8 @@ it('devuelve el estado de un lote y reintenta los fallidos', function () {
         ->assertStatus(202)
         ->assertJsonPath('total', 1);
 
-    // El retry creó una fila nueva para el mismo destinatario en otro batch (se envía
-    // tras la respuesta vía afterResponse → queda 'sent' con Http::fake).
+    // El retry creó una fila nueva para el mismo destinatario en otro batch. El bulk se
+    // despacha a la cola; en tests QUEUE_CONNECTION=sync corre inline → queda 'sent' con Http::fake.
     expect(WhatsAppMessage::where('recipient_name', 'Falló')->count())->toBe(2);
     expect(WhatsAppMessage::where('recipient_name', 'Falló')->where('status', 'sent')->exists())->toBeTrue();
 });

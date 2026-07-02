@@ -243,11 +243,20 @@ SUPERADMIN_EMAIL=<tu email de admin>
 
 ## Bloque 7 — Cron para la cola de WhatsApp (hPanel)
 
-Los envíos de WhatsApp usan cola. En shared hosting no hay worker permanente → un cron lo procesa.
+Los **recordatorios masivos** (`SendBulkReminder`) van por cola `database` — un lote largo no puede
+correr en el proceso web de shared hosting (lo mata). Este cron es un worker CLI efímero que drena la
+cola. **Requerido para que los recordatorios masivos se envíen en el server.** Los recibos/rendiciones
+individuales NO usan cola (van por `afterResponse`), así que siguen andando aunque el cron falle.
+Local usa `sync` (inline) → no necesita cron.
 
 - [ ] hPanel → Avanzado → Cron Jobs → agregar, cada 1 minuto (ruta real del server + binario 8.4):
       `cd /home/u407412506/domains/nz-estudiojuridicoinmobiliario.com/public_html/laravel-api-dev && /opt/alt/php84/usr/bin/php artisan queue:work --stop-when-empty --max-time=50 >> storage/logs/queue.log 2>&1`
 - [ ] (En el corte) el mismo cron apuntando a la carpeta de prod.
+
+> Worker efímero (`--stop-when-empty --max-time=50`): arranca, drena, muere antes de que el hosting lo
+> mate; como es un proceso nuevo cada corrida, lee la config fresca → **no hace falta `queue:restart`**
+> tras un deploy. `SendBulkReminder` es idempotente (solo procesa filas `queued`) + `tries=3` → si una
+> corrida se corta a mitad del lote, la siguiente re-toma lo que falta.
 
 ---
 
