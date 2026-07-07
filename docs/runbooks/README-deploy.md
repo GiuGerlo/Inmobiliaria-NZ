@@ -104,5 +104,6 @@ Restaurar desde el backup de la corrida en `<dominio>/backups/<entorno>/...`:
 ## Secrets (en GitHub → Environments `dev` / `production`)
 
 `SSH_KEY`, `SSH_HOST`, `SSH_PORT`, `SSH_USER`, `DEPLOY_PATH_API`, `DEPLOY_PATH_PUBLIC`,
-`GOOGLE_MAPS_API_KEY`. Sin valores en el repo. (El modo mantenimiento ya no usa `MAINT_SECRET`:
+`GOOGLE_MAPS_API_KEY`, `GA_MEASUREMENT_ID` (GA4, solo entorno `production` — el sitio público
+trackea únicamente en prod). Sin valores en el repo. (El modo mantenimiento ya no usa `MAINT_SECRET`:
 se maneja desde el admin — ADR-0010.)

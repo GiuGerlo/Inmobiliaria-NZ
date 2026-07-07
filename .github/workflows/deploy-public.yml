@@ -62,6 +62,8 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ steps.urls.outputs.api }}
           NEXT_PUBLIC_SITE_URL: ${{ steps.urls.outputs.site }}
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          # Solo en producción: dev no trackea (así no ensucia las métricas reales).
+          NEXT_PUBLIC_GA_ID: ${{ github.ref_name == 'production' && secrets.GA_MEASUREMENT_ID || '' }}
         run: |
           pnpm install --frozen-lockfile
           pnpm build

@@ -1,6 +1,7 @@
 import { MapPin, Phone, Mail, Clock, Instagram } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { AnimatedText } from '@/components/AnimatedText';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { site, whatsappLink } from '@/lib/site';
 
 // Embed estático de la oficina (constante propia, no input del admin).
@@ -58,14 +59,13 @@ export function Contact() {
               ))}
 
               <div className="flex gap-3 sm:col-span-2">
-                <a
+                <WhatsAppLink
                   href={whatsappLink('Hola, quería hacer una consulta.')}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  location="contact"
                   className="flex-1 rounded-full bg-navy py-3.5 text-center text-sm font-semibold text-cream transition-transform hover:scale-[1.02]"
                 >
                   Escribir por WhatsApp
-                </a>
+                </WhatsAppLink>
                 <a
                   href={site.social.instagram}
                   target="_blank"

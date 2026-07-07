@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     url: '/',
     title: site.name,
     description: site.description,
+    images: [{ url: '/img/opengraph.jpg', width: 1200, height: 630, alt: site.name }],
   },
 };
 

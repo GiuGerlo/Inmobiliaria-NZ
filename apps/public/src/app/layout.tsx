@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Poppins, Fraunces } from 'next/font/google';
 import { site, businessJsonLd, jsonLdString } from '@/lib/site';
 import { Preloader } from '@/components/Preloader';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { gaId } from '@/lib/analytics';
 import './globals.css';
 
 const poppins = Poppins({
@@ -55,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdString(businessJsonLd()) }}
         />
+        {gaId && <GoogleAnalytics gaId={gaId} />}
         <Preloader />
         {children}
       </body>

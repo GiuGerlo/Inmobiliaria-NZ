@@ -131,6 +131,7 @@ En cada uno, **Settings → Secrets**, cargá:
 | `SSH_KEY` | contenido de `deploy_nz` (privada) | pegar el archivo entero |
 | `DEPLOY_PATH_API` | ruta del Laravel en el server | dev: `~/laravel-api-dev` · prod: el de prod |
 | `DEPLOY_PATH_PUBLIC` | document root del público | dev: el de `dev.` · prod: el del dominio raíz |
+| `GA_MEASUREMENT_ID` | ID de GA4 (`G-XXXXXXX`) | **solo `production`** — dev no trackea. Opcional. |
 
 - [ ] Environment `dev` con sus 6 secrets.
 - [ ] Environment `production` con sus 6 secrets.
@@ -348,10 +349,40 @@ Esto es el switch final; va a su propio runbook detallado (`docs/runbooks/corte-
 de tu lado vas a tener que:
 
 - [ ] Crear DB `nz_prod` + subdominio `admin.` + (mover el dominio raíz al nuevo público).
-- [ ] Cargar secrets/`.env`/cron de prod.
+- [ ] Cargar secrets/`.env`/cron de prod (checklist detallado abajo).
 - [ ] Backup del legacy (admin alquileres + público estudio) antes de tocar nada.
 - [ ] Dar el OK para activar mantenimiento, migrar datos y hacer el switch.
 - [ ] Bajar el legacy una vez verificado.
+
+### Checklist de secrets y config de producción (al hacer el corte)
+
+**GitHub → Settings → Environments → `production` → Secrets** (mismos que `dev`, con valores de prod):
+
+- [ ] `SSH_HOST`, `SSH_PORT`, `SSH_USER`, `SSH_KEY` (la misma cuenta Hostinger).
+- [ ] `DEPLOY_PATH_API` (Laravel de prod, ej. `~/laravel-api`), `DEPLOY_PATH_PUBLIC` (docroot del dominio raíz).
+- [ ] `GOOGLE_MAPS_API_KEY` (mapa del home).
+- [ ] **`GA_MEASUREMENT_ID`** = tu ID de GA4 `G-XXXXXXX`. **Solo en el environment `production`** —
+      el sitio público trackea únicamente en prod (dev no ensucia las métricas). Sin este secret, el
+      sitio simplemente no carga Analytics (no rompe nada).
+
+**`.env` del server de prod** (SSH, no en git — usar el template del Bloque 6 con valores de prod):
+
+- [ ] URLs de prod (`APP_URL`, `SESSION_DOMAIN`, `SANCTUM_STATEFUL_DOMAINS` = `admin.nz-…`).
+- [ ] DB `nz_prod` (name/user/pass reales).
+- [ ] **`PUBLIC_DOCROOT_PATH`** = docroot ABSOLUTO del dominio raíz (distinto del de dev; para el modo
+      mantenimiento — ADR-0010).
+- [ ] `SUPERADMIN_EMAIL` (tu cuenta), tokens de WhatsApp Meta, `LARAVEL_PDF_DRIVER=dompdf`.
+
+**Cron (hPanel):**
+
+- [ ] `queue-nz-prod.sh` (worker de la cola de recordatorios) cada 1 min — mismo patrón que el de dev
+      (Bloque 7), apuntando al Laravel de prod.
+
+**Post-deploy (una vez arriba):**
+
+- [ ] En **GA4** marcar el evento **`whatsapp_click`** como *evento clave* (conversión) para ver las
+      consultas como conversión. QA: sitio prod → GA4 Tiempo real → click "Consultar por WhatsApp" →
+      aparece `whatsapp_click` con su parámetro `location` (floating/contact/property).
 
 > **Migración de datos reales (definido con Giuli, 2026-07-02)**: para el corte, Giuli entrega las
 > **dos bases de datos actuales** de los legacy — admin de **alquileres** + sitio de **ventas**

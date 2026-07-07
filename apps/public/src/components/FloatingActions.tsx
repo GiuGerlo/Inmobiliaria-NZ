@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUp, Instagram } from 'lucide-react';
 import { site, whatsappLink } from '@/lib/site';
+import { trackWhatsApp } from '@/lib/analytics';
 
 function WhatsAppIcon({ size = 26 }: { size?: number }) {
   return (
@@ -49,6 +50,7 @@ export function FloatingActions() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"
+        onClick={() => trackWhatsApp('floating')}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.8, type: 'spring', stiffness: 260, damping: 18 }}

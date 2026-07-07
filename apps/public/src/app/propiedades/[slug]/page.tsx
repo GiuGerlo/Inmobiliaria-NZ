@@ -8,6 +8,7 @@ import { FloatingActions } from '@/components/FloatingActions';
 import { ImageCarousel } from '@/components/ImageCarousel';
 import { MapEmbed } from '@/components/MapEmbed';
 import { PropertyCard } from '@/components/PropertyCard';
+import { WhatsAppLink } from '@/components/WhatsAppLink';
 import { getCatalog, findBySlug } from '@/lib/api';
 import { coverImage, splitList, type SaleProperty } from '@/lib/types';
 import { site, whatsappLink, jsonLdString } from '@/lib/site';
@@ -276,14 +277,13 @@ export default async function PropertyDetailPage({
                 Contactanos para coordinar una visita o resolver tus dudas sobre esta propiedad.
               </p>
 
-              <a
+              <WhatsAppLink
                 href={whatsappLink(`Hola, me interesa la propiedad: ${title}`)}
-                target="_blank"
-                rel="noopener noreferrer"
+                location="property"
                 className="mt-5 block rounded-full bg-gold py-3.5 text-center text-sm font-semibold text-navy transition-transform hover:scale-[1.02]"
               >
                 Consultar por WhatsApp
-              </a>
+              </WhatsAppLink>
 
               <dl className="mt-7 space-y-4 border-t border-cream/10 pt-6 text-sm">
                 <div>
