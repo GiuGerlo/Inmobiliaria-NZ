@@ -48,6 +48,11 @@ export const queryKeys = {
     messages: (params: unknown) => ['whatsapp', 'messages', params] as const,
     batch: (batchId: string) => ['whatsapp', 'batch', batchId] as const,
   },
+  maintenance: {
+    all: ['maintenance'] as const,
+    detail: ['maintenance', 'detail'] as const,
+    status: ['maintenance', 'status'] as const,
+  },
   salesProperties: {
     all: ['sale-properties'] as const,
     list: (params: SalePropertyListParams) => ['sale-properties', 'list', params] as const,

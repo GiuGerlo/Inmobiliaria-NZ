@@ -14,6 +14,7 @@ import { ReceiptsPage } from '@/features/receipts/ReceiptsPage';
 import { RemindersPage } from '@/features/whatsapp/RemindersPage';
 import { SalesPropertiesPage } from '@/features/sales-properties/SalesPropertiesPage';
 import { ProfilePage } from '@/features/profile/ProfilePage';
+import { MaintenancePage } from '@/features/maintenance/MaintenancePage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -35,7 +36,10 @@ export const router = createBrowserRouter([
           { path: 'perfil', element: <ProfilePage /> },
           {
             element: <RequireSuperadmin />,
-            children: [{ path: 'propiedades-venta', element: <SalesPropertiesPage /> }],
+            children: [
+              { path: 'propiedades-venta', element: <SalesPropertiesPage /> },
+              { path: 'mantenimiento', element: <MaintenancePage /> },
+            ],
           },
           { path: '*', element: <Navigate to="/" replace /> },
         ],

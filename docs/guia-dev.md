@@ -21,7 +21,6 @@ Tu browser
 
 Internos (sin puerto público):
     mariadb     Base de datos
-    gotenberg   Motor de PDFs (Chromium headless)
 ```
 
 ### Para qué sirve cada uno
@@ -33,7 +32,6 @@ Internos (sin puerto público):
 | **node-dev** | React + Vite. El panel admin (gestión de alquileres). | La dueña / admin |
 | **next-public** | Next.js. El sitio público de venta (Capua, catálogo). | Cualquier visitante en :3000 |
 | **mariadb** | Base de datos MariaDB. Guarda todo. | Laravel |
-| **gotenberg** | Convierte HTML → PDF con Chromium. | Laravel cuando generás un recibo |
 | **phpmyadmin** | Ver/editar la DB con interfaz web. Solo en dev. | Vos en dev |
 | **legacy** | El PHP procedural viejo en :8082. Sigue funcionando. | Mientras se termina el nuevo |
 

@@ -48,7 +48,8 @@ Modelo de ramas (ver `git-workflow.md`): `dev` deploya a la instancia dev, `prod
 - **Reporte de cambios** en el summary de Actions: nuevos / modificados / borrados (`rsync -i`) + `--stats`.
 - **Ventana de mantenimiento** en el API: `artisan down → rsync → migrate → up` (con `up` en
   `if: always()` para que el admin no quede caído si migrate falla). El flag de `down` vive en
-  `storage/framework/`, que el rsync excluye para que `--delete` no lo borre.
+  `storage/framework/`, que el rsync excluye para que `--delete` no lo borre. (El mantenimiento
+  **manual**/planeado ya no usa `--secret`: se maneja desde el admin — ver ADR-0010.)
 - **Cache** de composer (vendor) y pnpm store → builds rápidos.
 - **Health check** post-deploy (`/api/v1/health` y home 200). Si falla, la corrida falla y GitHub notifica.
 - **Force full resync**: input manual `force_full` en `workflow_dispatch` → `rsync --checksum --ignore-times`
@@ -63,7 +64,7 @@ dan recuperación manual (restaurar archivos desde `files-replaced/` + DB desde 
   `mysqldump`/`gzip` en PATH, y el binario `/opt/alt/php84/usr/bin/php`.
 - El `.env` del server nunca se pisa (rsync lo excluye). Si `DB_PASSWORD` tiene espacios o `#`, debe ir
   entre comillas en el `.env` (el backup lo parsea con `grep`/`cut`).
-- Los secrets (`SSH_*`, `DEPLOY_PATH_*`, `MAINT_SECRET`, `GOOGLE_MAPS_API_KEY`) viven por environment
+- Los secrets (`SSH_*`, `DEPLOY_PATH_*`, `GOOGLE_MAPS_API_KEY`) viven por environment
   (`dev`/`production`) en GitHub, nunca en el repo.
 - Deuda: no hay rollback de un botón. Si se necesita, revisitar con releases versionados (symlink
   `current` → `releases/<ts>`) en un ADR futuro.

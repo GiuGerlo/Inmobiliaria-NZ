@@ -23,5 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         // Solo el superadmin gestiona el dominio ventas (Fusión NZ Fase 3).
         Gate::define('manage-sales', fn (User $user): bool => $user->isSuperadmin());
+
+        // Solo el superadmin activa/desactiva el modo mantenimiento (ADR-0010).
+        Gate::define('manage-maintenance', fn (User $user): bool => $user->isSuperadmin());
     }
 }

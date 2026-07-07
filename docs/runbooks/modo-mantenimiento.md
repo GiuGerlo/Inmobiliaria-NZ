@@ -1,120 +1,71 @@
 # Modo mantenimiento — paso a paso
 
-Cómo poner en mantenimiento (y volver a levantar) el **admin** y el **público**, en **dev** y en
-**producción**. El mantenimiento corta el acceso a los visitantes y te deja a vos entrar por un
-**link secreto**. No requiere redeploy: se activa/desactiva por SSH.
+Cómo poner el sitio (público + admin) en mantenimiento y volver a levantarlo, **desde el admin**,
+sin SSH. Lo maneja el **superadmin**. Diseño en `docs/adr/0010-modo-mantenimiento-admin.md`.
 
 ---
 
-## 0. Antes de empezar (una sola vez)
+## Qué hace
 
-- **Token secreto** (`MAINT_SECRET`): generá uno largo y guardalo.
-  ```
-  openssl rand -hex 24
-  ```
-  Es el mismo para admin y público. Va como GitHub secret `MAINT_SECRET` (lo inyecta el deploy en el
-  `.htaccess` del público). Para el admin lo pasás a mano en el comando `--secret`.
-- **Acceso SSH** a Hostinger (host, puerto, usuario — los tenés del setup).
-  ```
-  ssh -p <PUERTO> <USUARIO>@<HOST>
-  ```
-- **Rutas en el server** (anotalas una vez, salen de hPanel):
+Con mantenimiento **ON**:
 
-  | Entorno | Carpeta Laravel (admin) | Document root público |
-  |---|---|---|
-  | dev | `~/laravel-api-dev` | doc root de `dev.nz-...` |
-  | prod | `~/laravel-api` (la de prod) | doc root del dominio raíz |
+- **Público** (`nz-estudiojuridicoinmobiliario.com` / `dev.nz-…`): todos ven la página de
+  mantenimiento (503), **menos tu IP** permitida.
+- **Admin** (`admin.nz-…` / `admin-dev.nz-…`): entra **solo tu IP permitida o tu sesión de
+  superadmin**; el resto (staff `inmobiliaria`) ve una pantalla de mantenimiento. El **login queda
+  accesible** → no te bloqueás a vos mismo aunque te cambie la IP.
+
+Tu IP se **captura sola** al activar. Es **una** IP; si te cambia, usás "Actualizar a mi IP".
 
 ---
 
-## 1. ACTIVAR mantenimiento
+## Requisito (una sola vez, en el server)
 
-> Hacé los dos pasos (admin + público). El orden no importa.
+En el `.env` del **API** del entorno, seteá el docroot del público para que el admin pueda escribir
+ahí su gate:
 
-### Admin (Laravel)
 ```
-cd <CARPETA_LARAVEL>
-php artisan down --secret="<MAINT_SECRET>" --retry=60
+PUBLIC_DOCROOT_PATH=<ruta absoluta del docroot público>   # dev = docroot de dev. · prod = raíz
 ```
-Desde ese momento todos ven la página 503 de mantenimiento del admin.
 
-### Público (Next estático)
-```
-cd <DOC_ROOT_PUBLICO>
-touch maintenance.on
-```
-Desde ese momento todos ven `maintenance.html` (HTTP 503).
+Después `/opt/alt/php84/usr/bin/php artisan config:clear`. **Sin esta variable, el toggle solo bloquea
+el admin** (el público queda normal).
 
 ---
 
-## 2. ENTRAR vos (bypass por link secreto)
+## 1. ACTIVAR
 
-Una sola visita setea tu acceso; después navegás normal aunque siga en mantenimiento.
+1. Entrá al admin como superadmin → menú **Mantenimiento**.
+2. **Activar mantenimiento**.
+3. Verificá que **"IP permitida" = tu IP real** (comparala con [whatismyip.com](https://www.whatismyip.com/)).
+4. Probá en **incógnito / otra red**: el público muestra la página de mantenimiento; el admin no deja
+   entrar. En tu ventana normal, ambos cargan bien.
 
-- **Admin**: abrí en el navegador
-  `https://<admin-dev o admin>.nz-estudiojuridicoinmobiliario.com/<MAINT_SECRET>`
-  → te redirige y entrás al panel normal.
+## 2. SI TE CAMBIÓ LA IP
 
-- **Público**: abrí
-  `https://<dev o dominio-raiz>/__open/<MAINT_SECRET>`
-  → setea una cookie por 8 h y navegás el sitio normal.
+En **Mantenimiento**, si "Tu IP actual" ≠ "IP permitida", apretá **Actualizar a mi IP** (reescribe el
+gate del público con tu IP nueva). Al admin, igual entrás siempre por tu sesión de superadmin.
 
-> Si tu sesión expira o cambiás de navegador/dispositivo, volvé a visitar el link.
+## 3. DESACTIVAR
 
----
-
-## 3. VERIFICAR que quedó bien
-
-- En una **ventana de incógnito** (sin tu cookie de bypass):
-  - Admin → debe mostrar la página navy "Estamos actualizando el sistema".
-  - Público → debe mostrar "Volvemos enseguida".
-- En tu ventana normal (con el bypass hecho en el paso 2) → ambos cargan normal.
-
-Si en incógnito ves el sitio normal, el mantenimiento **no** está activo (revisá paso 1).
+En **Mantenimiento** → **Desactivar**. Todo vuelve a la normalidad al instante.
 
 ---
 
-## 4. DESACTIVAR mantenimiento (volver a la normalidad)
+## Notas
 
-### Admin
-```
-cd <CARPETA_LARAVEL>
-php artisan up
-```
+- Un **deploy del público** reescribe su `.htaccess` base → **apaga** el mantenimiento del público. Si
+  necesitás seguir en mantenimiento tras un deploy, **re-activá** desde el admin.
+- El mantenimiento **breve y automático de cada deploy** (unos segundos, mientras corren las
+  migraciones del API) es **otra cosa**: es automático, no lo tocás.
+- Si algún día Hostinger interpone un proxy, la IP capturada podría no ser la tuya real. Se ajusta
+  trusted-proxy / `X-Forwarded-For` en Laravel **y** el `%{REMOTE_ADDR}` del `.htaccess` (deben usar la
+  misma IP). Se valida en dev.
 
-### Público
-```
-cd <DOC_ROOT_PUBLICO>
-rm maintenance.on
-```
+## Si algo falla
 
-Listo: todos vuelven a entrar normal.
-
----
-
-## 5. Diferencias dev vs prod
-
-Es **exactamente el mismo procedimiento**; solo cambian las rutas y las URLs:
-
-| | DEV | PROD |
-|---|---|---|
-| Carpeta admin | `~/laravel-api-dev` | `~/laravel-api` |
-| URL admin | `admin-dev.nz-...` | `admin.nz-...` |
-| Doc root público | el de `dev.nz-...` | el del dominio raíz |
-| URL público | `dev.nz-...` | `nz-estudiojuridicoinmobiliario.com` |
-
-Probá **siempre primero en dev**. Cuando estés cómodo con el flujo, lo repetís en prod en la ventana
-de corte.
-
----
-
-## 6. Si algo falla
-
-- **El admin no entra con el link secreto**: el token del `--secret` no coincide con el de la URL.
-  Volvé a correr `php artisan down --secret="<token>"` con el token correcto y reintentá `/​<token>`.
-- **El público sigue mostrándose normal con `maintenance.on` creado**: confirmá que el archivo está
-  en el **document root correcto** (`pwd` debe ser el doc root del subdominio) y que el `.htaccess`
-  con el gate está deployado ahí.
-- **El público muestra mantenimiento pero sin estilos/logo**: normal solo si falta el deploy; los
-  assets (`/img/logo.png`) los sirve el mismo sitio.
-- **Quedó el admin caído y perdiste el token**: por SSH `php artisan up` lo levanta sin token.
+- **El público sigue normal con mantenimiento ON**: falta `PUBLIC_DOCROOT_PATH` en el `.env` (o quedó
+  cacheada la config vieja → `config:clear`).
+- **Te bloqueaste del admin**: no debería pasar (el login y tu sesión de superadmin siempre entran).
+  Último recurso por SSH: `UPDATE settings SET value='0' WHERE key='maintenance.enabled';` en la DB, o
+  borrar el bloque `NZ-MAINTENANCE` del `.htaccess` del público.

@@ -7,6 +7,9 @@ import { cn } from '@/lib/utils';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
 import { MadeByGerlo } from '@/components/MadeByGerlo';
+import { useAuth } from '@/features/auth/useAuth';
+import { useMaintenanceStatus } from '@/features/maintenance/queries';
+import { MaintenanceScreen } from '@/features/maintenance/MaintenanceScreen';
 
 const SIDEBAR_KEY = 'nz-sidebar-collapsed';
 
@@ -22,12 +25,19 @@ function Brand() {
 }
 
 export function AppLayout() {
+  const { user } = useAuth();
+  const { data: maintenance } = useMaintenanceStatus();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === '1');
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
   }, [collapsed]);
+
+  // Con mantenimiento ON, todo el que no sea superadmin ve la pantalla de mantenimiento.
+  if (maintenance?.enabled && !user?.is_superadmin) {
+    return <MaintenanceScreen />;
+  }
 
   return (
     <div className="flex min-h-svh">

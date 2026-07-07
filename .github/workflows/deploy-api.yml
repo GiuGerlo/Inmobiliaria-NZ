@@ -142,7 +142,7 @@ jobs:
           echo "on=1" >> "$GITHUB_OUTPUT"
 
       # rsync incremental (o full con --checksum). --backup-dir guarda lo pisado/borrado.
-      # --delete protege: .env, uploads, import, logs, storage/framework (flag down), maintenance.on.
+      # --delete protege: .env, uploads, import, logs, storage/framework (flag del down de cada deploy).
       - name: Rsync API + backup de archivos + reporte
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -167,7 +167,6 @@ jobs:
             --exclude='/storage/app/import/' \
             --exclude='/storage/logs/' \
             --exclude='/storage/framework/' \
-            --exclude='maintenance.on' \
             -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
             apps/api/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_API}/" | tee /tmp/rsync-api.txt
           grep '^<f+++' /tmp/rsync-api.txt | awk '{print $2}' > /tmp/f-new.txt || true

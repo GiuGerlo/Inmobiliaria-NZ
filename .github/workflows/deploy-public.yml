@@ -66,14 +66,11 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm build
 
-      # Next no garantiza copiar dotfiles del public/: copiamos el .htaccess a mano e inyectamos
-      # el token de mantenimiento (enmascarado en logs por GitHub).
-      - name: Asegurar .htaccess + inyectar token de mantenimiento
-        env:
-          MAINT_SECRET: ${{ secrets.MAINT_SECRET }}
-        run: |
-          cp apps/public/public/.htaccess apps/public/out/.htaccess
-          sed -i "s|__MAINT_SECRET__|${MAINT_SECRET}|g" apps/public/out/.htaccess
+      # Next no garantiza copiar dotfiles de public/: copiamos el .htaccess base a mano.
+      # El modo mantenimiento lo escribe el admin en runtime sobre este .htaccess (ADR-0010);
+      # el deploy lo vuelve a dejar en base (limpia el mantenimiento del público).
+      - name: Asegurar .htaccess
+        run: cp apps/public/public/.htaccess apps/public/out/.htaccess
 
       - name: Cargar llave SSH de deploy
         uses: webfactory/ssh-agent@v0.9.0
@@ -100,7 +97,7 @@ jobs:
           fi
 
       # rsync incremental (o full con --checksum). --backup-dir guarda lo pisado/borrado.
-      # --delete limpia lo viejo; se protege el flag de mantenimiento del server.
+      # --delete limpia lo viejo (incluye el .htaccess base → resetea el mantenimiento del público).
       - name: Rsync out/ + backup de archivos + reporte
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -111,7 +108,6 @@ jobs:
           set -euo pipefail
           rsync -az --delete -i --stats ${RSYNC_EXTRA} \
             --backup --backup-dir="${BACKUP_DIR}/files-replaced" \
-            --exclude='maintenance.on' \
             -e "ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new" \
             apps/public/out/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH_PUBLIC}/" | tee /tmp/rsync-public.txt
           grep '^<f+++' /tmp/rsync-public.txt | awk '{print $2}' > /tmp/f-new.txt || true

@@ -24,25 +24,14 @@ testeás en los subdominios dev → cuando está de 10, `merge dev → productio
 
 ## Modo mantenimiento — cómo se usa (referencia)
 
-Ya está en el código (este commit). Activás/desactivás por SSH en el server, sin redeploy.
-Token secreto: generá uno con `openssl rand -hex 24` y guardalo como GitHub secret `MAINT_SECRET`
-(el deploy lo inyecta en el `.htaccess` del público y vos lo pasás al admin con `--secret`).
+Se maneja **desde el admin** (solo superadmin), sin SSH. Runbook detallado:
+`docs/runbooks/modo-mantenimiento.md`. Diseño: `docs/adr/0010-modo-mantenimiento-admin.md`.
 
-**Admin / API (Laravel)** — desde la carpeta del proyecto en el server:
-```
-php artisan down --secret="<MAINT_SECRET>" --retry=60   # activar (todos ven 503)
-# bypass: visitar UNA vez  https://admin.nz-.../<MAINT_SECRET>   → te deja entrar normal
-php artisan up                                          # desactivar
-```
-
-**Público (Next estático)** — desde el document root del público en el server:
-```
-touch maintenance.on     # activar (visitantes ven la página de mantenimiento, 503)
-# bypass: visitar UNA vez  https://nz-.../__open/<MAINT_SECRET>   → cookie 8 h, navegás normal
-rm maintenance.on        # desactivar
-```
-
-- [ ] Generar `MAINT_SECRET` y guardarlo (lo cargás como secret en el Bloque 5).
+- Admin → menú **Mantenimiento** → **Activar**: captura tu IP y bloquea el sitio público y el admin
+  para todos, menos tu IP y tu sesión de superadmin. **Desactivar** vuelve todo a normal.
+- Requisito en el server: `PUBLIC_DOCROOT_PATH` en el `.env` del API = ruta absoluta al docroot del
+  público (para que el admin escriba ahí el gate del `.htaccess`). Sin eso, solo se bloquea el admin.
+- El down/up **automático de cada deploy** (breve, durante las migraciones) es aparte y sigue igual.
 
 ---
 
@@ -58,7 +47,7 @@ porque el repo es público. Viven en: **GitHub Secrets** (environment `dev`/`pro
 | `SSH_KEY` (privada) | GitHub Secret (env `dev`) | OK |
 | `DEPLOY_PATH_API` | GitHub Secret (env `dev`) | OK (doc root `…/public`; deny `.htaccess` en el padre OK) |
 | `DEPLOY_PATH_PUBLIC` | GitHub Secret (env `dev`) | OK |
-| `MAINT_SECRET` | GitHub Secret (env `dev`) + notas | OK |
+| `PUBLIC_DOCROOT_PATH` (modo mantenimiento) | `.env` del server | se setea en Bloque 6 |
 | DB dev (name/user/pass) | `.env` del server + notas | DB creada OK; `.env` se carga en Bloque 6 |
 | Secrets de `production` | GitHub Secret (env `production`) | pendiente (en el corte) |
 
@@ -204,6 +193,9 @@ FILESYSTEM_DISK=local
 MAIL_MAILER=log
 BROADCAST_CONNECTION=log
 
+# Modo mantenimiento desde el admin (ADR-0010): docroot ABSOLUTO del público en el server.
+PUBLIC_DOCROOT_PATH=<ruta absoluta del docroot de dev.>
+
 LARAVEL_PDF_DRIVER=dompdf
 
 # WhatsApp Meta (dejá vacío en dev si no vas a probar envíos reales)
@@ -228,8 +220,8 @@ NZ_COMMISSION_RATE=0.10
 SUPERADMIN_EMAIL=<tu email de admin>
 ```
 
-> Mantenimiento del admin = `php artisan down --secret="<MAINT_SECRET>"` (no va en `.env`, se pasa
-> en el comando). El `<MAINT_SECRET>` es el mismo token del GitHub Secret.
+> El mantenimiento **manual** se hace **desde el admin** (menú Mantenimiento, ADR-0010), no por SSH.
+> El `artisan down` **automático** de cada deploy (sin secreto, durante las migraciones) es aparte.
 
 - [x] `.env` dev creado y completado (APP_KEY generada, DB conecta OK).
 - [ ] Repetir para **prod** en el corte, con datos de `nz_prod` y URLs de prod.
@@ -360,6 +352,14 @@ de tu lado vas a tener que:
 - [ ] Backup del legacy (admin alquileres + público estudio) antes de tocar nada.
 - [ ] Dar el OK para activar mantenimiento, migrar datos y hacer el switch.
 - [ ] Bajar el legacy una vez verificado.
+
+> **Migración de datos reales (definido con Giuli, 2026-07-02)**: para el corte, Giuli entrega las
+> **dos bases de datos actuales** de los legacy — admin de **alquileres** + sitio de **ventas**
+> (`nz-estudio`) — junto con sus **archivos generados y uploads** (PDFs, imágenes de propiedades, etc.).
+> El agente **migra esa data al esquema Laravel actual** (mapeo tablas legacy → modelos nuevos,
+> normalización de teléfonos a E.164, dedupe, etc.) y se sube `nz_prod` **ya cargada con toda la data
+> actual** (no seeders demo en prod). Los uploads van a `storage/app/public` + `storage:link`. El paso
+> a paso de la migración va en `corte-fase7.md` cuando Giuli pase los dumps.
 
 ---
 

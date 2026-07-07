@@ -1,6 +1,6 @@
-{{-- Vista de mantenimiento del admin/API. Se muestra automáticamente cuando la app está
-     en modo mantenimiento (php artisan down). El acceso del operador se hace con el token
-     secreto (php artisan down --secret="<token>") visitando /<token> una vez. --}}
+{{-- Vista de mantenimiento del admin/API. La muestra el framework durante el mantenimiento
+     AUTOMÁTICO de cada deploy (php artisan down, mientras corren las migraciones). El
+     mantenimiento MANUAL/superadmin es otro mecanismo, desde el admin (ADR-0010). --}}
 @php($nz = config('inmobiliaria'))
 <!DOCTYPE html>
 <html lang="es">

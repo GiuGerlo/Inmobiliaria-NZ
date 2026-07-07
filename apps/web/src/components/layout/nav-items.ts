@@ -9,6 +9,7 @@ import {
   Store,
   Users,
   UserSquare,
+  Wrench,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -38,4 +39,11 @@ export const navItems: NavItem[] = [
   { label: 'Inquilinos', to: '/inquilinos', icon: Users, enabled: true },
   { label: 'Dueños', to: '/duenos', icon: UserSquare, enabled: true },
   { label: 'Formas de pago', to: '/formas-pago', icon: Building2, enabled: true },
+  {
+    label: 'Mantenimiento',
+    to: '/mantenimiento',
+    icon: Wrench,
+    enabled: true,
+    superadminOnly: true,
+  },
 ];

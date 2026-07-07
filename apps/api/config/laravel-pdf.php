@@ -7,9 +7,8 @@ use Spatie\LaravelPdf\Jobs\GeneratePdfJob;
 return [
     /*
      * The default driver to use for PDF generation.
-     * Usamos dompdf (PHP puro) — ver ADR-0004. spatie/laravel-pdf soporta otros
-     * drivers (browsershot/gotenberg/chrome/weasyprint/cloudflare); si alguna vez se
-     * vuelve a un motor Chromium (VPS), re-publicar el config con `vendor:publish`.
+     * Usamos dompdf (PHP puro, sin binarios externos) — ver ADR-0004. Si algún día se
+     * migra a un motor Chromium (VPS), re-publicar el config con `vendor:publish`.
      */
     'driver' => env('LARAVEL_PDF_DRIVER', 'dompdf'),
 

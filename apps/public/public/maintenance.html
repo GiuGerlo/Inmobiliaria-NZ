@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <!--
   Página de mantenimiento del sitio público de ventas.
-  Se sirve (HTTP 503) cuando existe el archivo `maintenance.on` en el document root.
-  Ver reglas en .htaccess y el toggle en docs/runbooks/fase7-pasos-manuales.md.
+  Se sirve (HTTP 503) cuando el modo mantenimiento está activo: el admin escribe un bloque en el
+  .htaccess del público (ADR-0010) que enruta a esta página a todos, menos la IP permitida.
+  Toggle desde el admin; ver docs/runbooks/modo-mantenimiento.md.
 -->
 <html lang="es">
 <head>

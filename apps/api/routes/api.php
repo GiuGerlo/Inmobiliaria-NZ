@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\MaintenanceController;
 use App\Http\Controllers\Api\V1\MonthlyPaymentsReportController;
 use App\Http\Controllers\Api\V1\OwnerController;
 use App\Http\Controllers\Api\V1\PaymentMethodController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Api\V1\ReceiptWhatsAppController;
 use App\Http\Controllers\Api\V1\WhatsAppMessageController;
 use App\Http\Controllers\Api\V1\WhatsAppReminderController;
 use App\Http\Controllers\Api\V1\TenantController;
+use App\Http\Middleware\MaintenanceGate;
 use App\Http\Middleware\NoStoreHeaders;
 use Illuminate\Support\Facades\Route;
 
@@ -36,12 +38,16 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/auth/login', [AuthController::class, 'login']);
 
+    // Estado de mantenimiento: público y siempre accesible, para que el SPA (incluso el
+    // login) sepa si mostrar la pantalla de mantenimiento.
+    Route::get('/maintenance/status', [MaintenanceController::class, 'status']);
+
     // ── Ventas: lectura pública (consumida por el sitio público SSG, sin auth) ──
     Route::get('/property-types', [PropertyTypeController::class, 'index']);
     Route::get('/sale-properties', [SalePropertyController::class, 'index']);
     Route::get('/sale-properties/{saleProperty}', [SalePropertyController::class, 'show']);
 
-    Route::middleware(['auth:sanctum', NoStoreHeaders::class])->group(function () {
+    Route::middleware(['auth:sanctum', NoStoreHeaders::class, MaintenanceGate::class])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
 
         Route::get('/dashboard', DashboardController::class);
@@ -49,6 +55,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [ProfileController::class, 'show']);
         Route::patch('/me', [ProfileController::class, 'update']);
         Route::put('/me/password', [ProfileController::class, 'updatePassword']);
+
+        // ── Modo mantenimiento: solo superadmin lo gestiona (ADR-0010) ──
+        Route::middleware('can:manage-maintenance')->group(function () {
+            Route::get('/maintenance', [MaintenanceController::class, 'show']);
+            Route::post('/maintenance', [MaintenanceController::class, 'store']);
+            Route::delete('/maintenance', [MaintenanceController::class, 'destroy']);
+            Route::post('/maintenance/ip', [MaintenanceController::class, 'updateIp']);
+        });
 
         Route::apiResource('cities', CityController::class);
         Route::apiResource('owners', OwnerController::class);
