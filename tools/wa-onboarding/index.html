@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NZ · Onboarding WhatsApp (Coexistencia)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 760px;
+           margin: 40px auto; padding: 0 20px; color: #1b2a4a; line-height: 1.55; }
+    h1 { font-size: 1.4rem; }
+    button { background: #1b2a4a; color: #fff; border: 0; border-radius: 8px; padding: 14px 22px;
+             font-size: 1rem; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: default; }
+    .card { border: 1px solid #e3e8f0; border-radius: 10px; padding: 16px 20px; margin: 18px 0;
+            background: #f8fafc; }
+    .field { margin: 10px 0; }
+    .field label { display:block; font-size: .8rem; color:#64748b; text-transform: uppercase; letter-spacing:.04em; }
+    .field code { display:block; background:#fff; border:1px solid #e3e8f0; border-radius:6px;
+                  padding:10px 12px; font-size:.95rem; word-break: break-all; }
+    pre { background:#0f172a; color:#e2e8f0; padding:14px; border-radius:8px; overflow:auto; font-size:.8rem; }
+    .muted { color:#64748b; font-size:.9rem; }
+    ol { padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Conectar WhatsApp de Nadina (Coexistencia)</h1>
+  <p class="muted">
+    Esta página conecta el número de <b>WhatsApp Business</b> de Nadina a la Cloud API en modo
+    <b>coexistencia</b>: sigue chateando desde la app y el sistema puede enviar recibos/recordatorios por
+    el mismo número. Uso único — después se borra.
+  </p>
+
+  <div class="card">
+    <b>Cómo usarla</b>
+    <ol>
+      <li>Tené a mano el celu de Nadina con <b>WhatsApp Business</b> abierto.</li>
+      <li>Clic en el botón de abajo → se abre un popup de Meta.</li>
+      <li>Iniciá sesión con la cuenta de Facebook del negocio y seguí los pasos.</li>
+      <li>Cuando muestre el <b>QR</b>, escanealo desde WhatsApp Business
+          (Configuración → Dispositivos vinculados → Vincular dispositivo).</li>
+      <li>Al terminar, abajo van a aparecer <b>code</b>, <b>phone_number_id</b> y <b>waba_id</b>. Copialos.</li>
+    </ol>
+  </div>
+
+  <button id="connect" disabled>Cargando SDK de Meta…</button>
+  <p id="status" class="muted"></p>
+
+  <div class="card" id="result" style="display:none">
+    <div class="field"><label>code (para intercambiar por el token)</label><code id="out-code">—</code></div>
+    <div class="field"><label>phone_number_id</label><code id="out-phone">—</code></div>
+    <div class="field"><label>waba_id</label><code id="out-waba">—</code></div>
+    <details>
+      <summary class="muted">Ver evento crudo de Meta (debug)</summary>
+      <pre id="out-raw">—</pre>
+    </details>
+  </div>
+
+  <script>
+    // ---- Datos de la app NZ (App ID y config_id son públicos; el App Secret NO va acá) ----
+    const APP_ID    = '1674054180475447';
+    const CONFIG_ID = '2313495666076718';
+    const GRAPH_VERSION = 'v21.0';
+
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+    const setStatus = (m) => statusEl.textContent = m;
+    const show = (id, v) => { document.getElementById(id).textContent = v; resultEl.style.display = 'block'; };
+
+    // ---- Listener del "session info" que manda Meta durante el flujo ----
+    window.addEventListener('message', (event) => {
+      if (!/facebook\.com$/.test(new URL(event.origin).hostname)) return;
+      let data;
+      try { data = JSON.parse(event.data); } catch { return; }
+      if (data.type !== 'WA_EMBEDDED_SIGNUP') return;
+      show('out-raw', JSON.stringify(data, null, 2));
+      const d = data.data || {};
+      if (d.phone_number_id) show('out-phone', d.phone_number_id);
+      if (d.waba_id) show('out-waba', d.waba_id);
+      if (data.event) setStatus('Evento Meta: ' + data.event);
+    });
+
+    // ---- SDK de Facebook ----
+    window.fbAsyncInit = function () {
+      FB.init({ appId: APP_ID, autoLogAppEvents: true, xfbml: false, version: GRAPH_VERSION });
+      const btn = document.getElementById('connect');
+      btn.disabled = false;
+      btn.textContent = 'Conectar WhatsApp de Nadina';
+      btn.addEventListener('click', launch);
+      setStatus('SDK listo. Clic para empezar.');
+    };
+    (function (d, s, id) {
+      let js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/en_US/sdk.js';
+      fjs.parentNode.insertBefore(js, fjs);
+    })(document, 'script', 'facebook-jssdk');
+
+    // ---- Lanzar el Embedded Signup en modo COEXISTENCIA ----
+    function launch() {
+      setStatus('Abriendo popup de Meta…');
+      FB.login(function (response) {
+        if (response.authResponse && response.authResponse.code) {
+          show('out-code', response.authResponse.code);
+          setStatus('¡Listo! Copiá el code + phone_number_id + waba_id de abajo.');
+        } else {
+          setStatus('Se cerró el popup sin completar (status: ' + (response.status || 'desconocido') + ').');
+        }
+      }, {
+        config_id: CONFIG_ID,
+        response_type: 'code',
+        override_default_response_type: true,
+        extras: {
+          setup: {},
+          featureType: 'whatsapp_business_app_onboarding', // coexistencia (no migración)
+          sessionInfoVersion: '3'
+        }
+      });
+    }
+  </script>
+</body>
+</html>

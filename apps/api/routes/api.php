@@ -14,14 +14,15 @@ use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\PropertyController;
 use App\Http\Controllers\Api\V1\PropertyPhotoController;
 use App\Http\Controllers\Api\V1\PropertyTypeController;
-use App\Http\Controllers\Api\V1\SalePropertyController;
-use App\Http\Controllers\Api\V1\SalePropertyImageController;
 use App\Http\Controllers\Api\V1\ReceiptController;
 use App\Http\Controllers\Api\V1\ReceiptPdfController;
 use App\Http\Controllers\Api\V1\ReceiptWhatsAppController;
+use App\Http\Controllers\Api\V1\SalePropertyController;
+use App\Http\Controllers\Api\V1\SalePropertyImageController;
+use App\Http\Controllers\Api\V1\TenantController;
 use App\Http\Controllers\Api\V1\WhatsAppMessageController;
 use App\Http\Controllers\Api\V1\WhatsAppReminderController;
-use App\Http\Controllers\Api\V1\TenantController;
+use App\Http\Controllers\Api\V1\WhatsAppWebhookController;
 use App\Http\Middleware\MaintenanceGate;
 use App\Http\Middleware\NoStoreHeaders;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,13 @@ Route::prefix('v1')->group(function () {
     // Estado de mantenimiento: público y siempre accesible, para que el SPA (incluso el
     // login) sepa si mostrar la pantalla de mantenimiento.
     Route::get('/maintenance/status', [MaintenanceController::class, 'status']);
+
+    // ── WhatsApp webhook (coexistencia): público, autenticado por verify token (GET)
+    //    y firma HMAC del App Secret (POST). Requisito de Meta para el onboarding. ──
+    Route::get('/whatsapp/webhook', [WhatsAppWebhookController::class, 'verify'])
+        ->middleware('throttle:60,1');
+    Route::post('/whatsapp/webhook', [WhatsAppWebhookController::class, 'receive'])
+        ->middleware('throttle:300,1');
 
     // ── Ventas: lectura pública (consumida por el sitio público SSG, sin auth) ──
     Route::get('/property-types', [PropertyTypeController::class, 'index']);

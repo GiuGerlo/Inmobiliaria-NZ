@@ -40,6 +40,10 @@ return [
         'token' => env('WHATSAPP_TOKEN'),
         'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
         'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+        // Webhook (coexistencia): App Secret para validar la firma HMAC de Meta y
+        // verify token para el handshake GET. Sin estos, el webhook rechaza todo.
+        'app_secret' => env('WHATSAPP_APP_SECRET'),
+        'webhook_verify_token' => env('WHATSAPP_WEBHOOK_VERIFY_TOKEN'),
         'template_recibo' => env('WHATSAPP_TEMPLATE_RECIBO'),
         'template_rendicion' => env('WHATSAPP_TEMPLATE_RENDICION'),
         // Recordatorios (sub-J): plantillas de solo texto.
