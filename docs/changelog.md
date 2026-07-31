@@ -2,6 +2,36 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-07-31] Fusión NZ Fase 7 — Corte a producción — DONE
+
+**Resumen**: Se ejecutó el **corte a prod**. `deploy-api` + `deploy-public` verdes en `production`;
+datos reales migrados a `nz_prod`; sitio público live en `nz-estudiojuridicoinmobiliario.com` y admin
+en `admin.nz-…`. Fase 7 cerrada.
+
+**Cambios**:
+- **`.env` de prod** creado (`apps/api/.env.production`, gitignored, plantilla para llenar en el server).
+  Fix: line endings CRLF de Windows rompían el `mysqldump` del backup (`3306\r`) → normalizado a LF.
+- **Esquema** de `nz_prod` creado por `migrate --force` (deploy-api). No seedea.
+- **Alquileres** cargados 1:1 (ADR-0002, tablas legacy en español): archivo `db/alquileres-data.sql`
+  generado data-only, **re-ordenado por dependencias + DELETE en orden inverso** (idempotente, FK-safe,
+  robusto ante phpMyAdmin ignorando `FOREIGN_KEY_CHECKS=0`). 978 filas, `legacy:check-orphans` OK.
+- **Ventas** vía `artisan ventas:import` desde DB staging (dump legacy) + `NZ_LEGACY_UPLOADS_PATH` a los
+  uploads del legacy: 7 tipos / 53 propiedades / 70 imágenes WebP (0 faltantes).
+- **Superadmin**: `RoleSeeder` (roles + `role_id`) + password bcrypt seteado por tinker. El `Pass_User`
+  legacy era texto plano (no MD5) → login por bcrypt directo.
+- **Sitio público**: Hostinger no permite cambiar el document root del dominio principal → se sirve
+  `prod-public` mediante un **`.htaccess` forwarder** en `public_html` (rewrite interno, URLs limpias con
+  `trailingSlash`, reversible con `.htaccess.legacy-bak`). Se removió un `.htaccess` legacy en
+  `propiedades/` que tapaba las rutas de detalle.
+- **Smoke test prod** verde: home + 53 detalles + `/vendidas/` (200), imágenes WebP desde storage de la
+  API (200), admin health + SPA (200), GA4 `G-0CG4DEM9KS` embebido, sitemap con 53 URLs.
+
+**Breaking**: nada (el legacy sigue intacto en `public_html` como backup; el switch es reversible).
+**Migración**: alquileres 1:1 + ventas por comando; ver `docs/runbooks/corte-fase7.md`. Re-sync final del
+dump de alquileres pendiente para cuando la clienta deje de usar el legacy.
+**Pendiente menor**: token WhatsApp real, `whatsapp_click` como evento clave en GA4, limpieza de archivos
+legacy en `public_html`, dropear `users.Pass_User` + path MD5 legacy post-corte.
+
 ## [2026-07-01] Fusión NZ Fase 7 — Pipeline de deploy (API en dev) — EN PROGRESO
 
 **Resumen**: Se robustece el CI/CD de deploy (GitHub Actions + rsync a Hostinger compartido, ADR-0003)
