@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.url.replace(/\/$/, '');
   const properties = await getCatalog();
 
-  const staticPages = ['', '/propiedades', '/vendidas'].map((path) => ({
+  const staticPages = ['', '/propiedades', '/vendidas', '/politica-de-privacidad'].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
