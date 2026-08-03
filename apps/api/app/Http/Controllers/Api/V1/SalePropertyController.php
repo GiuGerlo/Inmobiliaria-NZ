@@ -34,6 +34,7 @@ final class SalePropertyController extends Controller
                 AllowedSort::field('sort_order'),
                 AllowedSort::field('title'),
                 AllowedSort::field('id'),
+                AllowedSort::field('created_at'),
             )
             ->defaultSort(AllowedSort::field('sort_order'))
             ->with(['type', 'images'])

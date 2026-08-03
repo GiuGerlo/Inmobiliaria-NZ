@@ -29,7 +29,7 @@ export async function fetchAllSaleProperties(): Promise<SaleProperty[]> {
 
   do {
     const body = await getJson<Paginated<SaleProperty>>(
-      `/sale-properties?per_page=100&sort=sort_order&page=${page}`,
+      `/sale-properties?per_page=100&sort=-created_at&page=${page}`,
     );
     all.push(...body.data);
     lastPage = body.meta?.last_page ?? 1;

@@ -25,20 +25,18 @@
 <body>
   <h1>Conectar WhatsApp de Nadina (Coexistencia)</h1>
   <p class="muted">
-    Esta página conecta el número de <b>WhatsApp Business</b> de Nadina a la Cloud API en modo
-    <b>coexistencia</b>: sigue chateando desde la app y el sistema puede enviar recibos/recordatorios por
-    el mismo número. Uso único — después se borra.
+    Conecta el número de <b>WhatsApp Business</b> de Nadina a la Cloud API en modo <b>coexistencia</b>:
+    sigue chateando desde la app y el sistema puede enviar por el mismo número. Uso único.
   </p>
 
   <div class="card">
     <b>Cómo usarla</b>
     <ol>
-      <li>Tené a mano el celu de Nadina con <b>WhatsApp Business</b> abierto.</li>
-      <li>Clic en el botón de abajo → se abre un popup de Meta.</li>
-      <li>Iniciá sesión con la cuenta de Facebook del negocio y seguí los pasos.</li>
-      <li>Cuando muestre el <b>QR</b>, escanealo desde WhatsApp Business
-          (Configuración → Dispositivos vinculados → Vincular dispositivo).</li>
-      <li>Al terminar, abajo van a aparecer <b>code</b>, <b>phone_number_id</b> y <b>waba_id</b>. Copialos.</li>
+      <li>Tené el celu de Nadina con <b>WhatsApp Business</b> abierto.</li>
+      <li>Clic en el botón → se abre un popup de Meta.</li>
+      <li>Login con el Facebook del negocio → seguí los pasos → ingresá el número de Nadina.</li>
+      <li>Cuando muestre el <b>QR</b>, escanealo desde WhatsApp Business (te llega también un mensaje).</li>
+      <li>Al terminar, abajo aparecen <b>code</b>, <b>phone_number_id</b> y <b>waba_id</b>. Copialos.</li>
     </ol>
   </div>
 
@@ -56,7 +54,6 @@
   </div>
 
   <script>
-    // ---- Datos de la app NZ (App ID y config_id son públicos; el App Secret NO va acá) ----
     const APP_ID    = '1674054180475447';
     const CONFIG_ID = '2313495666076718';
     const GRAPH_VERSION = 'v21.0';
@@ -66,7 +63,6 @@
     const setStatus = (m) => statusEl.textContent = m;
     const show = (id, v) => { document.getElementById(id).textContent = v; resultEl.style.display = 'block'; };
 
-    // ---- Listener del "session info" que manda Meta durante el flujo ----
     window.addEventListener('message', (event) => {
       if (!/facebook\.com$/.test(new URL(event.origin).hostname)) return;
       let data;
@@ -79,7 +75,6 @@
       if (data.event) setStatus('Evento Meta: ' + data.event);
     });
 
-    // ---- SDK de Facebook ----
     window.fbAsyncInit = function () {
       FB.init({ appId: APP_ID, autoLogAppEvents: true, xfbml: false, version: GRAPH_VERSION });
       const btn = document.getElementById('connect');
@@ -95,7 +90,6 @@
       fjs.parentNode.insertBefore(js, fjs);
     })(document, 'script', 'facebook-jssdk');
 
-    // ---- Lanzar el Embedded Signup en modo COEXISTENCIA ----
     function launch() {
       setStatus('Abriendo popup de Meta…');
       FB.login(function (response) {
@@ -110,8 +104,10 @@
         response_type: 'code',
         override_default_response_type: true,
         extras: {
-          setup: {},
-          featureType: 'whatsapp_business_app_onboarding', // coexistencia (no migración)
+          // Inyecta el portafolio NZ-Estudio existente → saltea la pantalla de selección
+          // (que aparecía en gris) y va directo al QR de coexistencia.
+          setup: { business: { id: '1008737274981410' } },
+          featureType: 'whatsapp_business_app_onboarding',
           sessionInfoVersion: '3'
         }
       });

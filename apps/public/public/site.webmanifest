@@ -1,0 +1,13 @@
+{
+  "name": "NZ Estudio Jurídico Inmobiliario",
+  "short_name": "NZ Inmobiliaria",
+  "description": "Propiedades en venta en Guatimozín y zona — NZ Estudio Jurídico Inmobiliario",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#c5a572",
+  "icons": [
+    { "src": "/img/logo.png", "sizes": "any", "type": "image/png" },
+    { "src": "/img/logo-original.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
