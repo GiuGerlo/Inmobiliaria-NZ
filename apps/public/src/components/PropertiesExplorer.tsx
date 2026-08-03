@@ -43,7 +43,7 @@ export function PropertiesExplorer({
   return (
     <div>
       {/* ── Barra sticky: filtros + búsqueda ── */}
-      <div className="sticky top-20 z-40 -mx-5 border-b border-navy/8 bg-cream/95 px-5 pb-5 pt-8 backdrop-blur-sm lg:-mx-8 lg:px-8">
+      <div className="-mx-5 border-b border-navy/8 bg-cream/95 px-5 pb-5 pt-8 lg:-mx-8 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-baseline gap-3">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">

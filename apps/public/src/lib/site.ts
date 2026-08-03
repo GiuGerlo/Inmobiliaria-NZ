@@ -10,9 +10,9 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   locale: 'es_AR',
   phone: {
-    display: '3468 52-5227',
-    e164: '+543468525227',
-    whatsapp: '5493468525227',
+    display: '3468 61-5552',
+    e164: '+5493468615552',
+    whatsapp: '5493468615552',
   },
   email: 'nadinazaranich@gmail.com',
   address: {

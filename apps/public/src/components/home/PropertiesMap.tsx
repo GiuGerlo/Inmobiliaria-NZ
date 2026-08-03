@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { APIProvider, Map, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import { MapPin, Compass } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { AnimatedText } from '@/components/AnimatedText';
-import type { SaleProperty } from '@/lib/types';
+import { coverImage, type SaleProperty } from '@/lib/types';
 
 const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 const DEFAULT_CENTER = { lat: -32.9468, lng: -60.6393 };
@@ -83,7 +84,7 @@ function Markers({ points, onSelect }: { points: Located[]; onSelect: (l: Locate
 
 export function PropertiesMap({ properties }: { properties: SaleProperty[] }) {
   const [selected, setSelected] = useState<Located | null>(null);
-  const points = locatable(properties);
+  const points = useMemo(() => locatable(properties), [properties]);
   const availableCount = properties.filter((p) => !p.is_sold).length;
 
   return (
@@ -155,6 +156,16 @@ export function PropertiesMap({ properties }: { properties: SaleProperty[] }) {
                         onCloseClick={() => setSelected(null)}
                       >
                         <div style={{ maxWidth: 220, padding: '6px 4px 4px' }}>
+                          {coverImage(selected.property) && (
+                            <Image
+                              src={coverImage(selected.property)!}
+                              alt={selected.property.title ?? ''}
+                              width={212}
+                              height={120}
+                              style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 4, marginBottom: 8, display: 'block' }}
+                              unoptimized
+                            />
+                          )}
                           <p style={{ fontWeight: 600, color: '#05172d', fontSize: 13, margin: 0 }}>
                             {selected.property.title}
                           </p>

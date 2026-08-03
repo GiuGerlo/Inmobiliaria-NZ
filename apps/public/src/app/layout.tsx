@@ -44,7 +44,17 @@ export const metadata: Metadata = {
     images: [{ url: '/img/opengraph.jpg', width: 1200, height: 630, alt: site.name }],
   },
   twitter: { card: 'summary_large_image' },
-  icons: { icon: '/img/favicon.ico' },
+  icons: {
+    icon: '/img/favicon.ico',
+    apple: '/img/logo.png',
+  },
+  manifest: '/site.webmanifest',
+  // Verificación de dominio de Meta (Business Manager) — meta tag estática en el <head>.
+  verification: {
+    other: {
+      'facebook-domain-verification': 'kvctchkby7i6ntp82kw9w57ogodv2a',
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
