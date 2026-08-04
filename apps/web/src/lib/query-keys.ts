@@ -61,4 +61,12 @@ export const queryKeys = {
   propertyTypes: {
     all: ['property-types'] as const,
   },
+  users: {
+    all: ['users'] as const,
+    list: (page: number, perPage: number) => ['users', 'list', page, perPage] as const,
+    sessions: (id: number) => ['users', 'sessions', id] as const,
+  },
+  roles: {
+    all: ['roles'] as const,
+  },
 };

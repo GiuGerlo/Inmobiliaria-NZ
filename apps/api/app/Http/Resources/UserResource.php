@@ -19,10 +19,11 @@ final class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->resource->ID_User,
-            'name' => $this->resource->Nombre_User,
-            'email' => $this->resource->Email_User,
-            'role' => $this->resource->role?->name,
+            'id'           => $this->resource->ID_User,
+            'name'         => $this->resource->Nombre_User,
+            'email'        => $this->resource->Email_User,
+            'role'         => $this->resource->role?->name,
+            'role_id'      => $this->resource->role_id,
             'is_superadmin' => $this->resource->isSuperadmin(),
         ];
     }

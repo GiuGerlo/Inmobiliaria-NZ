@@ -15,6 +15,7 @@ import { RemindersPage } from '@/features/whatsapp/RemindersPage';
 import { SalesPropertiesPage } from '@/features/sales-properties/SalesPropertiesPage';
 import { ProfilePage } from '@/features/profile/ProfilePage';
 import { MaintenancePage } from '@/features/maintenance/MaintenancePage';
+import { UsersPage } from '@/features/users/UsersPage';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
             children: [
               { path: 'propiedades-venta', element: <SalesPropertiesPage /> },
               { path: 'mantenimiento', element: <MaintenancePage /> },
+              { path: 'usuarios', element: <UsersPage /> },
             ],
           },
           { path: '*', element: <Navigate to="/" replace /> },
