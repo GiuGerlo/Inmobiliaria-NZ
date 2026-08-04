@@ -2,7 +2,32 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
-## [2026-08-04] sub-K — CRUD de usuarios admin — en progreso
+## [2026-08-04] sub-L — Robustez en producción
+
+**Resumen**: Sentry error monitoring en backend y frontend, React Error Boundaries en dos niveles
+(AppLayout + main.tsx), y lazy loading de 14 rutas del admin para reducir el bundle inicial.
+
+**Cambios**:
+- Backend: `sentry/sentry-laravel` instalado; `config/sentry.php`; hook `captureException` en
+  `bootstrap/app.php`; `SENTRY_LARAVEL_DSN=` en `.env.example`; CI inyecta DSN al `.env` del server
+  antes de `artisan optimize` (fix ordering crítico).
+- Frontend: `@sentry/react` instalado; `Sentry.init()` en `main.tsx` (solo activo en PROD);
+  `VITE_SENTRY_DSN=` en `apps/web/.env.example`; CI inyecta secret en el build step.
+- `ErrorBoundary.tsx`: wrapper de `Sentry.ErrorBoundary` con fallback en español; reset por ruta
+  via `key={pathname}` en AppLayout.
+- `AppLayout.tsx`: `<Outlet />` envuelto con `<ErrorBoundary key={pathname}>` — sidebar sobrevive
+  a crash de página.
+- `main.tsx`: `<AppProviders>` envuelto con `<ErrorBoundary>` como red de seguridad final.
+- `router.tsx`: 14 imports estáticos convertidos a `React.lazy()` con patrón named-export.
+- `PageLoader.tsx`: spinner centrado en pantalla para Suspense fallback.
+
+**Breaking**: nada.
+**Migración**: agregar `SENTRY_LARAVEL_DSN` y `VITE_SENTRY_DSN` a GitHub Actions Secrets (dev +
+production environments) y al `.env` del server antes del próximo deploy.
+
+---
+
+## [2026-08-04] sub-K — CRUD de usuarios admin
 
 **Resumen**: CRUD completo de usuarios del panel admin (crear, editar, eliminar) con gestión de
 sesiones activas por usuario (ver y revocar). Solo visible para superadmin.

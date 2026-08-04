@@ -27,7 +27,8 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 | **I** | Envío por WhatsApp | 🟢 DONE 2026-06-17 (código) | F | Recibos→inquilino y rendiciones→dueño por **WhatsApp Cloud API oficial** desde la tabla de Recibos. Job encolado + log + marca "enviado". Pendiente: aprobar 2 plantillas en Meta + verificación de envío real. |
 | **J** | Centro de mensajes WhatsApp (manual) | 🟢 DONE 2026-06-18 (mergeada `427c52a`) | I | Mensajes manuales con selección + preview + confirmación + progreso en vivo + historial: recordatorio de pago masivo y faltantes por inquilino (`/recordatorios`). Plantillas aprobadas en Meta y envío real verificado. |
 | **H** | Deploy + CI/CD | ➡️ absorbida | — | **Reemplazada** por la Fase 7 del track Fusión NZ (deploy se hace junto con la unión de dominios). |
-| **K** | CRUD de usuarios (admin) | 🟡 en progreso | C | Gestión de cuentas del panel admin: crear, editar, eliminar, asignar roles y ver/revocar sesiones activas. Solo superadmin. |
+| **K** | CRUD de usuarios (admin) | 🟢 DONE 2026-08-04 | C | Gestión de cuentas del panel admin: crear, editar, eliminar, asignar roles y ver/revocar sesiones activas. Solo superadmin. |
+| **L** | Robustez en producción | 🟢 DONE 2026-08-04 | K | Sentry error monitoring (backend + frontend), React Error Boundaries en dos niveles, lazy loading de 14 rutas con React.lazy + Suspense. |
 
 Leyenda: 🟢 DONE — 🟡 en progreso — ⚪ pendiente — 🔴 bloqueado — ➡️ movida/absorbida.
 
