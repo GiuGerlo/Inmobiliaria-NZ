@@ -70,6 +70,8 @@ jobs:
 
       - name: Build admin SPA (apps/web)
         working-directory: apps/web
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
         run: |
           pnpm install --frozen-lockfile
           pnpm build
@@ -207,14 +209,25 @@ jobs:
           SSH_PORT: ${{ secrets.SSH_PORT }}
           SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_PATH_API: ${{ secrets.DEPLOY_PATH_API }}
+          SENTRY_LARAVEL_DSN: ${{ secrets.SENTRY_LARAVEL_DSN }}
         run: |
           ssh -p "${SSH_PORT}" -o StrictHostKeyChecking=accept-new "${SSH_USER}@${SSH_HOST}" \
-            "cd '${DEPLOY_PATH_API}' && \
-             PHP=/opt/alt/php84/usr/bin/php && \
-             mkdir -p storage/framework/cache storage/framework/views storage/framework/sessions storage/app/public && \
-             \$PHP artisan migrate --force && \
-             (\$PHP artisan storage:link || true) && \
-             \$PHP artisan optimize"
+            "bash -s -- '${DEPLOY_PATH_API}' '${SENTRY_LARAVEL_DSN}'" <<'REMOTE'
+          set -euo pipefail
+          DEPLOY_PATH_API="$1"; SENTRY_LARAVEL_DSN="$2"
+          cd "$DEPLOY_PATH_API"
+          PHP=/opt/alt/php84/usr/bin/php
+          mkdir -p storage/framework/cache storage/framework/views storage/framework/sessions storage/app/public
+          $PHP artisan migrate --force
+          ($PHP artisan storage:link || true)
+          # Actualizar SENTRY_LARAVEL_DSN ANTES de optimize (que cachea el config)
+          if grep -q '^SENTRY_LARAVEL_DSN=' .env; then
+            sed -i "s|^SENTRY_LARAVEL_DSN=.*|SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}|" .env
+          else
+            echo "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}" >> .env
+          fi
+          $PHP artisan optimize
+          REMOTE
 
       # Mantenimiento OFF pase lo que pase: si migrate falló, igual levantamos el admin.
       - name: Mantenimiento OFF

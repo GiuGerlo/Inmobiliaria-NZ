@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import { Menu, PanelLeft } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { MadeByGerlo } from '@/components/MadeByGerlo';
 import { useAuth } from '@/features/auth/useAuth';
 import { useMaintenanceStatus } from '@/features/maintenance/queries';
 import { MaintenanceScreen } from '@/features/maintenance/MaintenanceScreen';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const SIDEBAR_KEY = 'nz-sidebar-collapsed';
 
@@ -27,6 +28,7 @@ function Brand() {
 export function AppLayout() {
   const { user } = useAuth();
   const { data: maintenance } = useMaintenanceStatus();
+  const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(SIDEBAR_KEY) === '1');
 
@@ -104,7 +106,9 @@ export function AppLayout() {
           <UserMenu />
         </header>
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <Outlet />
+          <ErrorBoundary key={pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -1,21 +1,51 @@
+import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { RequireSuperadmin } from '@/features/auth/RequireSuperadmin';
-import { LoginPage } from '@/features/auth/LoginPage';
-import { DashboardPage } from '@/features/dashboard/DashboardPage';
-import { CitiesPage } from '@/features/cities/CitiesPage';
-import { PaymentMethodsPage } from '@/features/payment-methods/PaymentMethodsPage';
-import { OwnersPage } from '@/features/owners/OwnersPage';
-import { TenantsPage } from '@/features/tenants/TenantsPage';
-import { PropertiesPage } from '@/features/properties/PropertiesPage';
-import { ContractsPage } from '@/features/contracts/ContractsPage';
-import { ReceiptsPage } from '@/features/receipts/ReceiptsPage';
-import { RemindersPage } from '@/features/whatsapp/RemindersPage';
-import { SalesPropertiesPage } from '@/features/sales-properties/SalesPropertiesPage';
-import { ProfilePage } from '@/features/profile/ProfilePage';
-import { MaintenancePage } from '@/features/maintenance/MaintenancePage';
-import { UsersPage } from '@/features/users/UsersPage';
+
+const LoginPage = lazy(() =>
+  import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage }))
+);
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage }))
+);
+const CitiesPage = lazy(() =>
+  import('@/features/cities/CitiesPage').then((m) => ({ default: m.CitiesPage }))
+);
+const PaymentMethodsPage = lazy(() =>
+  import('@/features/payment-methods/PaymentMethodsPage').then((m) => ({ default: m.PaymentMethodsPage }))
+);
+const OwnersPage = lazy(() =>
+  import('@/features/owners/OwnersPage').then((m) => ({ default: m.OwnersPage }))
+);
+const TenantsPage = lazy(() =>
+  import('@/features/tenants/TenantsPage').then((m) => ({ default: m.TenantsPage }))
+);
+const PropertiesPage = lazy(() =>
+  import('@/features/properties/PropertiesPage').then((m) => ({ default: m.PropertiesPage }))
+);
+const ContractsPage = lazy(() =>
+  import('@/features/contracts/ContractsPage').then((m) => ({ default: m.ContractsPage }))
+);
+const ReceiptsPage = lazy(() =>
+  import('@/features/receipts/ReceiptsPage').then((m) => ({ default: m.ReceiptsPage }))
+);
+const RemindersPage = lazy(() =>
+  import('@/features/whatsapp/RemindersPage').then((m) => ({ default: m.RemindersPage }))
+);
+const SalesPropertiesPage = lazy(() =>
+  import('@/features/sales-properties/SalesPropertiesPage').then((m) => ({ default: m.SalesPropertiesPage }))
+);
+const ProfilePage = lazy(() =>
+  import('@/features/profile/ProfilePage').then((m) => ({ default: m.ProfilePage }))
+);
+const MaintenancePage = lazy(() =>
+  import('@/features/maintenance/MaintenancePage').then((m) => ({ default: m.MaintenancePage }))
+);
+const UsersPage = lazy(() =>
+  import('@/features/users/UsersPage').then((m) => ({ default: m.UsersPage }))
+);
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },

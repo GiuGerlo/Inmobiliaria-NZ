@@ -20,4 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+        $exceptions->report(function (\Throwable $e): void {
+            if (app()->bound('sentry')) {
+                \Sentry\captureException($e);
+            }
+        });
     })->create();
