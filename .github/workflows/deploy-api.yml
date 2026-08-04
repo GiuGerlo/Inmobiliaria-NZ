@@ -224,6 +224,7 @@ jobs:
           if grep -q '^SENTRY_LARAVEL_DSN=' .env; then
             sed -i "s|^SENTRY_LARAVEL_DSN=.*|SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}|" .env
           else
+            echo "" >> .env
             echo "SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN}" >> .env
           fi
           $PHP artisan optimize
