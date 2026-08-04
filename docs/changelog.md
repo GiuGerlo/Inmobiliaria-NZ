@@ -2,6 +2,48 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-08-04] sub-K — CRUD de usuarios admin — en progreso
+
+**Resumen**: CRUD completo de usuarios del panel admin (crear, editar, eliminar) con gestión de
+sesiones activas por usuario (ver y revocar). Solo visible para superadmin.
+
+**Cambios**:
+- Backend: gate `manage-users`, `UserController` (index/store/update/destroy), `UserSessionController`
+  (index/destroy/destroyAll), `StoreUserRequest`, `UpdateUserRequest`, endpoint `GET /roles`.
+  `UserResource` expone `role_id`.
+- Frontend: feature `users/` completa (types, api, queries, schema, columns, UsersPage, UserFormDialog,
+  UserSessionsDialog). Nav item "Usuarios" (solo superadmin). Ruta `/usuarios`.
+- Tests: `UserCrudTest` + `UserSessionTest`.
+
+**Breaking**: nada.
+**Migración**: nada.
+
+---
+
+## [2026-08-04] Post-producción — fixes y mejoras menores
+
+**Resumen**: Correcciones descubiertas tras el corte a prod: teléfono de contacto actualizado,
+limpieza del servicio legacy de Docker, fix del scroll/sticky del catálogo de propiedades y
+dos bugs en el mapa, soporte PWA, y ordenamiento de propiedades por más reciente.
+
+**Cambios**:
+- `apps/public/src/lib/site.ts`: teléfono actualizado a 3468 61-5552 (+5493468615552).
+- `docker-compose.yml`: servicio `legacy` eliminado (PHP legacy ya no corre en local).
+- `docker/legacy/`: carpeta Dockerfile + apache.conf eliminada.
+- `.env.example`: `LEGACY_PORT=8082` eliminado.
+- `apps/public/src/components/PropertiesExplorer.tsx`: filtros sin `sticky` (mejora UX).
+- `apps/public/src/components/home/PropertiesMap.tsx`: zoom no resetea al clickar marker
+  (`useMemo` en `points`); imagen de portada visible en el popup del mapa.
+- `apps/public/public/site.webmanifest`: creado para PWA.
+- `apps/public/src/app/layout.tsx`: manifest + apple-touch-icon.
+- `apps/api/.../SalePropertyController.php`: sort `created_at` habilitado.
+- `apps/public/src/lib/api.ts`: sort por `-created_at` (más recientes primero).
+
+**Breaking**: nada.
+**Migración**: nada.
+
+---
+
 ## [2026-07-31] Fusión NZ Fase 7 — Corte a producción — DONE
 
 **Resumen**: Se ejecutó el **corte a prod**. `deploy-api` + `deploy-public` verdes en `production`;

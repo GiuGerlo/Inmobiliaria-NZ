@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\UserSessionController;
 use App\Http\Controllers\Api\V1\ContractController;
 use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\MaintenanceController;
@@ -37,6 +39,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::post('/auth/login', [AuthController::class, 'login']);
+
+    // Roles disponibles (para formularios del admin).
+    Route::middleware(['auth:sanctum'])->get('/roles', fn () => \App\Models\Role::orderBy('id')->get(['id', 'name', 'label']));
 
     // Estado de mantenimiento: público y siempre accesible, para que el SPA (incluso el
     // login) sepa si mostrar la pantalla de mantenimiento.
@@ -94,6 +99,14 @@ Route::prefix('v1')->group(function () {
         // Reporte mensual de pagos (pagados / no pagados) por mes+año.
         Route::get('/reports/monthly-payments', MonthlyPaymentsReportController::class);
         Route::apiResource('payment-methods', PaymentMethodController::class);
+
+        // ── Usuarios: solo superadmin (gate manage-users) ──
+        Route::middleware('can:manage-users')->group(function () {
+            Route::apiResource('users', UserController::class)->except(['show']);
+            Route::get('users/{user}/sessions', [UserSessionController::class, 'index']);
+            Route::delete('users/{user}/sessions', [UserSessionController::class, 'destroyAll']);
+            Route::delete('users/{user}/sessions/{sessionId}', [UserSessionController::class, 'destroy']);
+        });
 
         // ── Ventas (Fusión NZ): escritura solo superadmin (gate manage-sales) ──
         // reorder ANTES del binding {saleProperty} para que no lo capture el modelo.
