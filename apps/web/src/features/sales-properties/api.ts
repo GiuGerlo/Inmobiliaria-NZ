@@ -47,6 +47,12 @@ export async function reorderSaleProperties(ids: number[]): Promise<void> {
   await api.patch('/sale-properties/reorder', { ids });
 }
 
+/** Dispara el rebuild+redeploy del sitio público SSG (GitHub Actions). */
+export async function publishSite(): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/site/publish');
+  return data;
+}
+
 /** Sube varias imágenes (multipart). El backend las convierte a WebP. */
 export async function uploadImages(id: number, files: File[]): Promise<PropertyImage[]> {
   const fd = new FormData();

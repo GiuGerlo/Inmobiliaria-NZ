@@ -29,7 +29,9 @@ export async function fetchAllSaleProperties(): Promise<SaleProperty[]> {
 
   do {
     const body = await getJson<Paginated<SaleProperty>>(
-      `/sale-properties?per_page=100&sort=-created_at&page=${page}`,
+      // -id desempata: los datos legacy comparten created_at (import masivo), así las
+      // últimas cargadas quedan siempre primero. Ver plan orden + botón publicar.
+      `/sale-properties?per_page=100&sort=-created_at,-id&page=${page}`,
     );
     all.push(...body.data);
     lastPage = body.meta?.last_page ?? 1;

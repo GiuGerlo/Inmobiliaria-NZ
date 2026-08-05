@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\ReceiptPdfController;
 use App\Http\Controllers\Api\V1\ReceiptWhatsAppController;
 use App\Http\Controllers\Api\V1\SalePropertyController;
 use App\Http\Controllers\Api\V1\SalePropertyImageController;
+use App\Http\Controllers\Api\V1\SitePublishController;
 use App\Http\Controllers\Api\V1\TenantController;
 use App\Http\Controllers\Api\V1\WhatsAppMessageController;
 use App\Http\Controllers\Api\V1\WhatsAppReminderController;
@@ -131,6 +132,9 @@ Route::prefix('v1')->group(function () {
             Route::patch('/sale-property-images/reorder', [SalePropertyImageController::class, 'reorder']);
             Route::post('/sale-properties/{saleProperty}/images', [SalePropertyImageController::class, 'store']);
             Route::delete('/sale-property-images/{propertyImage}', [SalePropertyImageController::class, 'destroy']);
+
+            // Reconstruir+redeploy del sitio público SSG. throttle: no spamear GitHub Actions.
+            Route::post('/site/publish', SitePublishController::class)->middleware('throttle:5,10');
         });
     });
 });

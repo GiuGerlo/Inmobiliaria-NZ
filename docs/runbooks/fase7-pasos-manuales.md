@@ -209,6 +209,14 @@ WHATSAPP_TEMPLATE_LANG=es
 WHATSAPP_TEMPLATE_RECORDATORIO_PAGO=
 WHATSAPP_TEMPLATE_RECORDATORIO_FALTANTE=
 
+# Botón "Publicar cambios" del admin → dispara deploy-public.yml (rebuild del sitio SSG).
+# Token = PAT fine-grained (ver nota abajo). ref = branch del entorno: dev → dev, prod → production.
+GITHUB_API_TOKEN=<PAT fine-grained con Actions:write>
+GITHUB_REPO_OWNER=GiuGerlo
+GITHUB_REPO_NAME=Inmobiliaria-NZ
+GITHUB_DEPLOY_WORKFLOW=deploy-public.yml
+GITHUB_DEPLOY_REF=dev
+
 NZ_NAME="Nadina Zaranich"
 NZ_LOCALITY="Guatimozín"
 NZ_ADDRESS="Catamarca 227"
@@ -223,6 +231,14 @@ SUPERADMIN_EMAIL=<tu email de admin>
 
 > El mantenimiento **manual** se hace **desde el admin** (menú Mantenimiento, ADR-0010), no por SSH.
 > El `artisan down` **automático** de cada deploy (sin secreto, durante las migraciones) es aparte.
+
+> **Publicar el sitio público desde el admin**: como el sitio es SSG (catálogo horneado en build),
+> un alta/edición de propiedad NO se ve hasta reconstruir. El admin tiene un botón **"Publicar
+> cambios"** (en *Propiedades en venta*) que dispara `deploy-public.yml` vía la API de GitHub.
+> Requiere `GITHUB_API_TOKEN` en el `.env` del server = **PAT fine-grained** (GitHub → Settings →
+> Developer settings → Fine-grained tokens) con acceso **solo a este repo** y permiso **Actions:
+> Read and write**. Es un secreto rotable: si se filtra, revocarlo en GitHub. `GITHUB_DEPLOY_REF`
+> debe ser `dev` en el server dev y `production` en el server prod.
 
 - [x] `.env` dev creado y completado (APP_KEY generada, DB conecta OK).
 - [ ] Repetir para **prod** en el corte, con datos de `nz_prod` y URLs de prod.
