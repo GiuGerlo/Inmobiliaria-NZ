@@ -35,6 +35,18 @@ return [
         ],
     ],
 
+    // GitHub Actions: el botón "Publicar cambios" del admin dispara el workflow que
+    // reconstruye+redeploya el sitio público SSG (deploy-public.yml). Token = PAT
+    // fine-grained con permiso Actions:write sobre el repo, solo en .env. `ref` = branch
+    // por entorno (prod → production, dev → dev).
+    'github' => [
+        'token' => env('GITHUB_API_TOKEN'),
+        'owner' => env('GITHUB_REPO_OWNER', 'GiuGerlo'),
+        'repo' => env('GITHUB_REPO_NAME', 'Inmobiliaria-NZ'),
+        'workflow' => env('GITHUB_DEPLOY_WORKFLOW', 'deploy-public.yml'),
+        'ref' => env('GITHUB_DEPLOY_REF', 'production'),
+    ],
+
     // WhatsApp Cloud API oficial (Meta) — envío de recibos/rendiciones (sub-I, ADR-0008).
     'whatsapp' => [
         'token' => env('WHATSAPP_TOKEN'),

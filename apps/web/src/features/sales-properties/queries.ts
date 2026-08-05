@@ -8,6 +8,7 @@ import {
   deleteSaleProperty,
   listPropertyTypes,
   listSaleProperties,
+  publishSite,
   reorderImages,
   reorderSaleProperties,
   updatePropertyType,
@@ -55,6 +56,10 @@ export function useReorderSaleProperties() {
     mutationFn: (ids: number[]) => reorderSaleProperties(ids),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.salesProperties.all }),
   });
+}
+
+export function usePublishSite() {
+  return useMutation({ mutationFn: publishSite });
 }
 
 export function useUploadImages() {

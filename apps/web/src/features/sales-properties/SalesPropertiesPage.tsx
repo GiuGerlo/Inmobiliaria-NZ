@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { PaginationState, SortingState } from '@tanstack/react-table';
 import { toast } from '@/lib/toast';
-import { Plus, Tags } from 'lucide-react';
+import { Plus, Tags, UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -19,7 +19,7 @@ import { buildSalePropertyColumns } from './columns';
 import { SalePropertyFormDialog } from './SalePropertyFormDialog';
 import { SalePropertyGalleryDialog } from './SalePropertyGalleryDialog';
 import { PropertyTypesDialog } from './PropertyTypesDialog';
-import { useDeleteSaleProperty, usePropertyTypes, useSaleProperties } from './queries';
+import { useDeleteSaleProperty, usePropertyTypes, usePublishSite, useSaleProperties } from './queries';
 import type { SaleProperty, SalePropertyListParams } from './types';
 
 function toSortParam(sorting: SortingState): string | undefined {
@@ -40,6 +40,7 @@ export function SalesPropertiesPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [typesOpen, setTypesOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
   const [editing, setEditing] = useState<SaleProperty | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<SaleProperty | null>(null);
   const [galleryTarget, setGalleryTarget] = useState<SaleProperty | null>(null);
@@ -62,6 +63,7 @@ export function SalesPropertiesPage() {
 
   const { data, isLoading, isFetching } = useSaleProperties(params);
   const deleteSaleProperty = useDeleteSaleProperty();
+  const publishSite = usePublishSite();
 
   const columns = useMemo(
     () =>
@@ -79,6 +81,19 @@ export function SalesPropertiesPage() {
   function openCreate() {
     setEditing(null);
     setFormOpen(true);
+  }
+
+  function confirmPublish() {
+    publishSite.mutate(undefined, {
+      onSuccess: (res) => {
+        toast.success(res.message);
+        setPublishOpen(false);
+      },
+      onError: (error) => {
+        toast.error(errorMessage(error, 'No pudimos iniciar la publicación.'));
+        setPublishOpen(false);
+      },
+    });
   }
 
   function confirmDelete() {
@@ -164,6 +179,14 @@ export function SalesPropertiesPage() {
             }
             actions={
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPublishOpen(true)}
+                  disabled={publishSite.isPending}
+                >
+                  <UploadCloud className="size-4" />
+                  Publicar cambios
+                </Button>
                 <Button variant="outline" onClick={() => setTypesOpen(true)}>
                   <Tags className="size-4" />
                   Categorías
@@ -185,6 +208,17 @@ export function SalesPropertiesPage() {
         property={galleryTarget}
       />
       <PropertyTypesDialog open={typesOpen} onOpenChange={setTypesOpen} />
+
+      <ConfirmDialog
+        open={publishOpen}
+        onOpenChange={(open) => !open && setPublishOpen(false)}
+        title="Publicar cambios en el sitio"
+        description="Se reconstruye y actualiza el sitio público con las propiedades actuales. Tarda unos minutos en verse."
+        confirmLabel="Publicar"
+        doubleConfirm={false}
+        loading={publishSite.isPending}
+        onConfirm={confirmPublish}
+      />
 
       <ConfirmDialog
         open={!!deleteTarget}
