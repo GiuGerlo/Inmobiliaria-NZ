@@ -227,3 +227,13 @@ El build de Next trae el catálogo **de la API prod en vivo** → correr **despu
 - Actualizar `docs/roadmap.md` (Fase 7 = DONE) + `docs/changelog.md`.
 - Rotar la contraseña de Hostinger (pendiente histórico del proyecto).
 - Marcar `whatsapp_click` como evento clave en GA4 (si no se hizo en el smoke test).
+
+## Re-sync de alquileres (ejecutado 2026-11-13)
+
+Si el legacy se siguió usando después del corte: dump del legacy → cargar en una DB staging local
+**desde bash** (`mariadb ... < dump.sql`; NO `Get-Content` de PowerShell 5.1: lee UTF-8 como ANSI y
+duplica acentos) → comparar por PK (solo_legacy / solo_prod / editados) → `mariadb-dump
+--no-create-info --complete-insert` de las 7 tablas → en prod, con backup previo y FK checks off, en
+una transacción: `DELETE` de recibo, contrato, propiedad, inquilino, dueno, formadepago, ciudad +
+inserts → `legacy:check-orphans`. Ojo con `whatsapp_messages` (FK a recibo/contrato) y con data
+creada en el sistema nuevo cuyos IDs colisionen con el legacy (revisar antes de pisar).
