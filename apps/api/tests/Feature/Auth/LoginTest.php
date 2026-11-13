@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 uses(RefreshDatabase::class);
 
@@ -71,34 +70,12 @@ it('aplica rate limit: el sexto intento en el minuto devuelve 429', function () 
         ->assertHeader('Retry-After');
 });
 
-it('migra usuario legacy MD5 a bcrypt en el primer login exitoso', function () {
-    $user = User::factory()->legacyMd5('clave-legacy')->create();
+it('rechaza usuarios sin password bcrypt (sin fallback MD5 legacy)', function () {
+    $user = User::factory()->create(['password' => null]);
 
-    $response = $this->postJson('/api/v1/auth/login', [
-        'email' => $user->Email_User,
-        'password' => 'clave-legacy',
-    ]);
-
-    $response->assertOk();
-    $this->assertAuthenticatedAs($user);
-
-    $user->refresh();
-
-    expect($user->password)->not->toBeNull()
-        ->and(Hash::check('clave-legacy', $user->password))->toBeTrue()
-        ->and($user->Pass_User)->toBe(md5('clave-legacy')); // intacta para el legacy
-});
-
-it('no usa el fallback MD5 si el usuario ya migró a bcrypt', function () {
-    $user = User::factory()->create([
-        'Pass_User' => md5('clave-vieja'),
-        'password' => 'clave-nueva',
-    ]);
-
-    // La MD5 vieja ya no sirve para entrar.
     $this->postJson('/api/v1/auth/login', [
         'email' => $user->Email_User,
-        'password' => 'clave-vieja',
+        'password' => 'password',
     ])->assertUnprocessable();
 
     $this->assertGuest();

@@ -24,8 +24,7 @@ class DatabaseSeeder extends Seeder
             $inmobiliariaId = Role::query()->where('name', Role::INMOBILIARIA)->value('id');
             $superadminId = Role::query()->where('name', Role::SUPERADMIN)->value('id');
 
-            // Dos perfiles de prueba (password `password`). Pass_User se setea directo
-            // (no está en $fillable y la columna legacy no tiene default).
+            // Dos perfiles de prueba (password `password`).
             $demoUsers = [
                 ['Email_User' => 'demo@example.com', 'Nombre_User' => 'Demo', 'role_id' => $inmobiliariaId],
                 ['Email_User' => 'super@nz.com', 'Nombre_User' => 'Superadmin', 'role_id' => $superadminId],
@@ -34,7 +33,6 @@ class DatabaseSeeder extends Seeder
                 $user = User::query()->firstOrNew(['Email_User' => $data['Email_User']]);
                 if (! $user->exists) {
                     $user->Nombre_User = $data['Nombre_User'];
-                    $user->Pass_User = '';
                     $user->password = Hash::make('password');
                     $user->role_id = $data['role_id'];
                     $user->save();

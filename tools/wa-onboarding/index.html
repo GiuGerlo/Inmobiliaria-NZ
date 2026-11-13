@@ -55,8 +55,8 @@
 
   <script>
     const APP_ID    = '1674054180475447';
-    const CONFIG_ID = '2313495666076718';
-    const GRAPH_VERSION = 'v21.0';
+    const CONFIG_ID = '1408805121052412';
+    const GRAPH_VERSION = 'v26.0';
 
     const statusEl = document.getElementById('status');
     const resultEl = document.getElementById('result');
@@ -71,8 +71,11 @@
       show('out-raw', JSON.stringify(data, null, 2));
       const d = data.data || {};
       if (d.phone_number_id) show('out-phone', d.phone_number_id);
-      if (d.waba_id) show('out-waba', d.waba_id);
-      if (data.event) setStatus('Evento Meta: ' + data.event);
+      // v5: waba_id → messaging_account_ids (mismo ID)
+      const waba = d.waba_id || (d.messaging_account_ids || [])[0];
+      if (waba) show('out-waba', waba);
+      if (data.event) setStatus('Evento Meta: ' + data.event
+        + (d.is_on_biz_app === false ? '  ⚠️ NO es coexistencia (is_on_biz_app=false) — avisar antes de seguir' : ''));
     });
 
     window.fbAsyncInit = function () {
@@ -94,8 +97,17 @@
       setStatus('Abriendo popup de Meta…');
       FB.login(function (response) {
         if (response.authResponse && response.authResponse.code) {
-          show('out-code', response.authResponse.code);
-          setStatus('¡Listo! Copiá el code + phone_number_id + waba_id de abajo.');
+          const code = response.authResponse.code;
+          show('out-code', code);
+          // El code vence en ~30 s → se intercambia server-side al instante (endpoint temporal).
+          setStatus('Intercambiando code por token…');
+          const body = new URLSearchParams({ code, phone: document.getElementById('out-phone').textContent,
+                                             waba: document.getElementById('out-waba').textContent });
+          fetch('wa-exchange.php', { method: 'POST', body })
+            .then(r => r.json())
+            .then(j => setStatus(j.ok ? '✅ Token guardado en el server. Pasale a Claude phone_number_id + waba_id.'
+                                      : '❌ Falló el intercambio: ' + (j.error || 'desconocido')))
+            .catch(e => setStatus('❌ Error de red en el intercambio: ' + e));
         } else {
           setStatus('Se cerró el popup sin completar (status: ' + (response.status || 'desconocido') + ').');
         }
@@ -104,11 +116,9 @@
         response_type: 'code',
         override_default_response_type: true,
         extras: {
-          // Inyecta el portafolio NZ-Estudio existente → saltea la pantalla de selección
-          // (que aparecía en gris) y va directo al QR de coexistencia.
-          setup: { business: { id: '1008737274981410' } },
-          featureType: 'whatsapp_business_app_onboarding',
-          sessionInfoVersion: '3'
+          // v5: coexistencia (WhatsApp Business app onboarding) viene ON por defecto.
+          // v2/v3 deprecados 2026-10-15: ahí featureType coex caía al flujo estándar.
+          version: 'v5'
         }
       });
     }

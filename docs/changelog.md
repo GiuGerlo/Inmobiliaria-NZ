@@ -2,6 +2,34 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-11-13] sub-M — WhatsApp coexistencia + baja de credenciales legacy
+
+**Resumen**: el número real de Nadina quedó conectado a la Cloud API en modo coexistencia (sigue
+usando la app WhatsApp Business). Se elimina el login MD5 heredado y la columna `users.Pass_User`.
+
+**Cambios**:
+- Meta: app publicada (modo en vivo → advanced access), config de Facebook Login for Business nueva
+  (WhatsApp Embedded Signup, token System User sin vencimiento), onboarding coexistencia con
+  portafolio cliente "Estudio Jurídico Inmobiliario Zaranich" (phone_number_id `1273886539133133`,
+  WABA `1940730006644555`), sync `smb_app_data` (contactos + historial) y `subscribed_apps`.
+- 4 plantillas recreadas en la WABA nueva (mismo texto/variables): `envio_recibo`/`envio_rendicion`
+  (`es_AR`, header documento), `recordatorio_pago`/`recordatorio_faltante` (`es`).
+- Prod `.env`: `WHATSAPP_TOKEN` (business token, no vence), `WHATSAPP_PHONE_NUMBER_ID`,
+  `WHATSAPP_API_VERSION=v26.0`. El token anterior estaba vencido desde 2026-07-31.
+- `tools/wa-onboarding/index.html`: Embedded Signup v5 (v2/v3 deprecados 2026-10-15), Graph v26.0,
+  lee `messaging_account_ids`/`is_on_biz_app`, intercambio del `code` server-side (endpoint temporal,
+  ya retirado del server).
+- `AuthController`: se borra `attemptLegacyMd5()`; login solo por bcrypt.
+- Migración `drop_pass_user_from_users_table` + limpieza en `User`, `UserFactory`, `UserController`,
+  `DatabaseSeeder`, `LoginTest`.
+- `config/sentry.php`: `traces_sample_rate` casteado a float (con `SENTRY_TRACES_SAMPLE_RATE=0` en el
+  `.env` rompía todos los tests).
+
+**Breaking**: usuarios sin `password` bcrypt ya no pueden entrar (en prod: 0 casos, verificado).
+**Migración**: `migrate --force` en el deploy (dropea `Pass_User`, irreversible para el dato).
+
+---
+
 ## [2026-08-04] sub-L — Robustez en producción
 
 **Resumen**: Sentry error monitoring en backend y frontend, React Error Boundaries en dos niveles
