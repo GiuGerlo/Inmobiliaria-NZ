@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +38,7 @@ final class AuthController extends Controller
         $authenticated = Auth::guard('web')->attempt(
             ['Email_User' => $email, 'password' => $password],
             $remember,
-        ) || $this->attemptLegacyMd5($email, $password, $remember);
+        );
 
         if (! $authenticated) {
             RateLimiter::hit($throttleKey, self::DECAY_SECONDS);
@@ -64,30 +63,5 @@ final class AuthController extends Controller
         session()->regenerateToken();
 
         return response()->noContent();
-    }
-
-    /**
-     * Transitorio: primer login de un usuario legacy (password bcrypt aún
-     * null) se valida contra Pass_User (MD5) y se rehashea a bcrypt.
-     * Pass_User no se modifica — el legacy en producción la sigue usando.
-     * Borrar este método cuando el legacy quede fuera de servicio.
-     */
-    private function attemptLegacyMd5(string $email, string $password, bool $remember): bool
-    {
-        $user = User::query()
-            ->where('Email_User', $email)
-            ->whereNull('password')
-            ->first();
-
-        if ($user === null || ! hash_equals($user->Pass_User, md5($password))) {
-            return false;
-        }
-
-        $user->password = $password; // el cast "hashed" lo guarda como bcrypt
-        $user->save();
-
-        Auth::guard('web')->login($user, $remember);
-
-        return true;
     }
 }

@@ -11,8 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * Mapea la tabla users legacy. Pass_User (MD5) queda solo para la migración
- * de credenciales en sub-C; password (bcrypt) es el destino.
+ * Mapea la tabla users legacy. La credencial es solo `password` (bcrypt).
  */
 final class User extends Authenticatable
 {
@@ -29,7 +28,7 @@ final class User extends Authenticatable
 
     protected $fillable = ['Nombre_User', 'Email_User', 'password', 'role_id'];
 
-    protected $hidden = ['Pass_User', 'password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {

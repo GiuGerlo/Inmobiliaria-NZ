@@ -33,12 +33,11 @@ final class UserController extends Controller
     {
         $validated = $request->validated();
 
-        $user = new User();
+        $user = new User;
         $user->Nombre_User = $validated['name'];
-        $user->Email_User  = $validated['email'];
-        $user->password    = $validated['password'];
-        $user->role_id     = $validated['role_id'];
-        $user->Pass_User   = ''; // legacy field; vacío para usuarios nuevos
+        $user->Email_User = $validated['email'];
+        $user->password = $validated['password'];
+        $user->role_id = $validated['role_id'];
         $user->save();
 
         return (new UserResource($user->load('role')))->response()->setStatusCode(201);
@@ -50,8 +49,8 @@ final class UserController extends Controller
 
         $data = [
             'Nombre_User' => $validated['name'],
-            'Email_User'  => $validated['email'],
-            'role_id'     => $validated['role_id'],
+            'Email_User' => $validated['email'],
+            'role_id' => $validated['role_id'],
         ];
 
         if (filled($validated['password'] ?? null)) {
