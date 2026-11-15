@@ -144,3 +144,15 @@ tipo + estado** (sin columnas extra ni paginado nuevo — se siguen mostrando lo
   sus envíos; Recordatorios → buscar "Ali" filtra, panel derecho lista seleccionados y la ✕ los quita;
   Historial filtra por nombre, fechas, tipo y estado.
 - Guía de QA manual actualizada + mensaje de commit sugerido tras el OK del usuario.
+
+---
+
+## Ampliación 2 — Ayuda por página + fixes de prod (2026-11-15)
+
+- **Ayuda contextual**: botón "Ayuda" en la barra superior (`AppLayout`), único punto de montaje; el contenido
+  sale de `features/help/content.ts` según la ruta (para qué sirve · qué podés hacer · paso a paso · tips),
+  en lenguaje simple. Panel `Sheet` a la derecha; pantalla completa en celular, botón solo ícono en mobile.
+  Sin librerías nuevas (se descartó tour guiado: frágil ante cambios de pantalla). Test: toda ruta del menú
+  tiene ayuda.
+- **Fix** fecha "Reenviar · enviado …" (se formateaba una fecha-hora como fecha).
+- **Fix** `index.html` del admin con `Cache-Control: no-cache`: el browser tomaba versiones viejas tras un deploy.

@@ -26,3 +26,8 @@
 - [x] 11. Recordatorio de pago en dos paneles (buscador + lista alfabética | seleccionados con ✕). **Done**: Vitest.
 - [x] 12. Tooltip del botón Recibo/Rendición con estado + leyenda de colores + "Envíos por WhatsApp" en el detalle del recibo.
 - [x] 13. Historial con buscador, desde/hasta, tipo y estado; detalle con entregado/leído. **Done**: Vitest.
+
+## Ampliación 2 — 2026-11-15
+
+- [x] 14. Fixes de prod: fecha del menú "Reenviar · enviado" + `index.html` sin cache (test `SpaFallbackTest`).
+- [x] 15. Ayuda por página (`features/help`): botón en la barra superior + panel con ejemplos; test de cobertura del menú.

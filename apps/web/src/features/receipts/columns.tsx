@@ -170,7 +170,7 @@ export function buildReceiptColumns({
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'recibo')}>
                   <MessageCircle className="size-4 text-emerald-600" />
-                  {reciboSent ? `Reenviar al inquilino · enviado ${formatDate(reciboSent)}` : 'Enviar al inquilino'}
+                  {reciboSent ? `Reenviar al inquilino · enviado ${formatDateTime(reciboSent)}` : 'Enviar al inquilino'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -200,7 +200,7 @@ export function buildReceiptColumns({
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'rendicion')}>
                   <MessageCircle className="size-4 text-emerald-600" />
-                  {rendicionSent ? `Reenviar al dueño · enviado ${formatDate(rendicionSent)}` : 'Enviar al dueño'}
+                  {rendicionSent ? `Reenviar al dueño · enviado ${formatDateTime(rendicionSent)}` : 'Enviar al dueño'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

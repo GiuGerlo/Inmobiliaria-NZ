@@ -15,5 +15,7 @@ Route::fallback(function () {
     $spa = public_path('index.html');
     abort_unless(is_file($spa), 404);
 
-    return response()->file($spa);
+    // no-cache: el browser revalida el HTML en cada carga (304 si no cambió) y toma el deploy nuevo
+    // al instante. Los JS/CSS llevan hash en el nombre, así que siguen cacheados.
+    return response()->file($spa, ['Cache-Control' => 'no-cache']);
 });

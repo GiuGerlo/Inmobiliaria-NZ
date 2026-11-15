@@ -17,6 +17,10 @@ recibo precargado y trazabilidad de cada envío por WhatsApp (enviado → entreg
   + `delivered_at`/`read_at`. "Enviado" cuenta sent+delivered+read.
 - Historial: filtros por nombre/teléfono, tipo, estado y rango de fechas; detalle con horas de entrega/lectura.
 - `whatsapp:test` guarda destinatario, contrato y texto en el historial.
+- Ayuda por página: botón "Ayuda" en la barra superior con panel (para qué sirve, qué podés hacer,
+  paso a paso, tips) en lenguaje simple; responsive (pantalla completa en celular).
+- Fixes post-deploy: fecha del menú "Reenviar · enviado" y `index.html` del admin con `no-cache`
+  (antes el browser mostraba la versión vieja tras cada deploy).
 
 **Breaking**: nada.
 **Migración**: `php artisan migrate` (`delivered_at`, `read_at` en `whatsapp_messages`). Post-deploy:

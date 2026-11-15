@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, formatDate } from '@/lib/format';
+import { formatCurrency, formatDate, formatDateTime } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
 import { receiptTotal } from './total';
 import { SentMark } from './SentMark';
@@ -229,7 +229,7 @@ export function ReceiptDetailDialog({
                 >
                   <MessageCircle className="size-4 text-emerald-600" />
                   {receipt.whatsapp_recibo_sent_at
-                    ? `Reenviar al inquilino · enviado ${formatDate(receipt.whatsapp_recibo_sent_at)}`
+                    ? `Reenviar al inquilino · enviado ${formatDateTime(receipt.whatsapp_recibo_sent_at)}`
                     : 'Enviar al inquilino'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -255,7 +255,7 @@ export function ReceiptDetailDialog({
                 >
                   <MessageCircle className="size-4 text-emerald-600" />
                   {receipt.whatsapp_rendicion_sent_at
-                    ? `Reenviar al dueño · enviado ${formatDate(receipt.whatsapp_rendicion_sent_at)}`
+                    ? `Reenviar al dueño · enviado ${formatDateTime(receipt.whatsapp_rendicion_sent_at)}`
                     : 'Enviar al dueño'}
                 </DropdownMenuItem>
               </DropdownMenuContent>

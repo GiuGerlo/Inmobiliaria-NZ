@@ -11,6 +11,7 @@ import { useAuth } from '@/features/auth/useAuth';
 import { useMaintenanceStatus } from '@/features/maintenance/queries';
 import { MaintenanceScreen } from '@/features/maintenance/MaintenanceScreen';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { HelpButton } from '@/features/help/HelpButton';
 
 const SIDEBAR_KEY = 'nz-sidebar-collapsed';
 
@@ -103,7 +104,10 @@ export function AppLayout() {
               <PanelLeft className="size-5" />
             </Button>
           </div>
-          <UserMenu />
+          <div className="flex items-center gap-2">
+            <HelpButton />
+            <UserMenu />
+          </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <ErrorBoundary key={pathname}>
