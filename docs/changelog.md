@@ -21,6 +21,11 @@ recibo precargado y trazabilidad de cada envío por WhatsApp (enviado → entreg
   paso a paso, tips) en lenguaje simple; responsive (pantalla completa en celular).
 - Fixes post-deploy: fecha del menú "Reenviar · enviado" y `index.html` del admin con `no-cache`
   (antes el browser mostraba la versión vieja tras cada deploy).
+- Legacy `nz-administracion.net` redirigido (302) al admin nuevo (`tools/legacy-redirect/.htaccess`).
+- Re-sync final legacy → prod: dump del legacy idéntico a prod salvo datos de prueba; se borraron solo esos
+  datos + mensajes de test y se reiniciaron AUTO_INCREMENT (próximo recibo #930). Sistema nuevo = única fuente.
+- Test de mantenimiento actualizado al texto actual de la pantalla ("En mantenimiento").
+- Cierre de sub-M: plantillas APPROVED, envío real con plantilla y endurecimiento de seguridad en Meta.
 
 **Breaking**: nada.
 **Migración**: `php artisan migrate` (`delivered_at`, `read_at` en `whatsapp_messages`). Post-deploy:

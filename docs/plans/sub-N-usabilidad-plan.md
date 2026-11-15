@@ -2,7 +2,7 @@
 
 - **Spec**: `docs/superpowers/specs/2026-11-15-sub-N-usabilidad-design.md`
 - **Rama**: `fase/N-usabilidad` (un commit, lo hace el usuario)
-- **Estado**: 🟡 en curso
+- **Estado**: 🟢 DONE
 
 ## Pasos
 
@@ -16,9 +16,9 @@
 - [x] 5. Nuevo recibo: fecha/mes/año de hoy + precarga alquiler y forma de pago del último recibo.
       **Done**: Vitest de precarga.
 - [x] 6. Tilde por botón (Recibo/Rendición) con color por estado + "Reenviar · enviado dd/mm".
-- [ ] 7. `.htaccess` 302 del legacy (cuando el usuario pase el repo; se sube con el dump final).
-- [ ] 8. Pest + Vitest + lint verdes; guía de QA manual; roadmap/changelog; mensaje de commit sugerido.
-- [ ] 9. Post-deploy: suscribir campo `messages` del webhook en la app Meta.
+- [x] 7. `.htaccess` 302 del legacy (`tools/legacy-redirect/.htaccess`), subido y verificado 2026-11-15.
+- [x] 8. Pest + Vitest + lint verdes; guía de QA manual; roadmap/changelog; mensaje de commit sugerido.
+- [x] 9. Campo `messages` del webhook: ya estaba suscripto; estados verificados en prod (leído 21:12:50).
 
 ## Ampliación 2026-11-15
 
@@ -31,3 +31,5 @@
 
 - [x] 14. Fixes de prod: fecha del menú "Reenviar · enviado" + `index.html` sin cache (test `SpaFallbackTest`).
 - [x] 15. Ayuda por página (`features/help`): botón en la barra superior + panel con ejemplos; test de cobertura del menú.
+
+> ✅ DONE — 2026-11-15

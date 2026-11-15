@@ -1,0 +1,9 @@
+# Legacy de alquileres (nz-administracion.net) dado de baja: todo va al admin nuevo.
+# Va en la raíz del sitio legacy: ~/domains/nz-administracion.net/public_html/.htaccess
+# 302 (temporal) a propósito: el legacy queda "por si acaso"; un 301 lo cachean los browsers
+# y no se puede deshacer. Para volver atrás: borrar este archivo.
+RewriteEngine On
+
+# Dejar pasar la validación del certificado SSL (Let's Encrypt / Hostinger).
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^ https://admin.nz-estudiojuridicoinmobiliario.com/ [R=302,L]

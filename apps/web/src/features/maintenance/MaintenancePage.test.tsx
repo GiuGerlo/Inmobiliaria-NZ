@@ -42,7 +42,7 @@ describe('Modo mantenimiento — gate del SPA', () => {
 
     renderWithProviders(<AppLayout />);
 
-    expect(await screen.findByText('Estamos en mantenimiento')).toBeInTheDocument();
+    expect(await screen.findByText('En mantenimiento')).toBeInTheDocument();
   });
 
   it('el superadmin no queda bloqueado (entra al admin)', async () => {
@@ -51,6 +51,6 @@ describe('Modo mantenimiento — gate del SPA', () => {
     renderWithProviders(<AppLayout />);
 
     expect((await screen.findAllByText('Inmobiliaria NZ')).length).toBeGreaterThan(0);
-    expect(screen.queryByText('Estamos en mantenimiento')).not.toBeInTheDocument();
+    expect(screen.queryByText('En mantenimiento')).not.toBeInTheDocument();
   });
 });
