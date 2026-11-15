@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
 import { getBatch, listMessages, retryBatch, sendMissingItems, sendPaymentReminders } from './api';
 import type { Paginated } from '@/lib/types';
-import type { BatchStatus, WhatsAppMessage } from './types';
+import type { BatchStatus, MessageFilters, WhatsAppMessage } from './types';
 
 export function useSendPaymentReminders() {
   const qc = useQueryClient();
@@ -43,10 +43,10 @@ export function useBatch(batchId: string | null) {
   });
 }
 
-export function useMessages(page: number, perPage: number) {
+export function useMessages(page: number, perPage: number, filters: MessageFilters = {}) {
   return useQuery({
-    queryKey: queryKeys.whatsapp.messages({ page, perPage }),
-    queryFn: () => listMessages(page, perPage),
+    queryKey: queryKeys.whatsapp.messages({ page, perPage, ...filters }),
+    queryFn: () => listMessages(page, perPage, filters),
     // Mientras haya mensajes en cola, poll-eá para reflejar cuándo el worker los envía.
     refetchInterval: (query) => {
       const data = query.state.data as Paginated<WhatsAppMessage> | undefined;

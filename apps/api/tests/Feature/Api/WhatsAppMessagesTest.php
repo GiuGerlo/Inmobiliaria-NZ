@@ -54,3 +54,21 @@ it('devuelve el estado de un lote y reintenta los fallidos', function () {
     expect(WhatsAppMessage::where('recipient_name', 'Falló')->count())->toBe(2);
     expect(WhatsAppMessage::where('recipient_name', 'Falló')->where('status', 'sent')->exists())->toBeTrue();
 });
+
+it('filtra el historial por nombre/teléfono, rango de fechas y recibo', function () {
+    $receipt = Receipt::factory()->create();
+    $base = ['type' => 'recordatorio_pago', 'status' => 'sent'];
+    $ana = WhatsAppMessage::create($base + ['recipient_name' => 'Ana Ruiz', 'recipient_phone' => '+5493468111111', 'receipt_id' => $receipt->Nro_Recibo]);
+    $ana->forceFill(['created_at' => '2026-11-10 10:00:00'])->save();
+    $beto = WhatsAppMessage::create($base + ['recipient_name' => 'Beto Paz', 'recipient_phone' => '+5493468222222']);
+    $beto->forceFill(['created_at' => '2026-11-14 10:00:00'])->save();
+
+    $names = fn (string $query) => collect($this->getJson("/api/v1/whatsapp/messages?{$query}")->assertOk()->json('data'))
+        ->pluck('recipient_name')->all();
+
+    expect($names('filter[q]=ana'))->toBe(['Ana Ruiz'])
+        ->and($names('filter[q]=222222'))->toBe(['Beto Paz'])
+        ->and($names('filter[from]=2026-11-12'))->toBe(['Beto Paz'])
+        ->and($names('filter[to]=2026-11-10'))->toBe(['Ana Ruiz'])
+        ->and($names("filter[receipt_id]={$receipt->Nro_Recibo}"))->toBe(['Ana Ruiz']);
+});

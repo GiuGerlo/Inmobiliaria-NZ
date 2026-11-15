@@ -18,7 +18,9 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DataTableColumnHeader } from '@/components/data-table/DataTableColumnHeader';
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/format';
+import { STATUS_LABEL, type WhatsAppStatus } from '@/features/whatsapp/types';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
+import { SentMark } from './SentMark';
 import type { Receipt, WhatsAppType } from './types';
 
 type ReceiptActions = {
@@ -34,6 +36,20 @@ function contractLabel(receipt: Receipt): string {
   const tenant = receipt.contract?.tenant?.name;
   if (owner && tenant) return `${owner} - ${tenant}`;
   return owner ?? tenant ?? '—';
+}
+
+/** Tooltip del botón Recibo/Rendición: nombre + estado del último envío por WhatsApp. */
+function waTooltip(label: string, status?: WhatsAppStatus | null, sentAt?: string | null) {
+  if (!status) return label;
+  return (
+    <>
+      <div>{label}</div>
+      <div className="opacity-80">
+        WhatsApp: {STATUS_LABEL[status]}
+        {sentAt ? ` · enviado ${formatDateTime(sentAt)}` : ''}
+      </div>
+    </>
+  );
 }
 
 /** Columnas de montos en pesos (clave del campo + encabezado corto). */
@@ -112,25 +128,8 @@ export function buildReceiptColumns({
         const receipt = row.original;
         const reciboSent = receipt.whatsapp_recibo_sent_at;
         const rendicionSent = receipt.whatsapp_rendicion_sent_at;
-        const anyWhatsAppSent = reciboSent || rendicionSent;
         return (
           <div className="flex items-center justify-end gap-0.5">
-            {anyWhatsAppSent && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className="flex size-8 items-center justify-center text-emerald-600"
-                    aria-label={`Enviado por WhatsApp (recibo #${receipt.number})`}
-                  >
-                    <MessageCircle className="size-4" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {reciboSent && <div>Recibo enviado: {formatDateTime(reciboSent)}</div>}
-                  {rendicionSent && <div>Rendición enviada: {formatDateTime(rendicionSent)}</div>}
-                </TooltipContent>
-              </Tooltip>
-            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -152,14 +151,17 @@ export function buildReceiptColumns({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-emerald-700 hover:text-emerald-800"
+                      className="relative size-8 text-emerald-700 hover:text-emerald-800"
                       aria-label={`Recibo del recibo #${receipt.number}`}
                     >
                       <FileText className="size-4" />
+                      <SentMark status={receipt.whatsapp_recibo_status} sentAt={reciboSent} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Recibo</TooltipContent>
+                <TooltipContent>
+                  {waTooltip('Recibo', receipt.whatsapp_recibo_status, reciboSent)}
+                </TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => openReceiptPdf(receipt.number)}>
@@ -168,7 +170,7 @@ export function buildReceiptColumns({
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'recibo')}>
                   <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar al inquilino
+                  {reciboSent ? `Reenviar al inquilino · enviado ${formatDate(reciboSent)}` : 'Enviar al inquilino'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -179,14 +181,17 @@ export function buildReceiptColumns({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-8 text-sky-700 hover:text-sky-800"
+                      className="relative size-8 text-sky-700 hover:text-sky-800"
                       aria-label={`Rendición del recibo #${receipt.number}`}
                     >
                       <FileSpreadsheet className="size-4" />
+                      <SentMark status={receipt.whatsapp_rendicion_status} sentAt={rendicionSent} />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Rendición</TooltipContent>
+                <TooltipContent>
+                  {waTooltip('Rendición', receipt.whatsapp_rendicion_status, rendicionSent)}
+                </TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => openSettlementPdf(receipt.number)}>
@@ -195,7 +200,7 @@ export function buildReceiptColumns({
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onSendWhatsApp(receipt, 'rendicion')}>
                   <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar al dueño
+                  {rendicionSent ? `Reenviar al dueño · enviado ${formatDate(rendicionSent)}` : 'Enviar al dueño'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

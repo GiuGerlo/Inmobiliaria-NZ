@@ -53,10 +53,18 @@ final class WhatsAppTestCommand extends Command
             return $this->sendFree($receipt, $type, $phone);
         }
 
+        $receipt->loadMissing(['contract.tenant', 'contract.owner']);
+        $recipientName = $type === WhatsAppMessage::TYPE_RENDICION
+            ? $receipt->contract?->owner?->NYA_Dueno
+            : $receipt->contract?->tenant?->NYA_Inquilino;
+
         $message = WhatsAppMessage::create([
             'receipt_id' => $receipt->Nro_Recibo,
+            'contract_id' => $receipt->ID_Contrato,
             'type' => $type,
             'recipient_phone' => $phone,
+            'recipient_name' => $recipientName,
+            'body' => WhatsAppMessage::documentBody($type, $recipientName, "{$receipt->Mes_Rend}/{$receipt->Ano_Rend}"),
             'status' => WhatsAppMessage::STATUS_QUEUED,
         ]);
 

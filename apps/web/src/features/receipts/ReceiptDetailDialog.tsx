@@ -16,6 +16,8 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { openReceiptPdf, openSettlementPdf } from './pdf';
 import { receiptTotal } from './total';
+import { SentMark } from './SentMark';
+import { ReceiptWhatsAppLog } from './ReceiptWhatsAppLog';
 import type { Receipt, WhatsAppType } from './types';
 
 type ReceiptDetailDialogProps = {
@@ -174,6 +176,8 @@ export function ReceiptDetailDialog({
               </p>
             </div>
           )}
+
+          <ReceiptWhatsAppLog receiptNumber={receipt.number} />
         </div>
 
         {/* Acciones */}
@@ -206,9 +210,10 @@ export function ReceiptDetailDialog({
           <div className="flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="relative">
                   <FileText className="size-4" />
                   Recibo
+                  <SentMark status={receipt.whatsapp_recibo_status} sentAt={receipt.whatsapp_recibo_sent_at} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -223,15 +228,18 @@ export function ReceiptDetailDialog({
                   }}
                 >
                   <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar al inquilino
+                  {receipt.whatsapp_recibo_sent_at
+                    ? `Reenviar al inquilino · enviado ${formatDate(receipt.whatsapp_recibo_sent_at)}`
+                    : 'Enviar al inquilino'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="relative">
                   <FileSpreadsheet className="size-4" />
                   Rendición
+                  <SentMark status={receipt.whatsapp_rendicion_status} sentAt={receipt.whatsapp_rendicion_sent_at} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -246,7 +254,9 @@ export function ReceiptDetailDialog({
                   }}
                 >
                   <MessageCircle className="size-4 text-emerald-600" />
-                  Enviar al dueño
+                  {receipt.whatsapp_rendicion_sent_at
+                    ? `Reenviar al dueño · enviado ${formatDate(receipt.whatsapp_rendicion_sent_at)}`
+                    : 'Enviar al dueño'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

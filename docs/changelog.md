@@ -2,6 +2,26 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-11-15] sub-N — Usabilidad del admin + estados de entrega WhatsApp
+
+**Resumen**: mejoras surgidas de la simulación en prod: recordatorios más seguros y claros, nuevo
+recibo precargado y trazabilidad de cada envío por WhatsApp (enviado → entregado → leído / falló).
+
+**Cambios**:
+- Recordatorio de pago: arranca tildado solo quien no tiene recibo del mes (marca "sin recibo");
+  dos paneles (todos alfabético + buscador | seleccionados con ✕); botón "Solo sin recibo".
+- Nuevo recibo: fecha/mes/año de hoy; al elegir contrato precarga alquiler y forma de pago del último recibo.
+- Recibos: tilde por documento (Recibo/Rendición) con color por estado + leyenda + tooltip con estado y hora;
+  menú "Reenviar · enviado dd/mm"; detalle del recibo con "Envíos por WhatsApp".
+- Webhook `messages.statuses`: estados `delivered`/`read`/`failed` (solo avanzan; falló guarda el motivo)
+  + `delivered_at`/`read_at`. "Enviado" cuenta sent+delivered+read.
+- Historial: filtros por nombre/teléfono, tipo, estado y rango de fechas; detalle con horas de entrega/lectura.
+- `whatsapp:test` guarda destinatario, contrato y texto en el historial.
+
+**Breaking**: nada.
+**Migración**: `php artisan migrate` (`delivered_at`, `read_at` en `whatsapp_messages`). Post-deploy:
+suscribir el campo `messages` del webhook en la app Meta (sin eso no llegan los estados de entrega).
+
 ## [2026-11-13] sub-M — WhatsApp coexistencia + baja de credenciales legacy
 
 **Resumen**: el número real de Nadina quedó conectado a la Cloud API en modo coexistencia (sigue

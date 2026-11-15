@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import type { Paginated } from '@/lib/types';
-import type { BatchStatus, PaymentRemindersResult, WhatsAppMessage } from './types';
+import type { BatchStatus, MessageFilters, PaymentRemindersResult, WhatsAppMessage } from './types';
 
 export async function sendPaymentReminders(
   tenantIds: number[],
@@ -33,9 +33,18 @@ export async function retryBatch(batchId: string): Promise<{ batch_id: string; t
   return data;
 }
 
-export async function listMessages(page: number, perPage: number): Promise<Paginated<WhatsAppMessage>> {
-  const { data } = await api.get<Paginated<WhatsAppMessage>>('/whatsapp/messages', {
-    params: { page, per_page: perPage },
-  });
+export async function listMessages(
+  page: number,
+  perPage: number,
+  filters: MessageFilters = {},
+): Promise<Paginated<WhatsAppMessage>> {
+  const params: Record<string, string | number> = { page, per_page: perPage };
+  if (filters.q) params['filter[q]'] = filters.q;
+  if (filters.type) params['filter[type]'] = filters.type;
+  if (filters.status) params['filter[status]'] = filters.status;
+  if (filters.from) params['filter[from]'] = filters.from;
+  if (filters.to) params['filter[to]'] = filters.to;
+  if (filters.receiptId) params['filter[receipt_id]'] = filters.receiptId;
+  const { data } = await api.get<Paginated<WhatsAppMessage>>('/whatsapp/messages', { params });
   return data;
 }

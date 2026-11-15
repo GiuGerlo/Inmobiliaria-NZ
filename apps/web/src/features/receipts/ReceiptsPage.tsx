@@ -174,6 +174,21 @@ export function ReceiptsPage() {
         }
       />
 
+      {/* Leyenda del tilde de WhatsApp sobre los botones Recibo / Rendición (colores de SentMark). */}
+      <div className="-mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span>Envío por WhatsApp:</span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-slate-400" /> Enviado
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-emerald-600" /> Entregado / leído
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full bg-destructive" /> Falló
+        </span>
+        <span>· Pasá el mouse por el botón para ver el detalle.</span>
+      </div>
+
       {/* Estado del período: qué falta emitir y qué ya se emitió. */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">

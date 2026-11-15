@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import { toast } from '@/lib/toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { errorMessage } from '@/lib/api-error';
 import { useTenants } from '@/features/tenants/queries';
+import { useDashboard } from '@/features/dashboard/queries';
 import { useSendPaymentReminders } from './queries';
 import { BatchProgress } from './BatchProgress';
 
@@ -21,23 +23,32 @@ function previewText(deadline: string): string {
 }
 
 export function PaymentReminderTab() {
-  const { data, isLoading } = useTenants({ page: 1, perPage: 100 });
-  const tenants = data?.data ?? [];
+  const { data, isLoading: tenantsLoading } = useTenants({ page: 1, perPage: 100 });
+  const dashboard = useDashboard();
+  const tenants = [...(data?.data ?? [])].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  const isLoading = tenantsLoading || dashboard.isLoading;
+  const [search, setSearch] = useState('');
   const [deadline, setDeadline] = useState('');
-  const [excluded, setExcluded] = useState<Set<number>>(new Set());
+  // null = sin tocar: arranca con los inquilinos que todavía no tienen recibo del mes.
+  const [picked, setPicked] = useState<Set<number> | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [batchId, setBatchId] = useState<string | null>(null);
   const send = useSendPaymentReminders();
 
-  const selectedIds = tenants.filter((t) => !excluded.has(t.id)).map((t) => t.id);
+  const unpaid = new Set((dashboard.data?.pending_receipts ?? []).map((c) => c.tenant_id));
+  const selected = picked ?? unpaid;
+  const selectedTenants = tenants.filter((t) => selected.has(t.id));
+  const selectedIds = selectedTenants.map((t) => t.id);
+  const term = search.trim().toLowerCase();
+  const visible = term
+    ? tenants.filter((t) => t.name.toLowerCase().includes(term) || t.phone.includes(term))
+    : tenants;
 
   function toggle(id: number) {
-    setExcluded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setPicked(next);
   }
 
   function openConfirm() {
@@ -105,39 +116,92 @@ export function PaymentReminderTab() {
           <div className="mb-1 flex items-center justify-between">
             <Label>Destinatarios ({selectedIds.length} de {tenants.length})</Label>
             <div className="flex gap-3 text-xs">
-              <button type="button" className="text-muted-foreground underline" onClick={() => setExcluded(new Set())}>
-                Seleccionar todos
+              <button type="button" className="text-muted-foreground underline" onClick={() => setPicked(unpaid)}>
+                Solo sin recibo
               </button>
               <button
                 type="button"
                 className="text-muted-foreground underline"
-                onClick={() => setExcluded(new Set(tenants.map((t) => t.id)))}
+                onClick={() => setPicked(new Set(tenants.map((t) => t.id)))}
               >
+                Seleccionar todos
+              </button>
+              <button type="button" className="text-muted-foreground underline" onClick={() => setPicked(new Set())}>
                 Deseleccionar todos
               </button>
             </div>
           </div>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Arranca tildado solo quien todavía no tiene recibo de {MONTHS[new Date().getMonth()]}.
+          </p>
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Cargando inquilinos…</p>
           ) : (
-            <div className="grid max-h-80 grid-cols-1 gap-x-6 overflow-y-auto rounded-md border p-1 sm:grid-cols-2">
-              {tenants.map((t) => (
-                <label
-                  key={t.id}
-                  htmlFor={`tenant-${t.id}`}
-                  className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted/50"
-                >
-                  <input
-                    type="checkbox"
-                    id={`tenant-${t.id}`}
-                    checked={!excluded.has(t.id)}
-                    onChange={() => toggle(t.id)}
-                    className="size-4 accent-[#13294b]"
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Izquierda: todos, alfabético, con buscador. */}
+              <div className="rounded-md border">
+                <div className="border-b p-2">
+                  <Input
+                    aria-label="Buscar inquilino"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Buscar inquilino o teléfono…"
                   />
-                  <span className="flex-1 truncate">{t.name}</span>
-                  <span className="text-xs text-muted-foreground">{t.phone}</span>
-                </label>
-              ))}
+                </div>
+                <div className="max-h-80 overflow-y-auto p-1">
+                  {visible.length === 0 && (
+                    <p className="px-2 py-1.5 text-sm text-muted-foreground">Sin resultados.</p>
+                  )}
+                  {visible.map((t) => (
+                    <label
+                      key={t.id}
+                      htmlFor={`tenant-${t.id}`}
+                      className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-muted/50"
+                    >
+                      <input
+                        type="checkbox"
+                        id={`tenant-${t.id}`}
+                        checked={selected.has(t.id)}
+                        onChange={() => toggle(t.id)}
+                        className="size-4 accent-[#13294b]"
+                      />
+                      <span className="flex-1 truncate">{t.name}</span>
+                      {unpaid.has(t.id) && (
+                        <span className="rounded bg-amber-50 px-1.5 text-xs text-amber-700">sin recibo</span>
+                      )}
+                      <span className="text-xs text-muted-foreground">{t.phone}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Derecha: los seleccionados, uno abajo del otro. */}
+              <div className="rounded-md border">
+                <div className="border-b px-3 py-2.5 text-sm font-medium">
+                  Seleccionados ({selectedTenants.length})
+                </div>
+                <ul className="max-h-80 overflow-y-auto p-1">
+                  {selectedTenants.length === 0 && (
+                    <li className="px-2 py-1.5 text-sm text-muted-foreground">Nadie seleccionado.</li>
+                  )}
+                  {selectedTenants.map((t) => (
+                    <li key={t.id} className="flex items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted/50">
+                      <span className="flex-1 truncate">{t.name}</span>
+                      <span className="text-xs text-muted-foreground">{t.phone}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="size-7"
+                        aria-label={`Quitar a ${t.name}`}
+                        onClick={() => toggle(t.id)}
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>

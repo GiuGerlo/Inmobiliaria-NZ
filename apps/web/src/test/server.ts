@@ -7,6 +7,7 @@ import type { Tenant } from '@/features/tenants/types';
 import type { Property } from '@/features/properties/types';
 import type { Contract } from '@/features/contracts/types';
 import type { Receipt, ReceiptInput } from '@/features/receipts/types';
+import { MONTHS } from '@/features/receipts/schema';
 import type { PropertyType, SaleProperty } from '@/features/sales-properties/types';
 
 const API = '/api/v1';
@@ -257,7 +258,16 @@ export const handlers = [
           active_contracts: contracts.length,
           receipts_this_month: 0,
         },
-        pending_receipts: [],
+        // Como el backend: contratos sin recibo del mes/año actual.
+        pending_receipts: contracts.filter(
+          (c) =>
+            !receipts.some(
+              (r) =>
+                r.contract_id === c.id &&
+                r.month === MONTHS[new Date().getMonth()] &&
+                r.year === new Date().getFullYear(),
+            ),
+        ),
         expiring_contracts: [],
         latest_receipts: [],
         contracts_with_balance: [],

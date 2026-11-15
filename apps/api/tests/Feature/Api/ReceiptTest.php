@@ -6,6 +6,7 @@ use App\Models\Contract;
 use App\Models\PaymentMethod;
 use App\Models\Receipt;
 use App\Models\User;
+use App\Models\WhatsAppMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -104,4 +105,20 @@ it('borra un recibo', function () {
     $this->deleteJson("/api/v1/receipts/{$receipt->Nro_Recibo}")->assertNoContent();
 
     $this->assertDatabaseMissing('recibo', ['Nro_Recibo' => $receipt->Nro_Recibo]);
+});
+
+it('expone el estado del último envío por WhatsApp de cada tipo', function () {
+    $receipt = Receipt::factory()->create();
+    $base = ['receipt_id' => $receipt->Nro_Recibo, 'recipient_phone' => '+5493468000000'];
+    WhatsAppMessage::create($base + ['type' => 'recibo', 'status' => 'sent', 'sent_at' => now()]);
+    WhatsAppMessage::create($base + ['type' => 'recibo', 'status' => 'delivered', 'sent_at' => now()]);
+    WhatsAppMessage::create($base + ['type' => 'rendicion', 'status' => 'failed']);
+
+    $this->getJson('/api/v1/receipts')
+        ->assertOk()
+        ->assertJsonPath('data.0.whatsapp_recibo_status', 'delivered')
+        ->assertJsonPath('data.0.whatsapp_rendicion_status', 'failed')
+        ->assertJsonPath('data.0.whatsapp_rendicion_sent_at', null);
+
+    expect($this->getJson('/api/v1/receipts')->json('data.0.whatsapp_recibo_sent_at'))->not->toBeNull();
 });

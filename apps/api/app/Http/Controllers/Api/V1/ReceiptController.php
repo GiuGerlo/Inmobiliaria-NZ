@@ -10,6 +10,8 @@ use App\Http\Requests\Receipt\StoreReceiptRequest;
 use App\Http\Requests\Receipt\UpdateReceiptRequest;
 use App\Http\Resources\ReceiptResource;
 use App\Models\Receipt;
+use App\Models\WhatsAppMessage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -55,8 +57,12 @@ final class ReceiptController extends Controller
             )
             ->defaultSort(AllowedSort::field('-number', 'Nro_Recibo'))
             ->allowedIncludes('contract', 'paymentMethod', 'contract.owner', 'contract.tenant', 'contract.property')
-            ->withMax(['whatsappMessages as whatsapp_recibo_sent_at' => fn ($q) => $q->where('type', 'recibo')->where('status', 'sent')], 'sent_at')
-            ->withMax(['whatsappMessages as whatsapp_rendicion_sent_at' => fn ($q) => $q->where('type', 'rendicion')->where('status', 'sent')], 'sent_at')
+            ->withMax(['whatsappMessages as whatsapp_recibo_sent_at' => fn ($q) => $q->where('type', 'recibo')->whereIn('status', WhatsAppMessage::ACCEPTED_STATUSES)], 'sent_at')
+            ->withMax(['whatsappMessages as whatsapp_rendicion_sent_at' => fn ($q) => $q->where('type', 'rendicion')->whereIn('status', WhatsAppMessage::ACCEPTED_STATUSES)], 'sent_at')
+            ->addSelect([
+                'whatsapp_recibo_status' => $this->lastWhatsAppStatus(WhatsAppMessage::TYPE_RECIBO),
+                'whatsapp_rendicion_status' => $this->lastWhatsAppStatus(WhatsAppMessage::TYPE_RENDICION),
+            ])
             ->paginate($this->perPage($request))
             ->appends($request->query());
 
@@ -88,5 +94,16 @@ final class ReceiptController extends Controller
         $receipt->delete();
 
         return response()->noContent();
+    }
+
+    /** Subquery: estado del último mensaje de WhatsApp de ese tipo para el recibo. */
+    private function lastWhatsAppStatus(string $type): Builder
+    {
+        return WhatsAppMessage::query()
+            ->select('status')
+            ->whereColumn('receipt_id', 'recibo.Nro_Recibo')
+            ->where('type', $type)
+            ->latest('id')
+            ->limit(1);
     }
 }

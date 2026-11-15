@@ -30,6 +30,8 @@ final class WhatsAppMessageResource extends JsonResource
             'status' => $this->resource->status,
             'error' => $this->resource->error,
             'sent_at' => $this->resource->sent_at?->toIso8601String(),
+            'delivered_at' => $this->resource->delivered_at?->toIso8601String(),
+            'read_at' => $this->resource->read_at?->toIso8601String(),
             'created_at' => $this->resource->created_at?->toIso8601String(),
         ];
     }

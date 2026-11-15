@@ -9,52 +9,111 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { formatDateTime } from '@/lib/format';
+import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { useMessages } from './queries';
-import type { WhatsAppMessage, WhatsAppStatus, WhatsAppType } from './types';
+import { MessageTimes } from './MessageTimes';
+import { StatusBadge } from './StatusBadge';
+import {
+  STATUS_LABEL,
+  TYPE_LABEL,
+  type MessageFilters,
+  type WhatsAppMessage,
+  type WhatsAppStatus,
+  type WhatsAppType,
+} from './types';
 
-const TYPE_LABEL: Record<WhatsAppType, string> = {
-  recibo: 'Recibo',
-  rendicion: 'Rendición',
-  recordatorio_pago: 'Pago',
-  recordatorio_faltante: 'Faltante',
-};
-
-const STATUS_STYLE: Record<WhatsAppStatus, string> = {
-  sent: 'text-emerald-700 bg-emerald-50',
-  failed: 'text-destructive bg-destructive/10',
-  queued: 'text-muted-foreground bg-muted',
-};
-
-const STATUS_LABEL: Record<WhatsAppStatus, string> = {
-  sent: 'Enviado',
-  failed: 'Falló',
-  queued: 'En cola',
-};
-
-function StatusBadge({ status }: { status: WhatsAppStatus }) {
-  return (
-    <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[status]}`}>
-      {STATUS_LABEL[status]}
-    </span>
-  );
-}
+const SELECT_CLASS = 'h-9 rounded-md border bg-background px-2 text-sm';
 
 export function MessageHistory() {
-  const { data, isLoading } = useMessages(1, 50);
+  const [filters, setFilters] = useState<MessageFilters>({});
+  const [search, setSearch] = useState('');
+  const q = useDebouncedValue(search, 300);
+  const { data, isLoading } = useMessages(1, 50, { ...filters, q });
   const messages = data?.data ?? [];
   const [detail, setDetail] = useState<WhatsAppMessage | null>(null);
+  const filtering = !!(q || filters.type || filters.status || filters.from || filters.to);
+
+  const set = (patch: MessageFilters) => setFilters((prev) => ({ ...prev, ...patch }));
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Historial de mensajes</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-1.5 lg:col-span-2">
+            <Label htmlFor="history-q">Buscar</Label>
+            <Input
+              id="history-q"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nombre o teléfono…"
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="history-type">Tipo</Label>
+            <select
+              id="history-type"
+              className={SELECT_CLASS}
+              value={filters.type ?? ''}
+              onChange={(e) => set({ type: e.target.value as WhatsAppType | '' })}
+            >
+              <option value="">Todos</option>
+              {Object.entries(TYPE_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="history-status">Estado</Label>
+            <select
+              id="history-status"
+              className={SELECT_CLASS}
+              value={filters.status ?? ''}
+              onChange={(e) => set({ status: e.target.value as WhatsAppStatus | '' })}
+            >
+              <option value="">Todos</option>
+              {Object.entries(STATUS_LABEL).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-1.5">
+              <Label htmlFor="history-from">Desde</Label>
+              <Input
+                id="history-from"
+                type="date"
+                value={filters.from ?? ''}
+                onChange={(e) => set({ from: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="history-to">Hasta</Label>
+              <Input
+                id="history-to"
+                type="date"
+                value={filters.to ?? ''}
+                onChange={(e) => set({ to: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Cargando…</p>
         ) : messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Todavía no se enviaron mensajes.</p>
+          <p className="text-sm text-muted-foreground">
+            {filtering ? 'No hay mensajes con esos filtros.' : 'Todavía no se enviaron mensajes.'}
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -118,6 +177,7 @@ export function MessageHistory() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3 text-sm">
+                <MessageTimes message={detail} />
                 <div>
                   <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Mensaje

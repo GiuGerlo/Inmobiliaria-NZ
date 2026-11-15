@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\WhatsAppWebhookController;
 use App\Models\Setting;
+use App\Models\WhatsAppMessage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 
@@ -88,4 +89,84 @@ it('marca reconectado al recibir ACCOUNT_RECONNECTED', function () {
     postWebhook($payload, waSign($payload))->assertOk();
 
     expect(Setting::get(WhatsAppWebhookController::CONNECTED_KEY))->toBe('1');
+});
+
+/** Payload `messages` con un único status de entrega para el wamid dado. */
+function statusPayload(string $wamid, string $status, array $extra = []): string
+{
+    return json_encode([
+        'object' => 'whatsapp_business_account',
+        'entry' => [[
+            'id' => 'WABA1',
+            'changes' => [[
+                'field' => 'messages',
+                'value' => ['statuses' => [array_merge(['id' => $wamid, 'status' => $status], $extra)]],
+            ]],
+        ]],
+    ]);
+}
+
+function waMessage(string $status): WhatsAppMessage
+{
+    return WhatsAppMessage::create([
+        'type' => WhatsAppMessage::TYPE_RECIBO,
+        'recipient_phone' => '+5493468000000',
+        'meta_message_id' => 'wamid.TEST',
+        'status' => $status,
+    ]);
+}
+
+it('avanza el estado a entregado y luego a leído', function () {
+    $message = waMessage(WhatsAppMessage::STATUS_SENT);
+
+    $payload = statusPayload('wamid.TEST', 'delivered');
+    postWebhook($payload, waSign($payload))->assertOk();
+    expect($message->fresh()->status)->toBe('delivered');
+
+    $payload = statusPayload('wamid.TEST', 'read');
+    postWebhook($payload, waSign($payload))->assertOk();
+    expect($message->fresh()->status)->toBe('read');
+});
+
+it('no retrocede si los estados llegan desordenados', function () {
+    $message = waMessage(WhatsAppMessage::STATUS_READ);
+
+    $payload = statusPayload('wamid.TEST', 'delivered');
+    postWebhook($payload, waSign($payload))->assertOk();
+
+    expect($message->fresh()->status)->toBe('read');
+});
+
+it('marca falló con el motivo que manda Meta', function () {
+    $message = waMessage(WhatsAppMessage::STATUS_SENT);
+
+    $payload = statusPayload('wamid.TEST', 'failed', [
+        'errors' => [['code' => 131026, 'title' => 'Message undeliverable']],
+    ]);
+    postWebhook($payload, waSign($payload))->assertOk();
+
+    expect($message->fresh())
+        ->status->toBe('failed')
+        ->error->toBe('131026: Message undeliverable');
+});
+
+it('ignora estados de mensajes que no son nuestros', function () {
+    $message = waMessage(WhatsAppMessage::STATUS_SENT);
+
+    $payload = statusPayload('wamid.OTRO', 'read');
+    postWebhook($payload, waSign($payload))->assertOk();
+
+    expect($message->fresh()->status)->toBe('sent');
+});
+
+it('guarda cuándo se entregó y se leyó con la hora que manda Meta', function () {
+    $message = waMessage(WhatsAppMessage::STATUS_SENT);
+
+    // Llega solo el "read": entregado se completa con la misma hora.
+    $payload = statusPayload('wamid.TEST', 'read', ['timestamp' => '1763226000']);
+    postWebhook($payload, waSign($payload))->assertOk();
+
+    $fresh = $message->fresh();
+    expect($fresh->read_at->timestamp)->toBe(1763226000)
+        ->and($fresh->delivered_at->timestamp)->toBe(1763226000);
 });

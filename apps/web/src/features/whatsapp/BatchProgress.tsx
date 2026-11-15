@@ -9,7 +9,7 @@ import { useBatch, useRetryBatch } from './queries';
 import type { WhatsAppStatus } from './types';
 
 function StatusIcon({ status }: { status: WhatsAppStatus }) {
-  if (status === 'sent') return <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />;
+  if (status === 'sent' || status === 'delivered' || status === 'read') return <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />;
   if (status === 'failed') return <XCircle className="size-4 shrink-0 text-destructive" />;
   return <Clock className="size-4 shrink-0 animate-pulse text-muted-foreground" />;
 }

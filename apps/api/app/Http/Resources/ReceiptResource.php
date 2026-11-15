@@ -41,6 +41,9 @@ final class ReceiptResource extends JsonResource
             // el index con withMax; en show/store quedan en null.
             'whatsapp_recibo_sent_at' => $this->waSentAt('whatsapp_recibo_sent_at'),
             'whatsapp_rendicion_sent_at' => $this->waSentAt('whatsapp_rendicion_sent_at'),
+            // Estado del último intento por tipo (sent/delivered/read/failed/queued) o null.
+            'whatsapp_recibo_status' => $this->resource->getAttribute('whatsapp_recibo_status'),
+            'whatsapp_rendicion_status' => $this->resource->getAttribute('whatsapp_rendicion_status'),
         ];
     }
 

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useQuery } from '@tanstack/react-query';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/lib/toast';
 import { Loader2 } from 'lucide-react';
@@ -34,6 +35,7 @@ import { EntityCombobox } from '@/components/form/EntityCombobox';
 import { fetchContractOptions } from '@/features/contracts/api';
 import { fetchPaymentMethodOptions } from '@/features/payment-methods/api';
 import { isValidationError, errorMessage } from '@/lib/api-error';
+import { listReceipts } from './api';
 import { useCreateReceipt, useUpdateReceipt } from './queries';
 import { MONTHS, receiptSchema, type ReceiptFormValues } from './schema';
 import type { Receipt } from './types';
@@ -105,12 +107,22 @@ export function ReceiptFormDialog({
     },
   });
 
+  // Al crear: último recibo del contrato elegido, para precargar alquiler + forma de pago.
+  const contractId = useWatch({ control: form.control, name: 'contract_id' });
+  const { data: lastReceipt } = useQuery({
+    queryKey: ['receipts', 'last-of-contract', contractId],
+    queryFn: async () => (await listReceipts({ page: 1, perPage: 1, contractId })).data[0] ?? null,
+    enabled: open && !isEdit && !!contractId,
+  });
+
   useEffect(() => {
     if (!open) return;
+    const now = new Date();
     form.reset({
       contract_id: receipt?.contract_id ?? defaultContract?.id ?? undefined,
       payment_method_id: receipt?.payment_method_id ?? undefined,
-      paid_at: receipt?.paid_at ?? '',
+      // Al crear, fecha/mes/año arrancan en hoy (fecha local, no UTC).
+      paid_at: receipt?.paid_at ?? now.toLocaleDateString('sv-SE'), // sv-SE = yyyy-mm-dd
       property_amount: receipt?.property_amount ?? undefined,
       municipal_amount: receipt?.municipal_amount ?? undefined,
       water_amount: receipt?.water_amount ?? undefined,
@@ -119,11 +131,18 @@ export function ReceiptFormDialog({
       repairs_amount: receipt?.repairs_amount ?? undefined,
       funeral_amount: receipt?.funeral_amount ?? undefined,
       fees_amount: receipt?.fees_amount ?? undefined,
-      month: receipt?.month ?? undefined,
-      year: receipt?.year ?? undefined,
+      month: receipt?.month ?? MONTHS[now.getMonth()],
+      year: receipt?.year ?? now.getFullYear(),
       comments: receipt?.comments ?? '',
     });
   }, [open, receipt, defaultContract, form]);
+
+  // Declarado después del reset: al reabrir con el mismo contrato (dato cacheado) vuelve a precargar.
+  useEffect(() => {
+    if (!open || isEdit || !lastReceipt) return;
+    form.setValue('property_amount', lastReceipt.property_amount);
+    form.setValue('payment_method_id', lastReceipt.payment_method_id);
+  }, [open, isEdit, lastReceipt, form]);
 
   function applyServerErrors(error: unknown): boolean {
     if (!isValidationError(error)) return false;
@@ -210,7 +229,7 @@ export function ReceiptFormDialog({
                     value={field.value ?? null}
                     onChange={(v) => field.onChange(v ?? undefined)}
                     fetchOptions={fetchPaymentMethodOptions}
-                    initialLabel={receipt?.payment_method?.description}
+                    initialLabel={receipt?.payment_method?.description ?? lastReceipt?.payment_method?.description}
                     placeholder="Elegí una forma de pago"
                     searchPlaceholder="Buscar forma de pago…"
                     emptyMessage="No se encontraron formas de pago."
@@ -306,7 +325,6 @@ export function ReceiptFormDialog({
                         type="number"
                         min={2000}
                         max={2100}
-                        placeholder="2026"
                         name={field.name}
                         ref={field.ref}
                         onBlur={field.onBlur}

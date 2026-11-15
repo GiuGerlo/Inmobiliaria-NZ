@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\WhatsAppMessageResource;
 use App\Jobs\SendBulkReminder;
 use App\Models\WhatsAppMessage;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,6 +29,13 @@ final class WhatsAppMessageController extends Controller
                 AllowedFilter::exact('type'),
                 AllowedFilter::exact('status'),
                 AllowedFilter::exact('batch_id'),
+                AllowedFilter::exact('receipt_id'),
+                AllowedFilter::callback('q', fn (Builder $query, string $value) => $query->where(
+                    fn (Builder $q) => $q->where('recipient_name', 'like', "%{$value}%")
+                        ->orWhere('recipient_phone', 'like', "%{$value}%"),
+                )),
+                AllowedFilter::callback('from', fn (Builder $query, string $value) => $query->whereDate('created_at', '>=', $value)),
+                AllowedFilter::callback('to', fn (Builder $query, string $value) => $query->whereDate('created_at', '<=', $value)),
             )
             ->defaultSort('-id')
             ->paginate(min($request->integer('per_page', 20), 100))
@@ -47,7 +55,7 @@ final class WhatsAppMessageController extends Controller
         return response()->json([
             'batch_id' => $batch,
             'total' => $messages->count(),
-            'sent' => $messages->where('status', WhatsAppMessage::STATUS_SENT)->count(),
+            'sent' => $messages->whereIn('status', WhatsAppMessage::ACCEPTED_STATUSES)->count(),
             'failed' => $messages->where('status', WhatsAppMessage::STATUS_FAILED)->count(),
             'queued' => $messages->where('status', WhatsAppMessage::STATUS_QUEUED)->count(),
             'messages' => WhatsAppMessageResource::collection($messages),

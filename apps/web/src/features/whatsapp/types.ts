@@ -1,9 +1,10 @@
 export type WhatsAppType = 'recibo' | 'rendicion' | 'recordatorio_pago' | 'recordatorio_faltante';
-export type WhatsAppStatus = 'queued' | 'sent' | 'failed';
+export type WhatsAppStatus = 'queued' | 'sent' | 'delivered' | 'read' | 'failed';
 
 export type WhatsAppMessage = {
   id: number;
   batch_id: string | null;
+  receipt_id: number | null;
   type: WhatsAppType;
   recipient_phone: string;
   recipient_name: string | null;
@@ -11,6 +12,8 @@ export type WhatsAppMessage = {
   status: WhatsAppStatus;
   error: string | null;
   sent_at: string | null;
+  delivered_at: string | null;
+  read_at: string | null;
   created_at: string | null;
 };
 
@@ -27,4 +30,29 @@ export type PaymentRemindersResult = {
   batch_id: string;
   total: number;
   skipped: string[];
+};
+
+export const STATUS_LABEL: Record<WhatsAppStatus, string> = {
+  queued: 'En cola',
+  sent: 'Enviado',
+  delivered: 'Entregado',
+  read: 'Leído',
+  failed: 'Falló',
+};
+
+/** Filtros del historial (todos opcionales; vacío = sin filtrar). */
+export type MessageFilters = {
+  q?: string;
+  type?: WhatsAppType | '';
+  status?: WhatsAppStatus | '';
+  from?: string;
+  to?: string;
+  receiptId?: number;
+};
+
+export const TYPE_LABEL: Record<WhatsAppType, string> = {
+  recibo: 'Recibo',
+  rendicion: 'Rendición',
+  recordatorio_pago: 'Pago',
+  recordatorio_faltante: 'Faltante',
 };

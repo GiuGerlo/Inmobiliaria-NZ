@@ -1,5 +1,6 @@
 import type { Contract } from '@/features/contracts/types';
 import type { PaymentMethod } from '@/features/payment-methods/types';
+import type { WhatsAppStatus } from '@/features/whatsapp/types';
 import type { Month } from './schema';
 
 export type Receipt = {
@@ -23,6 +24,9 @@ export type Receipt = {
   // Marcas de último envío exitoso por WhatsApp (ISO 8601) o null.
   whatsapp_recibo_sent_at?: string | null;
   whatsapp_rendicion_sent_at?: string | null;
+  // Estado del último intento de envío por tipo (solo en el listado) o null.
+  whatsapp_recibo_status?: WhatsAppStatus | null;
+  whatsapp_rendicion_status?: WhatsAppStatus | null;
 };
 
 /** Tipo de documento a enviar por WhatsApp: recibo→inquilino, rendición→dueño. */

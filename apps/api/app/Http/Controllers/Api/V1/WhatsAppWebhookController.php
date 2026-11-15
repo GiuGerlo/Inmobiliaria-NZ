@@ -6,15 +6,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\WhatsAppMessage;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Webhook público de WhatsApp Cloud API (coexistencia). Requisito de Meta para el
  * onboarding "WhatsApp Business app" (Tech Provider): Meta llama acá y hay que
- * "digerir" los eventos. No es una bandeja de entrada — solo valida, ACK 200 y
- * reacciona a `account_update` (offboard/reconnect) para pausar/reanudar envíos.
+ * "digerir" los eventos. No es una bandeja de entrada — solo valida, ACK 200,
+ * reacciona a `account_update` (offboard/reconnect) para pausar/reanudar envíos y
+ * a `messages.statuses` para marcar entregado/leído/falló.
  *
  * Autenticación: GET por verify token (handshake), POST por firma HMAC-SHA256 del
  * cuerpo crudo con el App Secret (X-Hub-Signature-256). No usa auth:sanctum.
@@ -50,6 +53,15 @@ final class WhatsAppWebhookController extends Controller
 
         foreach ((array) $request->input('entry', []) as $entry) {
             foreach ((array) ($entry['changes'] ?? []) as $change) {
+                if (($change['field'] ?? null) === 'messages') {
+                    // Solo estados de entrega; los mensajes entrantes (coexistencia) no se guardan.
+                    foreach ((array) ($change['value']['statuses'] ?? []) as $status) {
+                        $this->applyDeliveryStatus((array) $status);
+                    }
+
+                    continue;
+                }
+
                 if (($change['field'] ?? null) !== 'account_update') {
                     continue;
                 }
@@ -69,6 +81,41 @@ final class WhatsAppWebhookController extends Controller
 
         // Meta reintenta si no recibe 200 rápido. El resto de fields (history, smb_*) se ACKean.
         return response('', 200);
+    }
+
+    /** Actualiza el mensaje por su wamid. Solo avanza de estado; `failed` siempre gana. */
+    private function applyDeliveryStatus(array $status): void
+    {
+        $id = (string) ($status['id'] ?? '');
+        $new = (string) ($status['status'] ?? '');
+        $message = $id === '' ? null : WhatsAppMessage::query()->where('meta_message_id', $id)->first();
+
+        if ($message === null) {
+            return;
+        }
+
+        if ($new === WhatsAppMessage::STATUS_FAILED) {
+            $error = $status['errors'][0] ?? [];
+            $message->update([
+                'status' => WhatsAppMessage::STATUS_FAILED,
+                'error' => trim(($error['code'] ?? '').': '.($error['title'] ?? 'Error de entrega'), ': '),
+            ]);
+        } elseif (isset(WhatsAppMessage::STATUS_RANK[$new])
+            && WhatsAppMessage::STATUS_RANK[$new] > (WhatsAppMessage::STATUS_RANK[$message->status] ?? PHP_INT_MAX)
+        ) {
+            $at = isset($status['timestamp']) ? Carbon::createFromTimestamp((int) $status['timestamp']) : now();
+            $message->fill(['status' => $new]);
+            // Leído implica entregado: si el "delivered" llegó tarde o nunca, se completa con la misma hora.
+            if (in_array($new, [WhatsAppMessage::STATUS_DELIVERED, WhatsAppMessage::STATUS_READ], true)) {
+                $message->delivered_at ??= $at;
+            }
+            if ($new === WhatsAppMessage::STATUS_READ) {
+                $message->read_at = $at;
+            }
+            $message->save();
+        }
+
+        Log::channel('whatsapp')->info('webhook status', ['id' => $message->id, 'status' => $new]);
     }
 
     private function validSignature(Request $request): bool

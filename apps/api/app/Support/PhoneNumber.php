@@ -15,9 +15,8 @@ use Throwable;
 final class PhoneNumber
 {
     // ponytail: un número AR ambiguo (sin marca de celular) sale como fijo, sin el "9"
-    // (ej. +543468... en vez de +5493468...). El operador lo corrige en el modal y se
-    // valida en la verificación real con Meta; si Meta no resuelve el 9, agregar el
-    // transform AR aquí.
+    // (ej. +543468... en vez de +5493468...). Verificado en prod 2026-11-15: Meta resuelve
+    // el 9 y entrega igual. Si algún día deja de hacerlo, agregar el transform AR aquí.
 
     /** Devuelve el número en E.164 (ej. +5493514...) o null si no es válido. */
     public static function toE164(?string $raw, string $country = 'AR'): ?string
