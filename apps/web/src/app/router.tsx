@@ -46,6 +46,9 @@ const MaintenancePage = lazy(() =>
 const UsersPage = lazy(() =>
   import('@/features/users/UsersPage').then((m) => ({ default: m.UsersPage }))
 );
+const AuditPage = lazy(() =>
+  import('@/features/audit/AuditPage').then((m) => ({ default: m.AuditPage }))
+);
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -71,6 +74,7 @@ export const router = createBrowserRouter([
               { path: 'propiedades-venta', element: <SalesPropertiesPage /> },
               { path: 'mantenimiento', element: <MaintenancePage /> },
               { path: 'usuarios', element: <UsersPage /> },
+              { path: 'auditoria', element: <AuditPage /> },
             ],
           },
           { path: '*', element: <Navigate to="/" replace /> },

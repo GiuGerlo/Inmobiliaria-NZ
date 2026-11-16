@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Receipt;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 final class StoreReceiptRequest extends FormRequest
 {
@@ -19,12 +20,13 @@ final class StoreReceiptRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
         return [
-            'contract_id' => ['required', 'integer', 'exists:contrato,ID_Contrato'],
+            // Un contrato archivado no admite recibos nuevos.
+            'contract_id' => ['required', 'integer', Rule::exists('contrato', 'ID_Contrato')->whereNull('archived_at')],
             'payment_method_id' => ['required', 'integer', 'exists:formadepago,ID_FP'],
             'paid_at' => ['required', 'date'],
             'property_amount' => ['required', 'integer', 'min:0'],

@@ -15,13 +15,13 @@ use Illuminate\Http\Response;
  */
 trait HandlesRestrictedDelete
 {
-    private function destroyOrConflict(Model $model, string $conflictMessage): Response|JsonResponse
+    private function destroyOrConflict(Model $model, string $conflictMessage, ?string $code = null): Response|JsonResponse
     {
         try {
             $model->delete();
         } catch (QueryException $e) {
             if (($e->errorInfo[1] ?? null) === 1451) {
-                return response()->json(['message' => $conflictMessage], 409);
+                return response()->json(array_filter(['message' => $conflictMessage, 'code' => $code]), 409);
             }
 
             throw $e;

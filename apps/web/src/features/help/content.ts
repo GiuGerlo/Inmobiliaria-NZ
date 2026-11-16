@@ -115,7 +115,8 @@ export const HELP: Record<string, PageHelp> = {
     purpose: 'Los contratos de alquiler: qué propiedad, de qué dueño, a qué inquilino y por cuánto tiempo.',
     actions: [
       'Cargar un contrato con "Nuevo contrato".',
-      'Editar o borrar un contrato desde los tres puntitos.',
+      'Editar, archivar o borrar un contrato desde los tres puntitos.',
+      'Ver los contratos archivados con el botón "Archivados" (y reactivarlos).',
       'Filtrar por fechas o por certificación con "Filtros".',
     ],
     examples: [
@@ -129,8 +130,20 @@ export const HELP: Record<string, PageHelp> = {
           'Tocá "Crear".',
         ],
       },
+      {
+        title: 'Sacar de la lista un contrato que ya terminó',
+        steps: [
+          'Tocá los tres puntitos del contrato → "Archivar".',
+          'Deja de aparecer para elegir en recibos, en el inicio y en recordatorios.',
+          'Sus recibos viejos se conservan y se siguen viendo en "Recibos".',
+          'Si te equivocaste, andá a "Archivados" → tres puntitos → "Reactivar".',
+        ],
+      },
     ],
-    tips: ['Orden para cargar algo nuevo: dueño → inquilino → propiedad → contrato → recibo.'],
+    tips: [
+      'Orden para cargar algo nuevo: dueño → inquilino → propiedad → contrato → recibo.',
+      'Eliminar es solo para contratos cargados por error (sin recibos). Si ya tiene recibos, archivalo.',
+    ],
   },
 
   '/propiedades': {
@@ -275,6 +288,31 @@ export const HELP: Record<string, PageHelp> = {
       },
     ],
     tips: ['Si alguien dejó la sesión abierta en otra compu, usá "Revocar todas las sesiones".'],
+  },
+
+  '/auditoria': {
+    title: 'Auditoría',
+    purpose:
+      'Un registro de todo lo que pasa en el sistema: quién cargó, cambió o borró algo, quién entró, y qué se mandó por WhatsApp o se abrió en PDF.',
+    actions: [
+      'Ver cada acción con fecha, usuario y qué registro tocó.',
+      'Filtrar por usuario, tipo de acción, tipo de registro y fechas.',
+      'Tocar el ojito para ver el detalle: cómo estaba antes y cómo quedó.',
+    ],
+    examples: [
+      {
+        title: 'Saber quién cambió un contrato',
+        steps: [
+          'En "Registro" elegí "Contrato".',
+          'Buscá el número de contrato en la lista (o acotá por fechas).',
+          'Tocá el ojito: ves el usuario, la hora y los campos que cambiaron.',
+        ],
+      },
+    ],
+    tips: [
+      '"Sistema" significa que lo hizo un proceso automático, no una persona.',
+      'Los ingresos fallidos muestran el correo con el que se intentó entrar.',
+    ],
   },
 
   '/perfil': {

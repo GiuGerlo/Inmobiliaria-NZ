@@ -62,4 +62,17 @@ describe('LoginPage', () => {
       expect(screen.getByText(/Demasiados intentos/i)).toBeInTheDocument(),
     );
   });
+
+  it('muestra y oculta la contraseña con el ojo', async () => {
+    const user = userEvent.setup();
+    renderLogin();
+    const input = await screen.findByLabelText('Contraseña');
+    expect(input).toHaveAttribute('type', 'password');
+
+    await user.click(screen.getByRole('button', { name: 'Mostrar contraseña' }));
+    expect(input).toHaveAttribute('type', 'text');
+
+    await user.click(screen.getByRole('button', { name: 'Ocultar contraseña' }));
+    expect(input).toHaveAttribute('type', 'password');
+  });
 });

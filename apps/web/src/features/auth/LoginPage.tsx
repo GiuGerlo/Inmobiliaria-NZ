@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { toast } from '@/lib/toast';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -27,6 +27,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const login = useLogin();
+  const [showPassword, setShowPassword] = useState(false);
 
   const from = (location.state as LocationState | null)?.from?.pathname ?? '/';
 
@@ -146,15 +147,28 @@ export function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Contraseña</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        autoComplete="current-password"
-                        placeholder="••••••••"
-                        className="h-11"
-                        {...field}
-                      />
-                    </FormControl>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          placeholder="••••••••"
+                          className="h-11 pr-11"
+                          {...field}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-1/2 right-1 size-9 -translate-y-1/2 text-muted-foreground"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        aria-pressed={showPassword}
+                        onClick={() => setShowPassword((v) => !v)}
+                      >
+                        {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}

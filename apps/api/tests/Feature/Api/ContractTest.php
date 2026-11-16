@@ -105,5 +105,5 @@ it('borra contrato sin recibos y 409 con recibos', function () {
 
     $this->deleteJson("/api/v1/contracts/{$conRecibos->ID_Contrato}")
         ->assertStatus(409)
-        ->assertJsonPath('message', 'No se puede eliminar el contrato: tiene recibos asociados.');
+        ->assertJsonPath('code', 'has_receipts');
 });

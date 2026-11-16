@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 final class Setting extends Model
 {
+    use Auditable;
+
     protected $primaryKey = 'key';
 
     public $incrementing = false;
@@ -22,13 +25,13 @@ final class Setting extends Model
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        $value = static::query()->whereKey($key)->value('value');
+        $value = self::query()->whereKey($key)->value('value');
 
         return $value ?? $default;
     }
 
     public static function set(string $key, ?string $value): void
     {
-        static::query()->updateOrCreate(['key' => $key], ['value' => $value]);
+        self::query()->updateOrCreate(['key' => $key], ['value' => $value]);
     }
 }

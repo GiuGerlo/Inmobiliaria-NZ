@@ -50,6 +50,14 @@ final class ContractController extends Controller
                 AllowedFilter::callback('start_to', function (Builder $query, $value): void {
                     $query->whereDate('F_Inicio', '<=', $value);
                 }),
+                // Default: solo vigentes. 1 = solo archivados. all = todos (filtros sobre histórico).
+                AllowedFilter::callback('archived', function (Builder $query, $value): void {
+                    match ((string) $value) {
+                        'all' => null,
+                        '1' => $query->whereNotNull('archived_at'),
+                        default => $query->whereNull('archived_at'),
+                    };
+                })->default('0'),
             )
             ->allowedSorts(
                 AllowedSort::field('id', 'ID_Contrato'),
@@ -83,11 +91,26 @@ final class ContractController extends Controller
         return new ContractResource($contract);
     }
 
+    public function archive(Contract $contract): ContractResource
+    {
+        $contract->forceFill(['archived_at' => now()])->save();
+
+        return new ContractResource($contract);
+    }
+
+    public function unarchive(Contract $contract): ContractResource
+    {
+        $contract->forceFill(['archived_at' => null])->save();
+
+        return new ContractResource($contract);
+    }
+
     public function destroy(Contract $contract): Response|JsonResponse
     {
         return $this->destroyOrConflict(
             $contract,
-            'No se puede eliminar el contrato: tiene recibos asociados.',
+            'No se puede eliminar el contrato: tiene recibos asociados. Archivalo en su lugar.',
+            'has_receipts',
         );
     }
 }

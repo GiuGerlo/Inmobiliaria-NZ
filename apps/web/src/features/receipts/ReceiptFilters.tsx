@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { EntityCombobox } from '@/components/form/EntityCombobox';
-import { fetchContractOptions } from '@/features/contracts/api';
+import { fetchAllContractOptions } from '@/features/contracts/api';
 import { fetchPaymentMethodOptions } from '@/features/payment-methods/api';
 import { MONTHS } from './schema';
 import { emptyReceiptFilters, type ReceiptFilters as Filters } from './types';
@@ -67,7 +67,7 @@ export function ReceiptFilters({ filters, onChange }: ReceiptFiltersProps) {
             name="contracts"
             value={filters.contractId}
             onChange={(v) => onChange({ ...filters, contractId: v })}
-            fetchOptions={fetchContractOptions}
+            fetchOptions={fetchAllContractOptions}
             placeholder="Todos"
             searchPlaceholder="Buscar contrato…"
             emptyMessage="Sin resultados."

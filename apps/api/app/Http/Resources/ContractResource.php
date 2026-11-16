@@ -27,6 +27,7 @@ final class ContractResource extends JsonResource
             'end_date' => $this->resource->F_Fin?->toDateString(),
             'balance' => (int) $this->resource->Saldo,
             'certification' => $this->resource->Certificacion,
+            'archived_at' => $this->resource->archived_at?->toIso8601String(),
             'owner' => new OwnerResource($this->whenLoaded('owner')),
             'tenant' => new TenantResource($this->whenLoaded('tenant')),
             'property' => new PropertyResource($this->whenLoaded('property')),

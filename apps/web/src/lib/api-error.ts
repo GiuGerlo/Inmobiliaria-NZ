@@ -15,6 +15,11 @@ export function errorStatus(error: unknown): number | undefined {
   return error instanceof AxiosError ? error.response?.status : undefined;
 }
 
+/** `code` de negocio que manda el backend junto al mensaje (ej. `has_receipts`). */
+export function errorCode(error: unknown): string | undefined {
+  return error instanceof AxiosError ? (error.response?.data as { code?: string })?.code : undefined;
+}
+
 /** Mensaje legible para mostrar en un toast. Usa el `message` del backend si existe. */
 export function errorMessage(error: unknown, fallback = 'Ocurrió un error inesperado.'): string {
   if (error instanceof AxiosError) {

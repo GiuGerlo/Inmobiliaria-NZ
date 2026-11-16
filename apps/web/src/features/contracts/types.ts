@@ -13,6 +13,7 @@ export type Contract = {
   end_date: string;
   balance: number;
   certification: Certification;
+  archived_at?: string | null;
   owner?: Owner;
   tenant?: Tenant;
   property?: Property;
@@ -31,6 +32,8 @@ export type ContractInput = {
 export type ContractListParams = {
   page: number;
   perPage: number;
+  /** Default (undefined) = solo vigentes. */
+  archived?: '1' | 'all';
   sort?: string;
   certification?: Certification;
   ownerId?: number;
