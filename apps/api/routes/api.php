@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -85,6 +86,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/properties/{property}/photo', [PropertyPhotoController::class, 'store']);
         Route::delete('/properties/{property}/photo', [PropertyPhotoController::class, 'destroy']);
         Route::apiResource('contracts', ContractController::class);
+        Route::post('/contracts/{contract}/archive', [ContractController::class, 'archive']);
+        Route::delete('/contracts/{contract}/archive', [ContractController::class, 'unarchive']);
         Route::apiResource('receipts', ReceiptController::class);
 
         // PDFs de recibos (sub-F): se abren inline en pestaña nueva.
@@ -108,6 +111,9 @@ Route::prefix('v1')->group(function () {
         // Reporte mensual de pagos (pagados / no pagados) por mes+año.
         Route::get('/reports/monthly-payments', MonthlyPaymentsReportController::class);
         Route::apiResource('payment-methods', PaymentMethodController::class);
+
+        // ── Auditoría: solo superadmin, solo lectura ──
+        Route::get('audit-logs', [AuditLogController::class, 'index'])->middleware('can:view-audit');
 
         // ── Usuarios: solo superadmin (gate manage-users) ──
         Route::middleware('can:manage-users')->group(function () {

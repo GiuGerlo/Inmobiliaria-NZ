@@ -31,6 +31,7 @@ Reescribir la app PHP legacy a una arquitectura moderna sin perder funcionalidad
 | **L** | Robustez en producción | 🟢 DONE 2026-08-04 | K | Sentry error monitoring (backend + frontend), React Error Boundaries en dos niveles, lazy loading de 14 rutas con React.lazy + Suspense. |
 | **M** | WhatsApp coexistencia (número real de Nadina) | 🟢 DONE 2026-11-15 | I, J | Número `+54 9 3468 61-5552` conectado en **coexistencia** (app WhatsApp Business + Cloud API) vía Embedded Signup **v5** (phone-number-first), portafolio cliente propio "Estudio Jurídico Inmobiliario Zaranich". Sync 24 hs OK, webhooks suscritos, token de negocio sin vencimiento en `.env` prod, 4 plantillas recreadas y **APPROVED** (2026-11-15); envío real con plantilla + simulación completa en prod OK (recibo, rendición, recordatorios). Seguridad Meta: 2FA obligatoria en portafolios, JS SDK apagado, config vieja borrada. Incluye baja del login MD5 + drop `users.Pass_User`. |
 | **N** | Usabilidad del admin + estados de entrega WhatsApp | 🟢 DONE 2026-11-15 | M | Recordatorio de pago preselecciona solo inquilinos sin recibo del mes; nuevo recibo precarga fecha/mes/año + alquiler y forma de pago del último recibo; tilde de "enviado" por documento; estados entregado/leído/falló vía webhook `messages`; `whatsapp:test` completo en historial; ayuda por página; `.htaccess` 302 del legacy al admin nuevo (activo). Spec `docs/superpowers/specs/2026-11-15-sub-N-usabilidad-design.md`. |
+| **O** | Archivar contratos + Auditoría | 🟢 DONE 2026-11-16 | N | `contrato.archived_at` manual (Archivar/Reactivar): el archivado no aparece para elegir en ningún lado (contratos, nuevo recibo, inicio, recordatorios, listado mensual) pero conserva sus recibos (histórico + filtro de Recibos); eliminar solo sin recibos. Panel `/auditoria` solo superadmin: altas/cambios/bajas con antes/después, login/logout/fallidos, envíos WhatsApp y PDFs, con usuario/IP/fecha (ADR-0011). Spec `docs/superpowers/specs/2026-11-16-sub-O-contratos-auditoria-design.md`. |
 
 Leyenda: 🟢 DONE — 🟡 en progreso — ⚪ pendiente — 🔴 bloqueado — ➡️ movida/absorbida.
 
@@ -101,3 +102,6 @@ Estas se resuelven cuando empieza la fase que las necesita, no antes.
   → se borraron solo los datos de prueba + 9 `whatsapp_messages` de test y se reiniciaron AUTO_INCREMENT (próximo recibo #930);
   backup `backups/manual/nz_prod-pre-limpieza-prueba-20261115-220957.sql.gz`; `legacy:check-orphans` OK. Desde hoy el sistema
   nuevo es la única fuente. Pendiente: decidir renovación de `nz-administracion.net` (vence 2026-12-10) para que el redirect siga.
+- **2026-11-16** — **sub-O: archivar contratos + auditoría.** Nadina no podía borrar contratos vencidos (409 por
+  recibos, correcto: son histórico). Ahora se archivan a mano y desaparecen de toda selección, conservando sus
+  recibos. En la misma fase: panel de auditoría para el superadmin (tabla propia `audit_logs`, ADR-0011).

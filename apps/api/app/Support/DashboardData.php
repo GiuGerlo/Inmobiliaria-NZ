@@ -100,6 +100,7 @@ final class DashboardData
     public function contractsWithBalance(): Collection
     {
         return Contract::query()
+            ->notArchived()
             ->where('Saldo', '>', 0)
             ->with(['owner', 'tenant', 'property'])
             ->orderByDesc('Saldo')

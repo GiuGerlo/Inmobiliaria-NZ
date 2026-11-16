@@ -42,6 +42,7 @@ final class MonthlyPaymentsReport
     public function unpaid(): Collection
     {
         return Contract::query()
+            ->notArchived()
             ->with(['tenant', 'owner', 'property'])
             ->whereDoesntHave('receipts', function ($query): void {
                 $query->where('Mes_Rend', $this->month)->where('Ano_Rend', $this->year);

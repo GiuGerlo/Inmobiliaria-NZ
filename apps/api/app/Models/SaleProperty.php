@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Database\Factories\SalePropertyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,8 @@ use Illuminate\Support\Str;
 
 final class SaleProperty extends Model
 {
+    use Auditable;
+
     /** @use HasFactory<SalePropertyFactory> */
     use HasFactory;
 

@@ -78,4 +78,36 @@ describe('ContractsPage', () => {
 
     expect(await screen.findByText(/tiene recibos asociados/i)).toBeInTheDocument();
   });
+
+  it('si no se puede borrar por recibos ofrece archivar, y el archivado pasa a "Archivados"', async () => {
+    server.use(
+      http.delete(`${API}/contracts/:id`, () =>
+        HttpResponse.json({ message: 'Tiene recibos.', code: 'has_receipts' }, { status: 409 }),
+      ),
+    );
+    const user = userEvent.setup();
+    renderWithProviders(<ContractsPage />);
+    await screen.findByText('Av. Pellegrini 1234');
+
+    await user.click(screen.getByRole('button', { name: 'Acciones del contrato #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: /Eliminar/i }));
+    const deleteDialog = await screen.findByRole('dialog');
+    await user.click(within(deleteDialog).getByRole('button', { name: 'Eliminar' }));
+    await user.click(within(deleteDialog).getByRole('button', { name: /Sí, eliminar/i }));
+
+    const archiveDialog = await screen.findByRole('dialog', { name: 'Archivar contrato' });
+    await user.click(within(archiveDialog).getByRole('button', { name: 'Archivar' }));
+
+    expect(await screen.findByText('Contrato archivado.')).toBeInTheDocument();
+    expect(await screen.findByText('1 resultado')).toBeInTheDocument();
+    expect(screen.queryByText('Av. Pellegrini 1234')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Archivados' }));
+    expect(await screen.findByText('Av. Pellegrini 1234')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Acciones del contrato #1' }));
+    await user.click(await screen.findByRole('menuitem', { name: /Reactivar/i }));
+    expect(await screen.findByText('Contrato reactivado.')).toBeInTheDocument();
+    expect(await screen.findByText('No hay contratos archivados.')).toBeInTheDocument();
+  });
 });

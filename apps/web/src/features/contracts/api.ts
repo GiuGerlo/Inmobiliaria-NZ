@@ -11,6 +11,7 @@ function buildParams(params: ContractListParams): Record<string, string | number
     include: INCLUDE,
   };
   if (params.sort) query.sort = params.sort;
+  if (params.archived) query['filter[archived]'] = params.archived;
   if (params.certification) query['filter[certification]'] = params.certification;
   if (params.ownerId) query['filter[owner_id]'] = params.ownerId;
   if (params.tenantId) query['filter[tenant_id]'] = params.tenantId;
@@ -38,9 +39,22 @@ export async function deleteContract(id: number): Promise<void> {
   await api.delete(`/contracts/${id}`);
 }
 
-/** Opciones para el EntityCombobox de contrato (value = id, label = "Dueño - Inquilino", espejo del legacy). */
-export async function fetchContractOptions(query: string) {
-  const { data } = await listContracts({ page: 1, perPage: 20 });
+export async function archiveContract(id: number): Promise<Contract> {
+  const { data } = await api.post<{ data: Contract }>(`/contracts/${id}/archive`);
+  return data.data;
+}
+
+export async function unarchiveContract(id: number): Promise<Contract> {
+  const { data } = await api.delete<{ data: Contract }>(`/contracts/${id}/archive`);
+  return data.data;
+}
+
+/**
+ * Opciones para el EntityCombobox de contrato (value = id, label = "Dueño - Inquilino", espejo del legacy).
+ * Solo vigentes; para filtrar sobre el histórico usar fetchAllContractOptions.
+ */
+export async function fetchContractOptions(query: string, archived?: 'all') {
+  const { data } = await listContracts({ page: 1, perPage: 20, archived });
   const q = query.toLowerCase();
   return data
     .filter(
@@ -55,4 +69,9 @@ export async function fetchContractOptions(query: string) {
       value: c.id,
       label: `${c.owner?.name ?? 'Dueño'} - ${c.tenant?.name ?? 'Inquilino'}`,
     }));
+}
+
+/** Incluye archivados: para filtrar recibos viejos (histórico). */
+export function fetchAllContractOptions(query: string) {
+  return fetchContractOptions(query, 'all');
 }

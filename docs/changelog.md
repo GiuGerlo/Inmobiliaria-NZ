@@ -2,6 +2,30 @@
 
 Historial de cambios por fase. Más reciente arriba.
 
+## [2026-11-16] sub-O — Archivar contratos + Auditoría
+
+**Resumen**: los contratos que terminaron se archivan en vez de borrarse: salen de toda selección pero
+conservan sus recibos (histórico). Nuevo panel de auditoría para el superadmin: quién hizo qué y cuándo.
+
+**Cambios**:
+- `contrato.archived_at` + endpoints `POST|DELETE /api/v1/contracts/{id}/archive`.
+- Un archivado no es "activo": fuera del inicio (totales, por vencer, pendientes, saldo), de la preselección de
+  recordatorios, del listado mensual de impagos y del selector de nuevo recibo (el backend también lo rechaza).
+- `GET /contracts` muestra solo vigentes por defecto; `filter[archived]=1` archivados, `all` todos (filtro de Recibos).
+- Contratos: botones "Vigentes / Archivados", acciones Archivar / Reactivar. Borrar con recibos responde 409
+  `code: has_receipts` y la pantalla ofrece archivar.
+- Ayuda de Contratos actualizada.
+- Auditoría (ADR-0011): tabla `audit_logs` + trait `Auditable` en los modelos de dominio, usuarios y settings
+  (alta/modificación/baja con antes→después, sin passwords); ingresos, salidas e ingresos fallidos (solo email);
+  envíos por WhatsApp (recibo, rendición, recordatorios); PDFs de recibo y rendición.
+- `GET /api/v1/audit-logs` (solo superadmin, gate `view-audit`) con filtros por usuario, acción, registro y fechas.
+- Admin: menú "Auditoría" (`/auditoria`, solo superadmin) con filtros, detalle antes/después + IP, botón
+  "Actualizar" (y datos frescos al entrar); ayuda.
+- Login: botón de ojo para mostrar/ocultar la contraseña.
+
+**Breaking**: `GET /contracts` sin filtro ya no devuelve archivados.
+**Migración**: `php artisan migrate` (columna `contrato.archived_at` + tabla `audit_logs`).
+
 ## [2026-11-15] sub-N — Usabilidad del admin + estados de entrega WhatsApp
 
 **Resumen**: mejoras surgidas de la simulación en prod: recordatorios más seguros y claros, nuevo

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Contract extends Model
 {
+    use Auditable;
     use HasFactory;
 
     protected $table = 'contrato';
@@ -36,12 +38,13 @@ final class Contract extends Model
             'F_Inicio' => 'date',
             'F_Fin' => 'date',
             'Saldo' => 'decimal:0',
+            'archived_at' => 'datetime',
         ];
     }
 
     /**
      * Contratos vigentes hoy: ya empezaron y todavía no terminaron.
-     * Un F_Fin null se considera sin vencimiento → activo.
+     * Un F_Fin null se considera sin vencimiento → activo. Un archivado nunca es activo.
      *
      * @param  Builder<Contract>  $query
      * @return Builder<Contract>
@@ -51,10 +54,22 @@ final class Contract extends Model
         $today = now()->toDateString();
 
         return $query
+            ->whereNull('archived_at')
             ->where('F_Inicio', '<=', $today)
             ->where(function (Builder $q) use ($today): void {
                 $q->whereNull('F_Fin')->orWhere('F_Fin', '>=', $today);
             });
+    }
+
+    /**
+     * Archivado = fuera de circulación (no se elige en ningún lado), pero se conserva por sus recibos.
+     *
+     * @param  Builder<Contract>  $query
+     * @return Builder<Contract>
+     */
+    public function scopeNotArchived(Builder $query): Builder
+    {
+        return $query->whereNull('archived_at');
     }
 
     public function owner(): BelongsTo

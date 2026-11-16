@@ -474,7 +474,9 @@ export const handlers = [
     const tenantId = sp.get('filter[tenant_id]');
     const startFrom = sp.get('filter[start_from]');
     const startTo = sp.get('filter[start_to]');
+    const archived = sp.get('filter[archived]');
     let filtered = contracts;
+    if (archived !== 'all') filtered = filtered.filter((c) => !!c.archived_at === (archived === '1'));
     if (cert) filtered = filtered.filter((c) => c.certification === cert);
     if (ownerId) filtered = filtered.filter((c) => c.owner_id === Number(ownerId));
     if (tenantId) filtered = filtered.filter((c) => c.tenant_id === Number(tenantId));
@@ -502,6 +504,15 @@ export const handlers = [
     contracts = contracts.filter((c) => c.id !== Number(params.id));
     return new HttpResponse(null, { status: 204 });
   }),
+
+  ...(['post', 'delete'] as const).map((method) =>
+    http[method](`${API}/contracts/:id/archive`, ({ params }) => {
+      const id = Number(params.id);
+      const archived_at = method === 'post' ? '2026-11-16T10:00:00-03:00' : null;
+      contracts = contracts.map((c) => (c.id === id ? { ...c, archived_at } : c));
+      return HttpResponse.json({ data: contracts.find((c) => c.id === id) });
+    }),
+  ),
 
   http.get(`${API}/receipts`, ({ request }) => {
     const sp = new URL(request.url).searchParams;

@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,9 +15,16 @@ import type { Contract } from './types';
 type ContractActions = {
   onEdit: (contract: Contract) => void;
   onDelete: (contract: Contract) => void;
+  onArchive: (contract: Contract) => void;
+  onUnarchive: (contract: Contract) => void;
 };
 
-export function buildContractColumns({ onEdit, onDelete }: ContractActions): ColumnDef<Contract>[] {
+export function buildContractColumns({
+  onEdit,
+  onDelete,
+  onArchive,
+  onUnarchive,
+}: ContractActions): ColumnDef<Contract>[] {
   return [
     {
       id: 'property',
@@ -78,10 +85,23 @@ export function buildContractColumns({ onEdit, onDelete }: ContractActions): Col
                   <Pencil className="size-4" />
                   Editar
                 </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" onSelect={() => onDelete(contract)}>
-                  <Trash2 className="size-4" />
-                  Eliminar
-                </DropdownMenuItem>
+                {contract.archived_at ? (
+                  <DropdownMenuItem onSelect={() => onUnarchive(contract)}>
+                    <ArchiveRestore className="size-4" />
+                    Reactivar
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem onSelect={() => onArchive(contract)}>
+                      <Archive className="size-4" />
+                      Archivar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem variant="destructive" onSelect={() => onDelete(contract)}>
+                      <Trash2 className="size-4" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
